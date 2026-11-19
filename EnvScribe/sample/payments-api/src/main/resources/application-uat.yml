@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://db-uat.corp.acme.com:5432/payments
+    password: Sup3rS3cretUat99
+payments:
+  gateway:
+    timeout: 30
+    host: 10.20.30.40

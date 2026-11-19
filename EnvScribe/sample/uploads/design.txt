@@ -1,0 +1,1 @@
+payments-api design note: the Payment schema carries the customer email and is persisted in table payments.

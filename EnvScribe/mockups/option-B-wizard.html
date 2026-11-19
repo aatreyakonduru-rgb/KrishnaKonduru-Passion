@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>EnvScribe - Option B (Guided wizard)</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:14px/1.45 Segoe UI,Arial,sans-serif;background:#12161c;color:#e6e9ee}
+header{padding:16px 32px;border-bottom:1px solid #262d38;display:flex;justify-content:space-between;align-items:center}
+header b{font-size:18px}.banner{background:#3a3115;color:#ffd866;padding:5px 32px;font-size:12px}
+.steps{display:flex;gap:0;padding:22px 32px;max-width:980px;margin:auto}
+.step{flex:1;text-align:center;cursor:pointer;color:#7d8794;position:relative}
+.step i{display:inline-block;width:34px;height:34px;line-height:34px;border-radius:50%;background:#262d38;font-style:normal;font-weight:700}
+.step.on{color:#fff}.step.on i{background:#3b82f6}.step.done i{background:#22a06b;color:#fff}.step small{display:block;margin-top:4px}
+.step:not(:last-child):after{content:"";position:absolute;top:17px;left:calc(50% + 24px);width:calc(100% - 48px);height:2px;background:#262d38}
+.panel{max-width:980px;margin:0 auto;padding:0 32px 40px}.view{display:none}.view.on{display:block}
+.card{background:#1b2129;border:1px solid #262d38;border-radius:10px;padding:20px;margin-bottom:16px}
+h2{margin:0 0 4px}p.sub{color:#8d97a5;margin:0 0 16px}
+label{display:block;font-size:12px;color:#8d97a5;margin:12px 0 4px}
+input,select{width:100%;padding:9px;background:#12161c;color:#e6e9ee;border:1px solid #333d4b;border-radius:6px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.int{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #262d38}.int span.n{flex:1}.int small{color:#8d97a5}
+.pill{padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600}.ok{background:#12372a;color:#5dd39e}.warn{background:#3d3010;color:#ffc857}.bad{background:#42191c;color:#ff7b7b}.mute{background:#2a313c;color:#9aa5b3}
+.big{font-size:44px;font-weight:700;margin:6px 0}.bar{height:14px;background:#262d38;border-radius:7px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#3b82f6,#22d3ee);width:62%}
+.btn{padding:9px 18px;border:0;border-radius:6px;background:#3b82f6;color:#fff;cursor:pointer;margin-right:8px}.btn.g{background:#2a313c}.btn.r{background:#c0392b}
+.log{font:12px Consolas,monospace;background:#0c0f13;border-radius:6px;padding:10px;height:130px;overflow:auto;color:#9fd3a8}
+.chips span{display:inline-block;background:#2a313c;border-radius:12px;padding:3px 10px;margin:2px;font-size:12px}
+.drop{border:2px dashed #3a4656;border-radius:10px;padding:36px;text-align:center;color:#8d97a5}
+.nav{display:flex;justify-content:space-between;margin-top:10px}table{width:100%;border-collapse:collapse}td,th{padding:7px;border-bottom:1px solid #262d38;text-align:left;font-size:13px}th{color:#8d97a5}
+</style></head><body>
+<header><b>EnvScribe <small style="color:#8d97a5;font-weight:400">Option B - Guided wizard</small></b><span class="pill mute">Single user - Devin VM</span></header>
+<div class="banner">MOCKUP with fake data. Nothing here is functional.</div>
+<div class="steps"><div class="step on" data-v="s1"><i>1</i><small>Setup</small></div><div class="step" data-v="s2"><i>2</i><small>Integrations</small></div><div class="step" data-v="s3"><i>3</i><small>Add files</small></div><div class="step" data-v="s4"><i>4</i><small>Run</small></div></div>
+<div class="panel">
+<section class="view on" id="s1"><div class="card"><h2>Where should results go?</h2><p class="sub">Choose scope and output. Credentials are never typed here.</p>
+<div class="row"><div><label>Output folder</label><input value="/home/ubuntu/envscribe-out"></div><div><label>Environments</label><input value="DEV, SIT, UAT"></div>
+<div><label>Repos</label><input value="payments-*, orders-api, core-lib"></div><div><label>Confluence / SharePoint</label><input value="ARCH, PAY / sites/payments-eng"></div>
+<div><label>Max worker sessions</label><input value="4"></div><div><label>Token budget</label><input value="2,000,000"></div></div></div>
+<div class="nav"><span></span><button class="btn" onclick="go('s2')">Next: Integrations</button></div></section>
+
+<section class="view" id="s2"><div class="card"><h2>We found these accounts</h2><p class="sub">Approve only what EnvScribe may read from. Values stay hidden.</p>
+<div class="int"><span class="n">Bitbucket Cloud <small>BITBUCKET_*</small></span><span class="pill ok">read-only</span><input type="checkbox" checked style="width:auto"></div>
+<div class="int"><span class="n">Jira Cloud <small>JIRA_*</small></span><span class="pill ok">read-only</span><input type="checkbox" checked style="width:auto"></div>
+<div class="int"><span class="n">Confluence Cloud <small>CONFLUENCE_*</small></span><span class="pill ok">read-only</span><input type="checkbox" checked style="width:auto"></div>
+<div class="int"><span class="n">Artifactory <small>ARTIFACTORY_*</small></span><span class="pill warn">has write scopes - will not be used</span><input type="checkbox" checked style="width:auto"></div>
+<div class="int"><span class="n">SonarQube <small>SONAR_*</small></span><span class="pill bad">failed 401</span><input type="checkbox" disabled style="width:auto"></div>
+<div class="int"><span class="n">Snowflake <small>SNOWFLAKE_*</small></span><span class="pill warn">auth method needed</span><input type="checkbox" style="width:auto"></div>
+<div class="int"><span class="n">ACME_TOKEN <small>unrecognized</small></span><span class="pill mute">report only</span><span></span></div></div>
+<div class="nav"><button class="btn g" onclick="go('s1')">Back</button><button class="btn" onclick="go('s3')">Next: Add files</button></div></section>
+
+<section class="view" id="s3"><div class="card"><h2>Add documents (optional)</h2><p class="sub">Only files related to applications found in code are read. Speakers are removed from transcripts.</p>
+<div class="drop"><b>Drop files here</b><br>PDF (with OCR), DOCX, XLSX, PPTX, drawio, vsdx, VTT</div>
+<label>Relates to</label><select><option>Auto-match, ask me if nothing matches</option><option>payments-api</option></select>
+<table style="margin-top:14px"><tr><th>File</th><th>Result</th></tr><tr><td>payments-design.pdf</td><td><span class="pill ok">matched payments-api</span></td></tr><tr><td>offsite.pptx</td><td><span class="pill warn">no match - read anyway?</span></td></tr><tr><td>macro.xlsm</td><td><span class="pill bad">quarantined</span></td></tr></table></div>
+<div class="nav"><button class="btn g" onclick="go('s2')">Back</button><button class="btn" onclick="go('s4')">Next: Run</button></div></section>
+
+<section class="view" id="s4"><div class="card"><h2>Crawl in progress</h2><p class="sub">Currently reading <b>payments-api / src/main/java/...</b></p>
+<div class="big">62%</div><div class="bar"><i></i></div>
+<p class="chips"><span>18,412 done</span><span>1,903 skipped</span><span>7 failed</span><span>4 of 4 workers busy</span><span>1.1M / 2M tokens</span><span>as of 2026-11-19T04:30Z</span></p>
+<div class="log">04:30:12 pkg-0012 payments-api: parsed 412/880 files<br>04:30:10 pkg-0013 orders-api: found 14 OpenAPI contracts<br>04:30:04 pkg-0011 core-lib: retry 1 (worker timeout)<br>04:29:51 pkg-0009 chunk merged (Confluence ARCH, 230 pages)<br>04:29:40 skipped Q3-offsite.pdf (not related to any application)</div><br>
+<button class="btn g">Pause</button><button class="btn g">Resume from progress file</button><button class="btn r">Cancel</button><button class="btn">Download zip</button></div></section>
+</div>
+<script>function go(id){document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));document.getElementById(id).classList.add('on');const ids=['s1','s2','s3','s4'];document.querySelectorAll('.step').forEach((s,i)=>{s.classList.remove('on','done');if(s.dataset.v===id)s.classList.add('on');else if(i<ids.indexOf(id))s.classList.add('done')})}
+document.querySelectorAll('.step').forEach(s=>s.onclick=()=>go(s.dataset.v))</script>
+</body></html>

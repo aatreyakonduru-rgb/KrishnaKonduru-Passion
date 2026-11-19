@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://db-sit.corp.acme.com:5432/payments
+payments:
+  gateway:
+    timeout: 10

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>EnvScribe</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:13px/1.4 Segoe UI,Arial,sans-serif;background:#0b1220;color:#d7deea;height:100vh;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:12px;padding:10px 18px;background:#111a2e;border-bottom:1px solid #1e2b47}.top b{font-size:16px}.sp{flex:1}
+.btn{padding:6px 14px;border:0;border-radius:4px;background:#2563eb;color:#fff;cursor:pointer}.btn.g{background:#1e2b47;color:#c7d2e6}.btn.r{background:#b42318}.btn[disabled]{background:#1e2b47;color:#5b6b88;cursor:not-allowed}
+.main{flex:1;display:grid;grid-template-columns:1fr 340px;gap:12px;padding:12px;min-height:0}
+.col{display:flex;flex-direction:column;gap:12px;min-height:0;overflow:auto}
+.card{background:#111a2e;border:1px solid #1e2b47;border-radius:8px;padding:12px}
+.kpis{display:flex;gap:10px;margin:10px 0}.kpi{flex:1;background:#0b1220;border-radius:6px;padding:8px 10px}.kpi b{font-size:20px;display:block}.kpi span{color:#7f8fab;font-size:11px}
+.bar{height:12px;background:#1e2b47;border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#2563eb,#06b6d4);transition:width .4s}
+.stages{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}.stages div{flex:1;min-width:90px;text-align:center;padding:5px 2px;border-radius:4px;background:#1e2b47;font-size:11px;color:#7f8fab}
+.stages .done{background:#0f3d2e;color:#5dd39e}.stages .running{background:#1d3a8a;color:#fff}.stages .findings,.stages .blocked{background:#4c1d1d;color:#ff8a8a}
+table{width:100%;border-collapse:collapse}td,th{padding:5px 6px;border-bottom:1px solid #1e2b47;text-align:left;vertical-align:top}th{color:#7f8fab;font-weight:600}
+.pill{padding:1px 8px;border-radius:9px;font-size:10px;font-weight:700;white-space:nowrap}.ok{background:#0f3d2e;color:#5dd39e}.warn{background:#4a3a0c;color:#fbbf24}.bad{background:#4c1d1d;color:#ff8a8a}.mute{background:#1e2b47;color:#9fb0cc}.run{background:#1d3a8a;color:#bcd2ff}
+.gate{border-color:#4a3a0c}.gate.open{border-color:#0f3d2e}.sw{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chk{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid #16213a;font-size:12px}
+label{display:block;color:#7f8fab;font-size:11px;margin:9px 0 3px}input,select,textarea{width:100%;padding:6px;background:#0b1220;color:#d7deea;border:1px solid #28375a;border-radius:4px;font:inherit}
+.tabs{display:flex;border-bottom:1px solid #1e2b47}.tabs a{flex:1;text-align:center;padding:9px 4px;cursor:pointer;color:#7f8fab;border-bottom:2px solid transparent}.tabs a.on{color:#fff;border-bottom-color:#2563eb}
+.pane{display:none;padding:12px}.pane.on{display:block}.drop{border:2px dashed #28375a;border-radius:6px;padding:22px;text-align:center;color:#7f8fab;margin-bottom:8px}.drop.over{border-color:#2563eb}
+.feed{font:11px Consolas,monospace;color:#8fd6a0;background:#070c16;border-radius:4px;padding:8px;max-height:150px;overflow:auto}code{background:#1e2b47;padding:0 4px;border-radius:3px}
+.side{background:#111a2e;border:1px solid #1e2b47;border-radius:8px;overflow:auto}small{color:#7f8fab}
+</style></head><body>
+<div class="top"><b>EnvScribe</b><span class="pill mute" id="runid">no run</span><span class="sp"></span><span>As of <b id="asof">-</b></span>
+<button class="btn g" id="bPause">Pause</button><button class="btn g" id="bResume">Resume</button><button class="btn r" id="bCancel">Cancel</button><button class="btn" id="bZip" disabled>Download zip</button><a class="btn g" href="/viewer" style="text-decoration:none">Viewer</a><button class="btn r" id="bExit">Exit</button></div>
+<div class="main"><div class="col">
+ <div class="card"><b id="title">Idle</b> <span class="pill mute" id="st">idle</span> <button class="btn" id="bStart" style="float:right">Start run</button><button class="btn g" id="bEst" style="float:right;margin-right:6px">Dry-run estimate</button>
+  <div id="est" style="margin-top:6px;color:#7f8fab"></div>
+  <div class="kpis"><div class="kpi"><b id="k1">0/0</b><span>packages merged</span></div><div class="kpi"><b id="k2">0</b><span>units done</span></div><div class="kpi"><b id="k3">0</b><span>skipped</span></div><div class="kpi"><b id="k4">0</b><span>failed</span></div><div class="kpi"><b id="k5">0</b><span>tokens (budget: <span id="bud">-</span>)</span></div><div class="kpi"><b id="k6">0</b><span>blocking findings</span></div></div>
+  <div class="bar"><i id="pb"></i></div><div class="stages" id="stages"></div></div>
+ <div class="card gate" id="gate"><b>Zip gate:</b> <span id="gtxt">no run yet</span></div>
+ <div class="sw"><div class="card"><b>Privacy &amp; security sweep</b> <span class="pill mute" id="swp">queued</span><div id="chkP"></div></div>
+  <div class="card"><b>Credential &amp; secret sweep</b> <span class="pill mute" id="sws">queued</span><div id="chkS"></div></div></div>
+ <div class="card"><b>Findings</b> <small>(type and location only; values are never shown)</small><table id="find"><tr><th>Type</th><th>File</th><th>Line</th></tr></table></div>
+ <div class="card"><b>Worker sessions</b><table id="workers"><tr><th>Package</th><th>Scope</th><th>Status</th><th>Units</th><th>Started</th></tr></table></div>
+ <div class="card"><b>Activity</b><div class="feed" id="feed"></div></div>
+</div>
+<div class="side"><div class="tabs"><a class="on" data-p="p1">Setup</a><a data-p="p2">Integrations</a><a data-p="p3">Upload</a><a data-p="p4">Ask</a></div>
+<div class="pane on" id="p1"></div><div class="pane" id="p2"></div>
+<div class="pane" id="p3"><div class="drop" id="drop">Drop files here or <a href="#" id="pick" style="color:#7fb0ff">browse</a><br><small>PDF (OCR if scanned), DOCX, XLSX, PPTX, drawio, vsdx, VTT/TXT transcripts. Images, video and audio are not read.</small></div><input type="file" id="fi" multiple style="display:none"><table id="ups"></table></div>
+<div class="pane" id="p4"><label>Ask the journal (answers cite facts or say "not found")</label><input id="q" placeholder="e.g. which tables does payments-api reference?"><button class="btn" id="bAsk" style="margin-top:6px">Ask</button><pre id="ans" style="white-space:pre-wrap;color:#c7d2e6"></pre></div></div></div>
+<script>
+const $=id=>document.getElementById(id),api=(p,o)=>fetch(p,o).then(r=>r.ok?r.json():r.json().then(e=>{throw e}));
+const STAGES=["inventory","code-build-config","documents","connectors","collate","journal","privacy-sweep","secret-sweep","seal-zip","verify-zip"];
+const LABEL={"inventory":"Inventory","code-build-config":"Code, build & config","documents":"Documents","connectors":"Connectors","collate":"Collate","journal":"Journal","privacy-sweep":"Privacy sweep","secret-sweep":"Secret sweep","seal-zip":"Seal & zip","verify-zip":"Verify zip"};
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pill=(t,c)=>`<span class="pill ${c}">${esc(t)}</span>`;
+document.querySelectorAll('.tabs a').forEach(a=>a.onclick=()=>{document.querySelectorAll('.tabs a').forEach(x=>x.classList.remove('on'));a.classList.add('on');document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));$(a.dataset.p).classList.add('on')});
+function chk(el,checks,running){el.innerHTML=Object.entries(checks||{}).map(([k,v])=>`<div class="chk"><span>${esc(k)}</span>${pill(v,v=="pass"?"ok":"bad")}</div>`).join("")||"<small>pending</small>"}
+async function poll(){try{const s=await api('/api/run/status');
+ $('runid').textContent=s.run_id||'no run';$('st').textContent=s.status;$('title').textContent=s.status=='running'?('Running: '+(s.stage||'')):s.status;
+ const c=s.counters||{};$('k1').textContent=`${c.packages_done||0}/${c.packages||0}`;$('k2').textContent=c.units_done||0;$('k3').textContent=c.skipped||0;$('k4').textContent=c.failed||0;$('k5').textContent=c.tokens||0;
+ const sw=s.sweeps;$('k6').textContent=sw&&sw.blocking?sw.blocking.length:0;
+ const done=STAGES.filter(x=>(s.stages||{})[x]=='done').length;$('pb').style.width=(done/STAGES.length*100)+'%';
+ $('stages').innerHTML=STAGES.map(x=>`<div class="${(s.stages||{})[x]||''}">${LABEL[x]}</div>`).join('');
+ $('asof').textContent=s.as_of?s.as_of.collated_at:'-';
+ const g=s.gate||{};$('gate').className='card gate'+(g.open?' open':'');$('gtxt').textContent=(g.open?'OPEN - ':'BLOCKED - ')+(g.reason||'');$('bZip').disabled=!g.open;
+ if(sw){chk($('chkP'),sw.privacy&&sw.privacy.checks);chk($('chkS'),sw.secret&&sw.secret.checks);
+  $('swp').textContent=sw.privacy&&sw.privacy.findings?sw.privacy.findings+' findings':'clean';$('swp').className='pill '+(sw.privacy&&sw.privacy.findings?'bad':'ok');
+  $('sws').textContent=sw.secret&&sw.secret.findings?sw.secret.findings+' findings':'clean';$('sws').className='pill '+(sw.secret&&sw.secret.findings?'bad':'ok');
+  $('find').innerHTML='<tr><th>Type</th><th>File</th><th>Line</th></tr>'+(sw.blocking||[]).slice(0,100).map(f=>`<tr><td>${esc(f.type)}</td><td><code>${esc(f.file)}</code></td><td>${f.line||'-'}</td></tr>`).join('')}
+ $('workers').innerHTML='<tr><th>Package</th><th>Scope</th><th>Status</th><th>Units</th><th>Started</th></tr>'+(s.workers||[]).slice(-40).map(w=>`<tr><td>${esc(w.package)}</td><td>${esc(w.scope)}</td><td>${pill(w.status,w.status=='failed'?'bad':w.status=='running'?'run':'ok')}</td><td>${esc(w.units)}</td><td>${esc(w.started)}</td></tr>`).join('');
+ $('feed').innerHTML=(s.events||[]).slice(-40).reverse().map(e=>esc(e.ts.slice(11,19)+' '+e.kind+' '+(e.stage||e.file||e.package||'')+' '+(e.status||''))).join('<br>');
+}catch(e){}}
+setInterval(poll,1000);poll();
+$('bStart').onclick=()=>api('/api/run/start',{method:'POST'}).catch(e=>alert(e.detail));
+$('bPause').onclick=()=>api('/api/run/pause',{method:'POST'});$('bResume').onclick=()=>api('/api/run/resume',{method:'POST'}).catch(e=>alert(e.detail));
+$('bCancel').onclick=()=>confirm('Cancel the run? A partial zip (labeled partial) will go through the same sweeps.')&&api('/api/run/cancel',{method:'POST'});
+$('bZip').onclick=()=>location.href='/api/run/zip';
+$('bExit').onclick=async()=>{if(!confirm('Exit EnvScribe? An active run will be cancelled (a partial zip is produced) and the server stops.'))return;try{await api('/api/exit',{method:'POST'})}catch(e){}document.body.innerHTML='<div style="padding:40px;font-size:16px">EnvScribe has stopped. You can close this tab.</div>'};
+$('bEst').onclick=async()=>{const e=await api('/api/estimate');$('est').textContent=`${e.repos} repo(s), ${e.packages} package(s), ${e.units} units, ${e.ignored} ignored, ${e.uploads} upload(s), up to ${e.workers} worker(s), token budget: ${e.token_budget}`};
+// Setup
+const FIELDS=[["output_dir","Output folder (inside the VM)","text"],["sources","Repos / folders to crawl (one per line)","list"],["environments","Environments in scope (comma separated)","csv"],["max_workers","Max workers (1-100)","num"],["token_budget","Token budget (0 or blank = no limit)","num"],["on_budget","When budget is reached (stop | warn)","text"],["sweep_mode","If a sweep finds something (redact-rescan-block | block)","text"],["custom_terms","Custom sensitive terms (one per line)","list"],["exclude_sources","Never open paths containing (one per line)","list"],["integration_mode","Integrations (approved-only | auto)","text"]];
+async function loadSetup(){const s=await api('/api/settings');$('bud').textContent=s.token_budget>0?s.token_budget:'unlimited';
+ $('p1').innerHTML=FIELDS.map(([k,l,t])=>{const v=s[k];const val=t=="list"?(v||[]).join("\n"):t=="csv"?(v||[]).join(", "):(v??"");return `<label>${l}</label>`+(t=="list"?`<textarea rows="3" data-k="${k}" data-t="${t}">${esc(val)}</textarea>`:`<input data-k="${k}" data-t="${t}" value="${esc(val)}">`)}).join("")+
+ `<p><small>IP addresses and hostnames are always masked in output. Credentials are never entered here; they come from the environment's secrets.</small></p><button class="btn" id="bSave">Save (applies to next run)</button> <span id="sv"></span>`;
+ $('bSave').onclick=async()=>{const b={};document.querySelectorAll('#p1 [data-k]').forEach(e=>{const t=e.dataset.t,v=e.value;b[e.dataset.k]=t=="list"?v.split("\n").map(x=>x.trim()).filter(Boolean):t=="csv"?v.split(",").map(x=>x.trim()).filter(Boolean):t=="num"?v:v});
+  try{await api('/api/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});$('sv').textContent='saved';loadSetup()}catch(e){$('sv').textContent=e.detail||'error'}}}
+loadSetup();
+async function loadInteg(){const d=await api('/api/integrations');
+ $('p2').innerHTML='<table><tr><th>System</th><th>Status</th><th>Use</th></tr>'+d.integrations.map(i=>`<tr><td>${esc(i.system)}<br><small>${i.sources.map(s=>esc(s.name)).join(', ')}</small></td><td>${pill(i.status,i.status=='verified'?'ok':i.status.startsWith('failed')?'bad':'warn')}${i.flag?'<br><small>'+esc(i.flag)+'</small>':''}</td><td><input type="checkbox" data-sys="${esc(i.system)}" ${i.approved?'checked':''} style="width:auto"></td></tr>`).join('')+'</table>'+
+ '<p><b>Unclassified</b> <small>(reported only, never used)</small></p>'+d.unclassified.map(u=>`<div class="chk"><code>${esc(u.name)}</code><small>${esc(u.location)}</small></div>`).join('')+'<br><button class="btn" id="bAp">Save approvals</button>';
+ $('bAp').onclick=async()=>{const names=[...document.querySelectorAll('[data-sys]:checked')].map(e=>e.dataset.sys);await api('/api/integrations/approve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({approved:names})});loadInteg()}}
+loadInteg();
+// Upload
+async function loadUps(){const d=await api('/api/uploads');const im={};(d.intake||[]).forEach(i=>im[i.file]=i);
+ $('ups').innerHTML='<tr><th>File</th><th>Status</th></tr>'+d.files.map(f=>{const i=im[f.file];let st=i?i.status+': '+i.reason:'pending';let act='';
+  if(i&&i.needs_decision)act=` <button class="btn g" onclick="dec('${esc(f.file)}',true)">Read anyway</button>`;
+  return `<tr><td>${esc(f.file)}</td><td>${pill(st,i&&i.status=='read'?'ok':i&&(i.status=='quarantined'||i.status=='unreadable')?'bad':'warn')}${act}</td></tr>`}).join('')}
+window.dec=async(f,r)=>{await api('/api/uploads/decision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({file:f,read_anyway:r})});loadUps()};
+async function up(files){for(const f of files){const fd=new FormData();fd.append('file',f);await fetch('/api/upload',{method:'POST',body:fd})}loadUps()}
+const dr=$('drop');dr.ondragover=e=>{e.preventDefault();dr.classList.add('over')};dr.ondragleave=()=>dr.classList.remove('over');dr.ondrop=e=>{e.preventDefault();dr.classList.remove('over');up(e.dataTransfer.files)};
+$('pick').onclick=e=>{e.preventDefault();$('fi').click()};$('fi').onchange=e=>up(e.target.files);loadUps();setInterval(loadUps,5000);
+$('bAsk').onclick=async()=>{try{const r=await api('/api/ask?q='+encodeURIComponent($('q').value));$('ans').textContent=r.answer+(r.note?'\n\n'+r.note:'')}catch(e){$('ans').textContent=e.detail||'error'}};
+</script></body></html>

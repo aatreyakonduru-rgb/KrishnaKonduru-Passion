@@ -1,0 +1,7 @@
+WEBVTT
+
+00:00:01.000 --> 00:00:05.000
+<v Priya Sharma>The payments-api service calls the gateway and stores results in the payments table.
+
+00:00:06.000 --> 00:00:09.000
+<v John Doe>Maybe we should move the timeout to config for UAT.

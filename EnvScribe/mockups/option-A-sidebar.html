@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>EnvScribe - Option A (Sidebar dashboard)</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:14px/1.4 Segoe UI,Arial,sans-serif;background:#f4f6f9;color:#1f2933;display:flex;height:100vh}
+nav{width:210px;background:#0f2742;color:#cfd8e3;padding:16px 0;flex-shrink:0}
+nav h1{font-size:18px;color:#fff;margin:0 16px 4px}nav small{display:block;margin:0 16px 18px;color:#8fa3b8}
+nav a{display:block;padding:10px 16px;cursor:pointer;border-left:3px solid transparent}
+nav a.on,nav a:hover{background:#17375a;color:#fff;border-left-color:#4da3ff}
+main{flex:1;overflow:auto;padding:22px 28px}
+.banner{background:#fff3cd;border:1px solid #ffe08a;padding:6px 10px;border-radius:4px;font-size:12px;margin-bottom:14px}
+h2{margin:0 0 14px}.card{background:#fff;border:1px solid #dde3ea;border-radius:6px;padding:16px;margin-bottom:16px}
+.card h3{margin:0 0 10px;font-size:15px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+label{display:block;font-size:12px;color:#52606d;margin:10px 0 3px}
+input,select{width:100%;padding:7px;border:1px solid #c5ced8;border-radius:4px}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid #edf0f4;font-size:13px}
+th{color:#52606d;font-weight:600;background:#fafbfc}
+.pill{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.ok{background:#d9f5e3;color:#0b6b32}.warn{background:#fff0c2;color:#8a5a00}.bad{background:#fde0e0;color:#a31515}.mute{background:#e6eaef;color:#52606d}.run{background:#dbeafe;color:#1d4ed8}
+.bar{height:16px;background:#e4e9ef;border-radius:8px;overflow:hidden}.bar i{display:block;height:100%;background:#2f80ed}
+.btn{padding:7px 14px;border:0;border-radius:4px;background:#2f80ed;color:#fff;cursor:pointer;margin-right:6px}.btn.g{background:#e4e9ef;color:#1f2933}.btn.r{background:#d64545}
+.stats{display:flex;gap:12px}.stat{flex:1;background:#f4f6f9;border-radius:6px;padding:10px}.stat b{display:block;font-size:20px}
+.drop{border:2px dashed #9fb3c8;border-radius:8px;padding:34px;text-align:center;color:#52606d;background:#fafcff}
+.view{display:none}.view.on{display:block}code{background:#eef1f5;padding:1px 5px;border-radius:3px}
+</style></head><body>
+<nav><h1>EnvScribe</h1><small>Option A - Sidebar</small>
+<a class="on" data-v="setup">Setup</a><a data-v="integ">Integrations</a><a data-v="run">Run &amp; Progress</a><a data-v="upload">Upload</a>
+<a style="opacity:.45">Journal (later)</a><a style="opacity:.45">Registers (later)</a><a style="opacity:.45">Ask / Advise (later)</a></nav>
+<main><div class="banner">MOCKUP with fake data. Nothing here is functional.</div>
+
+<section class="view on" id="setup"><h2>Setup</h2><div class="grid">
+<div class="card"><h3>Output</h3><label>Output folder (inside the VM)</label><input value="/home/ubuntu/envscribe-out">
+<label>Final package</label><select><option>Zip when run completes (download immediately)</option><option>Zip + partial zip on cancel/failure</option></select></div>
+<div class="card"><h3>Scope (targets.yaml)</h3><label>Bitbucket workspaces / repos</label><input value="payments-*, orders-api, core-lib">
+<label>Environments in scope</label><input value="DEV, SIT, UAT  (PROD: off)"><label>Confluence spaces / SharePoint sites</label><input value="ARCH, PAY / sites/payments-eng"></div>
+<div class="card"><h3>Workers &amp; budget</h3><label>Max concurrent worker sessions</label><input value="4"><label>Token budget per run</label><input value="2,000,000"><label>When budget is reached</label><select><option>Stop and offer partial zip</option><option>Warn only</option></select></div>
+<div class="card"><h3>Other</h3><label>LLM provider</label><select><option>watsonx</option><option>ollama</option></select><label>Environment name mapping</label><input value="ST=SIT, QA=UAT, STG=UAT"><label>Alias registry</label><input value="payment-svc = Payments Hub = PAYHUB"></div></div>
+<p class="card" style="color:#52606d">Credentials are never entered here. They come from the Devin environment secrets; this page only shows names and status.</p></section>
+
+<section class="view" id="integ"><h2>Integrations</h2><div class="card">
+<table><tr><th>System</th><th>Found as</th><th>Status</th><th>Access</th><th>Use?</th></tr>
+<tr><td>Bitbucket Cloud</td><td><code>BITBUCKET_*</code></td><td><span class="pill ok">verified</span></td><td>read-only</td><td><input type="checkbox" checked style="width:auto"></td></tr>
+<tr><td>Jira Cloud</td><td><code>JIRA_*</code></td><td><span class="pill ok">verified</span></td><td>read-only</td><td><input type="checkbox" checked style="width:auto"></td></tr>
+<tr><td>Confluence Cloud</td><td><code>CONFLUENCE_*</code></td><td><span class="pill ok">verified</span></td><td>read-only</td><td><input type="checkbox" checked style="width:auto"></td></tr>
+<tr><td>Snowflake</td><td><code>SNOWFLAKE_*</code></td><td><span class="pill warn">auth needs choice</span></td><td>-</td><td><input type="checkbox" style="width:auto"></td></tr>
+<tr><td>Artifactory</td><td><code>ARTIFACTORY_*</code></td><td><span class="pill warn">over-privileged</span></td><td>write scopes (not used)</td><td><input type="checkbox" checked style="width:auto"></td></tr>
+<tr><td>SonarQube</td><td><code>SONAR_*</code></td><td><span class="pill bad">failed (401)</span></td><td>-</td><td><input type="checkbox" disabled style="width:auto"></td></tr>
+<tr><td>AWS RDS</td><td>AWS profile</td><td><span class="pill ok">verified</span></td><td>read-only</td><td><input type="checkbox" style="width:auto"></td></tr>
+<tr><td>Unknown: <code>ACME_TOKEN</code></td><td>env var</td><td><span class="pill mute">unclassified</span></td><td>report only</td><td>-</td></tr></table></div></section>
+
+<section class="view" id="run"><h2>Run &amp; Progress</h2><div class="card">
+<div class="stats"><div class="stat"><b>62%</b>packages merged</div><div class="stat"><b>18,412</b>units done</div><div class="stat"><b>1,903</b>skipped</div><div class="stat"><b>7</b>failed</div><div class="stat"><b>1.1M</b>tokens used</div></div><br>
+<div class="bar"><i style="width:62%"></i></div><p>Stage: <b>Code &amp; build scan</b> &rarr; Config &rarr; API contracts &rarr; Documents &rarr; Collate &rarr; Zip &nbsp; | &nbsp; As of <code>2026-11-19T04:30:12Z</code></p>
+<button class="btn">Start</button><button class="btn g">Pause</button><button class="btn g">Resume from progress file</button><button class="btn r">Cancel</button><button class="btn g">Download zip</button></div>
+<div class="card"><h3>Worker sessions</h3><table><tr><th>Package</th><th>Scope</th><th>Status</th><th>Units</th><th>Heartbeat</th><th>Retries</th></tr>
+<tr><td>pkg-0012</td><td>payments-api (code)</td><td><span class="pill run">running</span></td><td>412 / 880</td><td>5s ago</td><td>0</td></tr>
+<tr><td>pkg-0013</td><td>orders-api (code)</td><td><span class="pill run">running</span></td><td>96 / 340</td><td>2s ago</td><td>0</td></tr>
+<tr><td>pkg-0009</td><td>Confluence ARCH</td><td><span class="pill ok">chunk merged</span></td><td>230 / 230</td><td>-</td><td>0</td></tr>
+<tr><td>pkg-0011</td><td>core-lib (code)</td><td><span class="pill warn">retrying</span></td><td>40 / 300</td><td>2m ago</td><td>1</td></tr></table></div>
+<div class="card"><h3>Skip log</h3><table><tr><th>Item</th><th>Reason</th></tr><tr><td>Q3-offsite.pdf</td><td>Not related to any application in code</td></tr><tr><td>node_modules/**</td><td>Ignore rule</td></tr><tr><td>logo.png</td><td>Image, not read</td></tr></table></div></section>
+
+<section class="view" id="upload"><h2>Upload</h2><div class="card"><div class="drop"><b>Drag files here or click to browse</b><br>PDF, DOCX, XLSX, PPTX, drawio, vsdx, VTT transcripts, text</div>
+<label>Relates to application(s)</label><select><option>Auto-match (confirm if no match)</option><option>payments-api</option><option>orders-api</option></select></div>
+<div class="card"><h3>Intake status</h3><table><tr><th>File</th><th>Status</th><th>Note</th></tr>
+<tr><td>payments-design.pdf</td><td><span class="pill ok">accepted</span></td><td>matched: payments-api</td></tr>
+<tr><td>scan-0042.pdf</td><td><span class="pill run">OCR</span></td><td>no text layer, 6 pages</td></tr>
+<tr><td>arch-review.vtt</td><td><span class="pill ok">accepted</span></td><td>speakers stripped</td></tr>
+<tr><td>offsite.pptx</td><td><span class="pill warn">no match</span></td><td><button class="btn g">Read anyway</button><button class="btn g">Skip</button></td></tr>
+<tr><td>macro.xlsm</td><td><span class="pill bad">quarantined</span></td><td>macros detected</td></tr></table></div></section>
+</main>
+<script>document.querySelectorAll('nav a[data-v]').forEach(a=>a.onclick=()=>{document.querySelectorAll('nav a').forEach(x=>x.classList.remove('on'));a.classList.add('on');document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));document.getElementById(a.dataset.v).classList.add('on')})</script>
+</body></html>

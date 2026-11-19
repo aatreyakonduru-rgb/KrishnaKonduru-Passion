@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>EnvScribe Viewer</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:13px/1.45 Segoe UI,Arial,sans-serif;background:#0b1220;color:#d7deea;height:100vh;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:12px;padding:10px 18px;background:#111a2e;border-bottom:1px solid #1e2b47}.top b{font-size:16px}.sp{flex:1}
+.btn{padding:6px 14px;border:0;border-radius:4px;background:#2563eb;color:#fff;cursor:pointer;text-decoration:none;font-size:13px}.btn.g{background:#1e2b47;color:#c7d2e6}.btn.r{background:#b42318}
+select,input{padding:6px;background:#0b1220;color:#d7deea;border:1px solid #28375a;border-radius:4px;font:inherit}
+.main{flex:1;display:grid;grid-template-columns:300px 1fr;min-height:0}
+.nav{border-right:1px solid #1e2b47;overflow:auto;padding:8px;background:#0e1628}
+.nav a{display:block;padding:3px 6px;border-radius:4px;color:#b8c6e0;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nav a:hover{background:#1e2b47}.nav a.on{background:#1d3a8a;color:#fff}
+.nav h4{margin:10px 4px 2px;color:#7f8fab;font-size:11px;text-transform:uppercase}
+.view{overflow:auto;padding:14px 20px;min-width:0}
+.tabs{display:flex;gap:6px;margin-bottom:10px}.tabs a{padding:5px 14px;border-radius:4px;background:#1e2b47;color:#9fb0cc;cursor:pointer}.tabs a.on{background:#2563eb;color:#fff}
+.doc{white-space:pre-wrap;word-break:break-word;font:13px/1.5 Consolas,monospace;color:#d7deea}.doc h1,.doc h2,.doc h3{font-family:Segoe UI,Arial;margin:14px 0 4px;white-space:normal}.doc a{color:#7fb0ff;cursor:pointer;text-decoration:underline}
+.pill{padding:1px 8px;border-radius:9px;font-size:10px;font-weight:700;background:#1e2b47;color:#9fb0cc}.ok{background:#0f3d2e;color:#5dd39e}.warn{background:#4a3a0c;color:#fbbf24}
+table{width:100%;border-collapse:collapse}td,th{padding:5px 6px;border-bottom:1px solid #1e2b47;text-align:left;vertical-align:top}th{color:#7f8fab}
+.fact{background:#111a2e;border:1px solid #1e2b47;border-radius:6px;padding:8px 10px;margin-bottom:6px}.fact pre{margin:4px 0 0;white-space:pre-wrap;word-break:break-word;color:#9fb0cc;font:11px Consolas,monospace}
+.bar{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}.muted{color:#7f8fab}
+</style></head><body>
+<div class="top"><b>EnvScribe Viewer</b><span class="pill" id="seal">no zip</span><span class="sp"></span>
+<select id="zipSel"></select><button class="btn g" id="bOpen">Open zip from disk…</button><input type="file" id="fi" accept=".zip" style="display:none">
+<a class="btn g" href="/">Back to run</a><button class="btn r" id="bExit">Exit</button></div>
+<div class="main"><div class="nav" id="nav"><span class="muted">Select a zip.</span></div>
+<div class="view"><div class="tabs"><a class="on" id="tFile">Files</a><a id="tFacts">Facts</a></div>
+<div id="vFile"><div class="muted" id="path"></div><div class="doc" id="doc">Open <code>index.md</code> from the list to start.</div></div>
+<div id="vFacts" style="display:none"><div class="bar"><input id="fq" placeholder="search facts (text)" style="flex:1;min-width:200px"><select id="fk"><option value="">all kinds</option></select><select id="fc"><option value="">all classes</option></select><button class="btn" id="bF">Search</button></div>
+<div class="muted" id="fsum"></div><div id="flist"></div></div></div></div>
+<script>
+const $=id=>document.getElementById(id),api=(p,o)=>fetch(p,o).then(r=>r.ok?r.json():r.json().then(e=>{throw e}));
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let Z="",CUR="",FILES=[];
+function dirOf(p){const i=p.lastIndexOf("/");return i<0?"":p.slice(0,i+1)}
+function resolve(base,rel){const parts=(dirOf(base)+rel).split("/"),out=[];for(const s of parts){if(s===".."){out.pop()}else if(s&&s!==".")out.push(s)}return out.join("/")}
+function inline(s){return esc(s).replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>")
+ .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,(m,t,h)=>/^[a-z][a-z0-9+.-]*:|^\/\//i.test(h)?t:`<a data-h="${h.split("#")[0]}">${t}</a>`)}
+function md(text){return text.split("\n").map(l=>{let m;if(m=l.match(/^(#{1,3})\s+(.*)/))return`<h${m[1].length}>${inline(m[2])}</h${m[1].length}>`;return inline(l)}).join("\n")}
+async function load(path){try{const r=await api(`/api/viewer/file?zip=${encodeURIComponent(Z)}&path=${encodeURIComponent(path)}`);CUR=path;
+ $("path").textContent=path;$("doc").innerHTML=path.endsWith(".md")?md(r.text):esc(r.text);
+ document.querySelectorAll(".nav a").forEach(a=>a.classList.toggle("on",a.dataset.p===path));showTab("File");$("doc").parentElement.scrollTop=0;
+ $("doc").querySelectorAll("a[data-h]").forEach(a=>a.onclick=()=>{const t=resolve(path,a.dataset.h);if(FILES.some(f=>f.path===t))load(t)})}
+ catch(e){$("path").textContent=path;$("doc").textContent=e.detail||"error"}}
+function showTab(t){$("vFile").style.display=t==="File"?"":"none";$("vFacts").style.display=t==="Facts"?"":"none";$("tFile").classList.toggle("on",t==="File");$("tFacts").classList.toggle("on",t==="Facts")}
+$("tFile").onclick=()=>showTab("File");$("tFacts").onclick=()=>{showTab("Facts");if(!$("flist").innerHTML)searchFacts()};
+async function openZip(name){Z=name;try{const t=await api("/api/viewer/tree?zip="+encodeURIComponent(name));FILES=t.files;
+ $("seal").textContent=t.seal?`${t.seal.label} · ${t.seal.files} files · sealed ${t.seal.sealed_at}`:"no SEAL.json";$("seal").className="pill "+(t.seal?(t.seal.label==="complete"?"ok":"warn"):"");
+ const groups={};t.files.forEach(f=>{const d=f.path.includes("/")?f.path.split("/")[0]:"(root)";(groups[d]=groups[d]||[]).push(f)});
+ $("nav").innerHTML=Object.entries(groups).map(([g,fs])=>`<h4>${esc(g)}</h4>`+fs.map(f=>`<a data-p="${esc(f.path)}" title="${esc(f.path)}">${esc(f.path.includes("/")?f.path.slice(g.length+1):f.path)}</a>`).join("")).join("");
+ $("nav").querySelectorAll("a").forEach(a=>a.onclick=()=>load(a.dataset.p));$("flist").innerHTML="";$("fk").innerHTML='<option value="">all kinds</option>';$("fc").innerHTML='<option value="">all classes</option>';
+ if(FILES.some(f=>f.path==="index.md"))load("index.md")}catch(e){$("nav").textContent=e.detail||"error"}}
+async function searchFacts(){try{const q=new URLSearchParams({zip:Z,q:$("fq").value,kind:$("fk").value,cls:$("fc").value,limit:200});const r=await api("/api/viewer/facts?"+q);
+ const fill=(el,obj,cur)=>{if(el.options.length<=1)el.innerHTML=el.innerHTML+Object.entries(obj).sort().map(([k,n])=>`<option value="${esc(k)}">${esc(k)} (${n})</option>`).join("");el.value=cur};
+ fill($("fk"),r.kinds,$("fk").value);fill($("fc"),r.classes,$("fc").value);
+ $("fsum").textContent=`${r.total} matching fact(s); showing ${r.shown}`;
+ $("flist").innerHTML=r.facts.map(f=>`<div class="fact"><b>${esc(f.kind)}</b> · ${esc(f.subject)} <span class="pill">${esc(f.class)}</span><div class="muted">${esc((f.evidence||[]).map(e=>e.source+" @ "+e.location).join("; "))}</div><pre>${esc(JSON.stringify(f.attrs))}</pre></div>`).join("")||'<span class="muted">not found</span>'}
+ catch(e){$("fsum").textContent=e.detail||"error"}}
+$("bF").onclick=searchFacts;$("fq").onkeydown=e=>{if(e.key==="Enter")searchFacts()};
+async function loadZips(sel){const r=await api("/api/viewer/zips");$("zipSel").innerHTML=r.zips.map(z=>`<option value="${esc(z.name)}">${esc(z.name)}${z.current?" (current run)":""}</option>`).join("")||'<option value="">no zips found</option>';
+ const pick=sel||(r.zips.find(z=>z.current)||r.zips[0]||{}).name;if(pick){$("zipSel").value=pick;openZip(pick)}}
+$("zipSel").onchange=()=>$("zipSel").value&&openZip($("zipSel").value);
+$("bOpen").onclick=()=>$("fi").click();
+$("fi").onchange=async()=>{const f=$("fi").files[0];if(!f)return;const fd=new FormData();fd.append("file",f);
+ try{const r=await api("/api/viewer/upload",{method:"POST",body:fd});await loadZips(r.name)}catch(e){alert(e.detail||"upload failed")}$("fi").value=""};
+$("bExit").onclick=async()=>{if(!confirm("Exit EnvScribe? An active run will be cancelled (a partial zip is produced) and the server stops."))return;
+ try{await api("/api/exit",{method:"POST"})}catch(e){}document.body.innerHTML='<div style="padding:40px;font-size:16px">EnvScribe has stopped. You can close this tab.</div>'};
+loadZips();
+</script></body></html>

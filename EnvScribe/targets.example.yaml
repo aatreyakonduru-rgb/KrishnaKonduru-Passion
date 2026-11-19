@@ -1,0 +1,15 @@
+# EnvScribe (sample targets). Copy to targets.yaml. Non-secret settings only; credentials come from the environment.
+output_dir: ./envscribe-out
+sources: []                      # local repo/folder paths to crawl (clone read-only first)
+upload_dir: ""                   # default: <output_dir>/uploads
+environments: [DEV, SIT, UAT]
+prod_opt_in: false
+integration_mode: approved-only  # approved-only | auto
+approved_integrations: []
+max_workers: 4                   # 1..100
+token_budget: 0                  # 0 or blank = no limit
+on_budget: stop
+sweep_mode: redact-rescan-block  # redact-rescan-block | block
+aliases: {}                      # payments-api: [payment-svc, PAYHUB]
+exclude_sources: []              # path substrings that are never opened (HR, legal)
+custom_terms: []
