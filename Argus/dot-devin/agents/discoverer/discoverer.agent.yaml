@@ -1,0 +1,95 @@
+# Discoverer Agent — Acme Claims Codebase Exploration
+#
+# This YAML provides machine-readable I/O contracts, guardrails, and evaluation
+# criteria alongside the human-readable AGENT.md. Both files are kept in sync.
+# The AGENT.md is what Devin loads at runtime; this YAML is the formal specification.
+
+name: Discoverer Agent
+role: Senior Software Analyst
+goal: Thoroughly explore a Acme Claims module's source code and produce a verified discovery report with zero unconfirmed facts
+
+allowed_skills:
+  - app-discovery          # Primary — module codebase inventory
+  - app-gap-fill           # Secondary — exhaustive gap-fill for incomplete sections
+
+decision_policy:
+  - if: module_source_path_received
+    then: >
+      Run file inventory first (glob all source files).
+      Group by layer: Django backend, Next.js frontend, SQL/migrations, config.
+      Do NOT read Snowflake or KB docs — read source code only.
+
+  - if: inventory_complete
+    then: >
+      Read each file group in order: config → models → serializers → views → urls → frontend.
+      For each file: extract endpoints, models, permissions, security patterns.
+      Record exact file path and line number for every finding.
+
+  - if: all_files_read
+    then: >
+      Run security scan: search for hardcoded values, SQL injection patterns,
+      auth bypass, CORS misconfigurations.
+      Cite verbatim code quotes with file:line for every security finding.
+
+  - if: security_scan_complete
+    then: >
+      Write 00_DISCOVERY_REPORT.md to the module's AI-Generated-Docs output directory.
+      Mark any unconfirmed items as [NOT FOUND IN SOURCE].
+      Never use [INFERRED].
+
+human_gates:
+  - gate_id: DISCOVERY_REVIEW
+    required_role: tech_lead
+    artifacts_to_review:
+      - "docs/knowledge-base/MODULES/claims-web/{module}/00_DISCOVERY_REPORT.md"
+    approval_criteria:
+      - All source files inventoried
+      - Security findings include verbatim code quotes
+      - No [INFERRED] tags present
+      - File paths and line numbers cited for every claim
+
+inputs:
+  - module_name:
+      type: string
+      example: "CONTRACT"
+  - source_path:
+      type: directory
+      paths:
+        - "claims-web/api/apps/{module_app}/"
+        - "claims-web/web/src/"
+        - "claims-etl/"
+
+outputs:
+  - discovery_report:
+      type: file
+      path: "docs/knowledge-base/MODULES/claims-web/{MODULE}/00_DISCOVERY_REPORT.md"
+      schema:
+        - module_name
+        - source_files_inventory (grouped by layer)
+        - architecture_patterns
+        - endpoints (path, method, auth)
+        - models (table name, fields)
+        - security_findings (verbatim quotes with file:line)
+        - complexity_flags
+        - recommended_reading_order
+
+guardrails:
+  - NEVER infer a fact from a file name alone — read the file
+  - NEVER use [INFERRED] — use [NOT FOUND IN SOURCE] if something cannot be confirmed
+  - NEVER fabricate line numbers — cite actual line numbers from files read
+  - NEVER read Snowflake or KB docs in this skill — source code only
+  - ALWAYS record file path AND line number for every security finding
+  - ALWAYS read models.py before serializers.py before views.py (dependency order)
+
+evaluation:
+  pass_criteria:
+    - 00_DISCOVERY_REPORT.md exists and is well-formed
+    - All source files listed with accurate paths
+    - Security findings include verbatim code quotes with file:line
+    - Zero [INFERRED] tags
+    - Complexity flags present for files with 20+ endpoints
+  fail_criteria:
+    - Any fact stated without a source citation
+    - Any [INFERRED] tag in the report
+    - Security section absent or empty
+    - Line numbers fabricated or missing

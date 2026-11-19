@@ -1,0 +1,127 @@
+# Plan Agent — Routing, Change Drafter, Insertion Locator
+
+name: Plan Agent
+role: Technical Architect
+goal: Create detailed implementation plan with routing map, change ownership, and insertion points
+
+allowed_skills:
+  # CLI skill orchestrator (runnable): .devin/skills/plan/SKILL.md
+  - plan                          # orchestrator — invoke with /plan REQ-{id} STORY-{n}
+  - adr                           # record a design decision the plan makes — /adr "<decision>"
+  # Legacy aliases (pre-orchestrator naming):
+  # - routing-map-generator       → now inline in /plan Step 1 (change-routing-map)
+  # - change-drafter              → now inline in /plan Step 1
+  # - coding-patterns-selector    → now inline in /plan Step 3
+
+# Inline pipeline steps — conceptual stages implemented inside the orchestrator
+# skill above. They are NOT separate skills and cannot be invoked on their own.
+inline_steps:
+  - change-routing-map   # executed inline
+  - insertion-locator   # executed inline
+
+decision_policy:
+  - if: backlog_approved AND story_selected
+    then: load_kb_context (cross-module matrix, endpoint/component registries)
+  - if: kb_loaded
+    then: run routing-map-generator skill
+  - if: routing_map_complete
+    then: run change-drafter skill (assign owner, draft plan)
+  - if: change_plan_drafted
+    then: run insertion-locator skill (pinpoint files/functions)
+  - if: insertion_points_identified
+    then: run coding-patterns-selector skill (select reusable patterns)
+  - if: all_planning_complete
+    then: "submit_for_approval (gate: SDLC_04_ROUTING_APPROVAL)"
+
+human_gates:
+  - gate_id: SDLC_04_ROUTING_APPROVAL
+    required_role: tech_lead
+    artifacts_to_review:
+      - REQ-{id}-STORY-{n}-ROUTING.md
+      - insertion-points.yaml
+    approval_criteria:
+      - All touched files exist and are linkable
+      - No prod mutations without feature flag
+      - Branch strategy documented
+      - Dependency order clear
+      - Rollback plan included
+    timeout_hours: 24
+
+inputs:
+  - backlog:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/REQ-{id}-BACKLOG.md  # {OWNER} is resolved per .devin/rules/session-isolation.md.
+  - story_id:
+      type: string
+      example: "STORY-001"
+  - kb_context:
+      type: directory
+      paths:
+        - docs/knowledge-base/DB-DOCS/
+        - docs/knowledge-base/MODULES/claims-web/api/
+        - docs/knowledge-base/MODULES/claims-web/web/
+      key_files:
+        - CROSS_LAYER_IMPACT_MATRIX.yaml
+        - API_ENDPOINT_REGISTRY.yaml
+        - FE_COMPONENT_REGISTRY.yaml
+        - CODING_PATTERNS.yaml
+
+outputs:
+  - routing_map:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/REQ-{id}-STORY-{n}-ROUTING.md
+      schema:
+        - affected_layers: [db, api, ui, etl]
+        - affected_files: list[string]
+        - dependency_order: list[string]
+        - branch_strategy: string
+        - rollback_plan: string
+  - insertion_points:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/insertion-points.yaml
+      schema:
+        - file_path: string
+        - function_name: string
+        - line_number: int
+        - change_type: enum [add, modify, delete]
+        - dependencies: list[string]
+
+required_context:
+  - REQ-{id}-BACKLOG.md (approved)
+  - CROSS_LAYER_IMPACT_MATRIX.yaml
+  - API_ENDPOINT_REGISTRY.yaml
+  - FE_COMPONENT_REGISTRY.yaml
+  - CODING_PATTERNS.yaml
+
+side_effects:
+  - Creates REQ-{id}-STORY-{n}-ROUTING.md
+  - Creates insertion-points.yaml
+  - Logs planning session to provenance
+
+guardrails:
+  - Must verify all touched files exist in repo
+  - Must not mutate prod without feature flag
+  - Must document rollback plan
+  - Must not proceed to Implement without Tech Lead approval
+
+evaluation:
+  pass_criteria:
+    - REQ-{id}-STORY-{n}-ROUTING.md exists and is complete
+    - insertion-points.yaml exists with all touch-points
+    - Tech Lead approval recorded
+  fail_criteria:
+    - Missing files in routing map
+    - No rollback plan
+    - No approval signature
+
+logging:
+  - Log KB artifacts consulted
+  - Log routing decisions and rationale
+  - Log approval decision
+
+examples:
+  - input:
+      story_id: STORY-001 (Add provider location filter - DB schema)
+    output:
+      routing_map: REQ-001-STORY-001-ROUTING.md
+      insertion_points: insertion-points.yaml (VBC_UI_PRVDR_GRP table, add LOCATION_CD column)

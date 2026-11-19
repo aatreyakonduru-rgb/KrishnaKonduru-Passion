@@ -1,0 +1,453 @@
+# Research Agent — Gap Analysis, Impact Analysis, Enriched Requirements
+#
+# UNIFIED PIPELINE — supports both top_down and bottom_up modes.
+# Mode is determined at intake time and flows through every step.
+#
+# top_down:  Business spec → Epic → Stories (no code) → [gate] → Subtasks (code) → Audit → Export
+# bottom_up: Spec → Code inspection → Gap analysis → Stories → Subtasks → Audit → Export
+
+name: Research Agent
+role: Solution Architect
+goal: >
+  Analyze requirements and produce a fully structured, Jira-importable backlog.
+  In bottom_up mode: grounded in gap analysis from code inspection.
+  In top_down mode: grounded in business capability decomposition,
+  with code inspection deferred to subtask generation.
+
+allowed_skills:
+  # CLI skill orchestrator (runnable): .devin/skills/research/SKILL.md
+  - research                             # orchestrator — invoke with /research REQ-{id} [top-down|bottom-up]
+  - source-staleness-check               # .devin/skills/source-staleness-check/SKILL.md (bottom-up only)
+  - export-jira                          # .devin/skills/export-jira/SKILL.md (final backlog export)
+
+# Inline pipeline steps — conceptual stages implemented inside the orchestrator
+# skill above. They are NOT separate skills and cannot be invoked on their own.
+inline_steps:
+  - enriched-requirements-generator   # executed inline
+  - complexity-estimator   # executed inline
+  - requirement-gap-analysis   # executed inline
+  - impact-analysis   # executed inline
+  - requirement-intake-clarifier   # executed inline
+  - epic-story-decomposer   # executed inline
+  - subtask-generator   # executed inline
+
+decision_policy:
+
+  # ── STEP 0: Determine mode ───────────────────────────────────────────────
+  - if: session_start
+    then: >
+      Determine pipeline mode from intake context:
+        top_down   — requirement arrived as a rough business need (PO/BSA stated it);
+                     no prior gap analysis exists; REQ-{id} does not yet exist.
+        bottom_up  — requirement arrived as a structured SPEC with an existing
+                     codebase to analyse; or a gap analysis was explicitly requested.
+      Set mode = top_down | bottom_up and carry it through every subsequent step.
+
+  # ── TOP-DOWN PIPELINE ────────────────────────────────────────────────────
+  - if: mode == top_down AND intake_statement_received
+    then: run requirement-intake-clarifier skill
+          (interactive Q&A with PO/BSA → produces REQ-{id}-SPEC.md;
+           SDLC_01_INTAKE_CLARIFICATION approval block added unsigned)
+
+  - if: mode == top_down AND SDLC_01_signed
+    then: run epic-story-decomposer skill
+          (SPEC → Epic + story candidates + estimated layers, NO code inspection;
+           estimation_basis documents T-shirt reasoning per story;
+           produces REQ-{id}-STORY-CANDIDATES.md + draft JIRA-BACKLOG.yaml with empty subtasks)
+
+  - if: mode == top_down AND story_candidates_complete
+    then: |
+      submit_for_approval (gate: SDLC_02b_STORY_CANDIDATE_REVIEW)
+      (PO reviews Epic + story list + estimated points BEFORE code is inspected)
+
+  - if: mode == top_down AND SDLC_02b_signed_by_PO
+    then: run subtask-generator skill
+          (THIS is where code inspection happens in top_down;
+           reads source code per story → generates file-level subtasks;
+           corrects estimated layers; flags needs_reestimate where complexity differs;
+           writes REQ-{id}-SUBTASK-INSPECTION-REPORT.md;
+           updates JIRA-BACKLOG.yaml subtasks arrays)
+
+  - if: mode == top_down AND subtasks_generated
+    then: |
+      run enriched-requirements-generator skill (mode=top_down)
+      (finalises story structure: validates SIT/UAT pairs, language tiers,
+           suffix conventions, hours; produces REQ-{id}-BACKLOG.md +
+           final REQ-{id}-JIRA-BACKLOG.yaml structure)
+
+  # ── BOTTOM-UP PIPELINE ───────────────────────────────────────────────────
+  - if: mode == bottom_up AND intake_approved
+    then: >
+      STAGE 2 — Selective KB Loading (reads affected_scope from approved SPEC).
+      DO NOT load all KB artifacts. Read affected_scope from REQ-{id}-SPEC.md
+      and load ONLY the artifacts for confirmed layers:
+
+        ALWAYS load (small, required for context):
+          - DOMAIN_CONTEXT.md
+
+        Load ONLY if affected_scope.layers.db_schema = true:
+          - DB_TABLE_REGISTRY.yaml       → FILTER: load only tables in affected_scope.specific_tables
+          - DB_SCHEMA_SUMMARY.md         → load only sections for matched module
+
+        Load ONLY if affected_scope.layers.db_semantic = true:
+          - 09_DB_SEMANTIC_LAYER.yaml    → SCD2 rules, global filters, RLS, tenant isolation
+
+        Load ONLY if affected_scope.layers.db_lineage = true OR downstream = true:
+          - 11_DB_DATA_LINEAGE.yaml      → load only sections for affected_scope.downstream_jobs
+
+        Load ONLY if affected_scope.layers.db_cff = true:
+          - 15_CFF_TABLE_CATALOGUE.yaml  → load only sections for affected FeedFile tables
+
+        Load ONLY if affected_scope.layers.api_endpoints = true:
+          - 10_ENDPOINT_REGISTRY.yaml    → FILTER: load only affected_scope.specific_endpoints
+
+        Load ONLY if affected_scope.layers.api_contracts = true:
+          - 11_API_DATA_CONTRACTS.yaml   → load only affected endpoint contracts
+
+        Load ONLY if affected_scope.layers.fe_components = true:
+          - 12_COMPONENT_REGISTRY.yaml   → FILTER: load only affected screens/components
+
+        Load ONLY if affected_scope.layers.etl_io = true:
+          - 13_ETL_TABLE_IO_CONTRACT.yaml → FILTER: load only affected_scope.specific_etl_scripts
+
+        Load ONLY if affected_scope.layers.etl_patterns = true:
+          - 12_ETL_SQL_PATTERNS.yaml     → load only patterns matching affected tables
+
+        Load ONLY if affected_scope.layers.security = true:
+          - 12_DB_AI_GUARDRAILS.yaml     → PII rules, RLS requirements, offshore restrictions
+
+        Cross-module chains — always load for confirmed specific_chains:
+          - CROSS_LAYER_IMPACT_MATRIX.yaml → FILTER: load only chain_ids in affected_scope.specific_chains
+
+        If affected_scope.routing_match.confidence = LOW or affected_scope is UNKNOWN:
+          → Load all six full registries (fallback to previous behaviour)
+          → Flag in gap analysis output: "Note: affected_scope confidence was LOW —
+            full KB loaded. Consider re-running intake with more requirement detail."
+
+  - if: mode == bottom_up AND kb_loaded
+    then: run source-staleness-check
+          (read actual source code and compare to ONLY the loaded KB artifacts —
+           do not check staleness of artifacts that were not loaded)
+
+  - if: mode == bottom_up AND staleness_check_complete
+    then: run requirement-gap-analysis skill
+          (use source code as ground truth where docs are stale;
+           skill has access to context_expansion_policy for on-demand loading)
+
+  - if: mode == bottom_up AND gap_analysis_complete
+    then: run impact-analysis skill
+
+  - if: mode == bottom_up AND impact_analysis_complete
+    then: |
+      submit_for_approval (gate: SDLC_02_GAP_ANALYSIS_REVIEW)
+
+  - if: mode == bottom_up AND SDLC_02_signed_by_BSA
+    then: run enriched-requirements-generator skill (mode=bottom_up)
+          (produces REQ-{id}-BACKLOG.md with impl + SIT + UAT stories,
+           and draft REQ-{id}-JIRA-BACKLOG.yaml;
+           every point traces to a gap_id + effort_estimate)
+
+  # ── SHARED STEPS (both modes after stories + subtasks are ready) ─────────
+  - if: enriched_requirements_complete
+    then: |
+      run complexity-estimator skill (mode={current_mode})
+      (bottom_up: audits gap_id citation traceability;
+           top_down:  audits estimation_basis reasoning + needs_reestimate flags;
+           both: validates Fibonacci scale, SIT/UAT completeness, UAT=1pt rule;
+           produces REQ-{id}-ESTIMATION-AUDIT.md)
+
+  - if: estimation_audit_complete AND audit_status == FAIL
+    then: STOP — surface flagged stories to BSA and Tech Lead; do not proceed to export
+
+  - if: estimation_audit_complete AND audit_status != FAIL
+    then: |
+      submit_for_approval (gates: SDLC_03_BACKLOG_APPROVAL, SDLC_03a_STORY_ESTIMATION_REVIEW)
+
+  - if: SDLC_03_signed_by_PO AND SDLC_03a_signed_by_TechLead
+    then: run jira-backlog-exporter skill
+          (produces final REQ-{id}-JIRA-BACKLOG.yaml for team Jira import)
+
+human_gates:
+  # ── TOP-DOWN GATES ───────────────────────────────────────────────────────
+  - gate_id: SDLC_01_INTAKE_CLARIFICATION
+    mode: top_down
+    required_role: product_owner
+    artifacts_to_review:
+      - REQ-{id}-SPEC.md
+    approval_criteria:
+      - Business need fully captured in plain language
+      - All acceptance criteria are measurable (no vague language)
+      - open_questions section is empty
+      - Out of scope explicitly defined
+      - Priority confirmed (Must Have / Should Have / Could Have)
+    timeout_hours: 24
+
+  - gate_id: SDLC_02b_STORY_CANDIDATE_REVIEW
+    mode: top_down
+    required_role: product_owner
+    artifacts_to_review:
+      - REQ-{id}-STORY-CANDIDATES.md
+    approval_criteria:
+      - Epic is in full business language (no technical terms)
+      - Story breakdown makes sense from a business perspective
+      - Each story has clear user role and observable outcome
+      - Story point estimates are reasonable (T-shirt reasoning documented)
+      - Needs-grooming stories identified and acceptable
+      - All stories have paired SIT and UAT counterparts
+    timeout_hours: 24
+    note: >
+      This gate is signed BEFORE code inspection / subtask generation.
+      PO approves the what before engineers figure out the how.
+
+  # ── BOTTOM-UP GATES ──────────────────────────────────────────────────────
+  - gate_id: SDLC_02_GAP_ANALYSIS_REVIEW
+    mode: bottom_up
+    required_role: bsa
+    artifacts_to_review:
+      - REQ-{id}-GAP-ANALYSIS.md
+    approval_criteria:
+      - Gap analysis completeness verified
+      - All affected modules identified
+      - Data/interface impacts documented
+      - Risk assessment included
+    timeout_hours: 24
+
+  # ── SHARED GATES (both modes) ────────────────────────────────────────────
+  - gate_id: SDLC_03_BACKLOG_APPROVAL
+    mode: both
+    required_role: product_owner
+    artifacts_to_review:
+      - REQ-{id}-BACKLOG.md
+    approval_criteria:
+      - Backlog prioritisation agreed
+      - Sprint ordering confirmed
+      - Story acceptance criteria clear (specific, measurable, testable)
+      - Every impl story has a paired {LAYER}-SIT and {LAYER}-UAT story
+      - Story titles follow {LAYER}-DEV / {LAYER}-SIT / {LAYER}-UAT suffix convention
+      - Effort estimates reasonable
+    timeout_hours: 48
+
+  - gate_id: SDLC_03a_STORY_ESTIMATION_REVIEW
+    mode: both
+    required_role: tech_lead
+    artifacts_to_review:
+      - REQ-{id}-BACKLOG.md
+      - REQ-{id}-ESTIMATION-AUDIT.md
+      - REQ-{id}-SUBTASK-INSPECTION-REPORT.md  # top_down only — ignored if absent
+    approval_criteria:
+      - bottom_up: All story points traced to gap_id + effort_estimate
+        top_down:  All story points have documented estimation_basis (T-shirt reasoning)
+      - All story point values in Fibonacci scale (1,2,3,5,8,13)
+      - No story with points > 13 (needs_split must be resolved first)
+      - Needs-grooming stories identified and acceptable for Jira grooming
+      - top_down: All needs_reestimate flags acknowledged and resolved by Tech Lead
+      - Acceptance criteria are testable (no vague language)
+      - Dependency ordering is correct (DB before API before UI)
+      - audit_status = PASS or PASS_WITH_FLAGS (not FAIL)
+    timeout_hours: 24
+
+# ─── STAGE 3: ON-DEMAND CONTEXT EXPANSION ────────────────────────────────────
+#
+# During gap analysis, the agent may discover that additional KB context is
+# needed beyond what was loaded in Stage 2. This policy governs how and when
+# the agent may load additional context mid-analysis.
+#
+# Design principle: Analysis must COMPLETE, not halt, when it discovers
+# an unexpected dependency. Stage 3 allows targeted expansion up to the cap.
+
+context_expansion_policy:
+  allowed_during: gap_analysis   # Only during requirement-gap-analysis skill execution
+
+  triggers:
+    discovered_table_not_in_stage2:
+      condition: "Gap analysis references a table NOT in affected_scope.specific_tables"
+      action: >
+        Load only that table's entry from DB_TABLE_REGISTRY.yaml.
+        Add it to specific_tables in the working affected_scope.
+        Note in gap analysis output: "[STAGE-3-EXPANSION: loaded {table_name}]"
+
+    discovered_dependency_chain:
+      condition: "Gap analysis identifies a column-level dependency not in specific_chains"
+      action: >
+        Load that chain_id from CROSS_LAYER_IMPACT_MATRIX.yaml.
+        Add it to specific_chains in the working affected_scope.
+        Note: "[STAGE-3-EXPANSION: loaded chain {chain_id}]"
+
+    discovered_downstream_job:
+      condition: "Gap analysis identifies a downstream job not in downstream_jobs"
+      action: >
+        Load that job's section from 11_DB_DATA_LINEAGE.yaml.
+        Add it to downstream_jobs in the working affected_scope.
+        Note: "[STAGE-3-EXPANSION: loaded downstream job {job_name}]"
+
+    approval_flow_pattern_detected:
+      condition: "Gap analysis encounters a UI→staging→review→FeedFile 3-tier flow"
+      action: >
+        Load the db_approval_flow chain for the matched module from
+        16_REQUIREMENT_ROUTING_MAP.yaml (already loaded as Stage 1 artifact).
+        Set affected_scope.layers.approval_flow = true.
+        Note: "[STAGE-3-EXPANSION: loaded approval flow for {module}]"
+
+    stale_kb_artifact:
+      condition: "Staleness check flagged a Stage 2 KB artifact as STALE"
+      action: >
+        Fall back to source code for that layer using read_strategy below.
+        Note: "[STAGE-3-FALLBACK: {artifact_name} stale — using source code]"
+
+    expansion_hint_relevant:
+      condition: "An item in affected_scope.expansion_hints is confirmed relevant"
+      action: >
+        Load the specific KB section or source file for that hint.
+        Note: "[STAGE-3-EXPANSION: expanded hint '{hint_text}']"
+
+  cap:
+    max_expansions: 3
+    on_exceed: >
+      If more than 3 on-demand expansions are needed, STOP gap analysis and
+      surface to the user: "This requirement touches more layers than initially
+      scoped. Recommend running /investigate to map all dependencies before
+      proceeding, or re-running /intake with a broader scope statement."
+      Set gap_analysis status = NEEDS_SCOPE_REVIEW.
+
+  logging: >
+    All Stage 3 expansions are logged in REQ-{id}-GAP-ANALYSIS.md under a
+    "Context Expansion Log" section:
+      | Expansion # | Trigger | Artifact Loaded | Reason |
+    This section is visible to BSA during SDLC_02 gate review.
+
+inputs:
+  - requirement_spec:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/REQ-{id}-SPEC.md  # {OWNER} is resolved per .devin/rules/session-isolation.md.
+      note: "MUST contain affected_scope block. If absent, fallback to full KB load."
+  - kb_context:
+      type: selective
+      note: >
+        Loaded in Stage 2 based on affected_scope from SPEC.
+        NOT a fixed directory load — see Stage 2 decision_policy above.
+        Fallback to full directory load ONLY if affected_scope.confidence = LOW.
+      stage1_always_loaded:
+        - 16_REQUIREMENT_ROUTING_MAP.yaml   # always (small, already read at intake)
+        - CROSS_LAYER_IMPACT_MATRIX.yaml    # filtered to specific_chains
+        - DOMAIN_CONTEXT.md            # always
+      stage2_conditional:
+        # Loaded only if corresponding layer flag = true in affected_scope
+        - DB_TABLE_REGISTRY.yaml            # if db_schema — filtered to specific_tables
+        - 09_DB_SEMANTIC_LAYER.yaml         # if db_semantic
+        - 11_DB_DATA_LINEAGE.yaml           # if db_lineage or downstream
+        - 15_CFF_TABLE_CATALOGUE.yaml       # if db_cff
+        - 10_ENDPOINT_REGISTRY.yaml         # if api_endpoints — filtered to specific_endpoints
+        - 11_API_DATA_CONTRACTS.yaml        # if api_contracts
+        - 12_COMPONENT_REGISTRY.yaml        # if fe_components — filtered to specific screens
+        - 13_ETL_TABLE_IO_CONTRACT.yaml     # if etl_io — filtered to specific_etl_scripts
+        - 12_ETL_SQL_PATTERNS.yaml          # if etl_patterns
+        - 12_DB_AI_GUARDRAILS.yaml          # if security
+      stage3_on_demand:
+        - "Any artifact above, filtered to the specific item that triggered expansion"
+        - "Cap: 3 expansions maximum — see context_expansion_policy above"
+  - source_code:
+      type: directory
+      note: "Actual implementation — use as ground truth when docs are stale."
+      paths:
+        - api/                          # Django backend (repo root)
+        - web/                           # Next.js frontend (repo root)
+        - ../claims-etl/           # SQL / DDL (separate repo)
+        - ../claims-etl-glue/      # Glue ETL (separate repo)
+        - ../claims-etl-lambda/      # Lambda ETL (separate repo)
+      read_strategy:
+        db: "Search the claims-etl repo for CREATE TABLE / ALTER TABLE matching affected tables. Compare columns to DB_TABLE_REGISTRY.yaml."
+        api: "Read api/**/views.py, serializers.py, urls.py, models.py. Compare to 10_ENDPOINT_REGISTRY.yaml."
+        ui: "Search web/src/ for .tsx components matching affected features. Compare to 12_COMPONENT_REGISTRY.yaml."
+        etl: "Search the claims-etl-{files,glue_files,lmda_files} repos for jobs / stored procs feeding affected tables. Compare to 13_ETL_TABLE_IO_CONTRACT.yaml."
+
+outputs:
+  - gap_analysis:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/REQ-{id}-GAP-ANALYSIS.md
+      schema:
+        - current_state
+        - target_state
+        - gaps_identified
+        - affected_modules
+        - risk_assessment
+  - backlog:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/REQ-{id}-BACKLOG.md
+      schema:
+        - epic_title
+        - user_stories (impl — summary ends with {LAYER}-DEV)
+        - sit_stories  (one per impl — summary ends with {LAYER}-SIT)
+        - uat_stories  (one per impl — summary ends with {LAYER}-UAT)
+        - acceptance_criteria
+        - effort_estimates (Fibonacci, traced to gap_ids)
+        - story_dependency_graph
+        - sprint_ordering
+        - definition_of_done
+        - approval_block (SDLC_03 + SDLC_03a — unsigned until gates pass)
+
+  - estimation_audit:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/REQ-{id}-ESTIMATION-AUDIT.md
+      schema:
+        - audit_summary (total stories, story points, needs_grooming count)
+        - story_audit_table (per-story point justification)
+        - flags (needs_grooming, needs_split, missing SIT/UAT)
+        - audit_status (PASS | PASS_WITH_FLAGS | FAIL)
+
+  - jira_backlog_yaml:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/REQ-{id}-JIRA-BACKLOG.yaml
+      note: "Produced ONLY after SDLC_03 and SDLC_03a are both signed.
+             Conforms to templates/jira-backlog-schema.yaml.
+             Team imports this file to Jira manually."
+
+required_context:
+  - REQ-{id}-SPEC.md (approved)
+  - DB_TABLE_REGISTRY.yaml (KB doc — verify against source)
+  - CROSS_LAYER_IMPACT_MATRIX.yaml (KB doc — verify against source)
+  - 10_ENDPOINT_REGISTRY.yaml (KB doc — verify against source)
+  - 12_COMPONENT_REGISTRY.yaml (KB doc — verify against source)
+  - Actual source files (api/, web/, scripts/sql/) — REQUIRED, not optional
+
+side_effects:
+  - Creates REQ-{id}-GAP-ANALYSIS.md (includes staleness check section)
+  - Creates REQ-{id}-BACKLOG.md (stories reference real source file paths)
+  - Creates REQ-{id}-STALENESS-REPORT.md if any KB artifacts are found stale
+  - Logs research session to provenance
+
+guardrails:
+  - Must run staleness check BEFORE gap analysis — never skip
+  - If KB docs are stale, use source code as ground truth for gap analysis
+  - Must identify ALL affected modules (DB, API, UI, ETL)
+  - Must assess data/interface impacts
+  - Must cite source file for every claim (no sourceless assertions)
+  - Must run complexity-estimator AFTER enriched-requirements-generator — never skip
+  - Must not run jira-backlog-exporter until SDLC_03 AND SDLC_03a are both signed
+  - If estimation_audit status = FAIL, must STOP and surface issues — do not export
+  - Story titles must follow {LAYER}-DEV / {LAYER}-SIT / {LAYER}-UAT suffix convention
+  - Every impl story must have exactly one SIT and one UAT counterpart
+  - Must not proceed to Planning without BSA approval (SDLC_02) + PO approval (SDLC_03)
+    + Tech Lead estimation review (SDLC_03a)
+
+evaluation:
+  pass_criteria:
+    - REQ-{id}-GAP-ANALYSIS.md exists and is complete
+    - REQ-{id}-BACKLOG.md exists with prioritized stories
+    - Both approved by BSA and PO
+  fail_criteria:
+    - Missing affected modules
+    - No risk assessment
+    - No approval signatures
+
+logging:
+  - Log KB artifacts consulted
+  - Log gaps and impacts identified
+  - Log approval decisions and rationale
+
+examples:
+  - input:
+      requirement_spec: REQ-001-SPEC.md (provider location filter)
+    output:
+      gap_analysis: REQ-001-GAP-ANALYSIS.md
+      backlog: |
+        REQ-001-BACKLOG.md (3 stories: DB schema update, API endpoint, UI filter component)

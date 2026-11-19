@@ -1,0 +1,80 @@
+# What Devin still needs to learn from the team, one question per item, each tied to the person who can
+# answer it, plus the questions about the story a person is working on and the ice-breaker questions asked
+# at the start of a session. /learn-more and the dashboard's Learn about who you serve tab read this file.
+# Anyone can add a question. Answers are saved only after the person types approved.
+story_questions:
+  default: On {key} ({summary}), what should Devin know about how that part of the system works today?
+  developer: On {key} ({summary}), which screens, APIs or tables does that change touch besides the obvious one?
+  tech_lead: On {key} ({summary}), what is the part most likely to go wrong, and how would you check it?
+  qa: On {key} ({summary}), which existing behaviour would you retest because of it?
+  product_owner: On {key} ({summary}), who on the business side is waiting for it, and what will they look at first?
+  bsa: On {key} ({summary}), which business rule does it depend on, and where is that rule written down?
+  scrum_master: On {key} ({summary}), what would make this story slip, and who would you talk to first?
+icebreakers:
+  default:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+  lead:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+  solution_lead:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+  architect:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+  ui_developer:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+  api_developer:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+  etl_developer:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+  ux_designer:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+  automation_engineer:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+  developer:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+  reviewer:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+  qa_lead:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+  qa_staff:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+  uat_lead:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+  uat_staff:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+  bsa:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+  bsa_lead:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+  product_owner:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+  manager:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+  scrum_master:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+  release_manager:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+  new_joiner:
+  - What does a normal day in your role look like, and which part of it takes the longest?
+  - What do you wish Devin knew about how you work?
+questions: []

@@ -1,0 +1,19 @@
+# Repo blueprint for {{repo_slug}}, prepared by the SDLC install on {{today}}.
+# The tech lead reviews it and Devin applies it as the repo blueprint (Devin asks for approval).
+# Every new session then starts on the work branch with PyYAML and the framework's git hooks.
+initialize: |
+  python3 -m pip install --user pyyaml
+maintenance: |
+  cd ~/repos/{{repo_name}}
+  git fetch -q origin {{work_branch}} && git checkout -q {{work_branch}} && git pull -q --ff-only origin {{work_branch}} || true
+  for h in pre-commit commit-msg pre-push; do
+    if [ -f .devin/hooks/git/$h ]; then
+      printf '#!/bin/sh\nexec sh "$(git rev-parse --show-toplevel)/.devin/hooks/git/%s" "$@"\n' "$h" > .git/hooks/$h
+      chmod +x .git/hooks/$h
+    fi
+  done
+knowledge:
+  - name: SDLC framework
+    contents: |
+      The agentic SDLC framework is installed in {{repo_slug}} on {{work_branch}}: rules and skills in
+      .devin/, the framework in {{sdlc_dir}}/, the knowledge base in {{kb_dir}}/. Start with /help.

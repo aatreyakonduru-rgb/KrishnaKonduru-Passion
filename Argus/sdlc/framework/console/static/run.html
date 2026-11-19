@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en" data-theme="acme">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Result · {{WORKBENCH_TITLE}}</title>
+<link rel="stylesheet" href="/static/kit.css" />
+<link rel="stylesheet" href="/static/acme.css" />
+<link rel="stylesheet" href="/static/console.css" />
+</head>
+<body class="rp-body">
+<header class="w-top rp-top">
+  <div class="w-brand"><img class="w-brand__logo" src="/static/argus-logo.svg" alt="" /><b>{{WORKBENCH_BRAND}}</b>&nbsp;Argus · result</div>
+  <a class="a-btn a-btn--outline" href="/" target="_blank">Open Argus</a>
+</header>
+
+<main class="rp">
+  <div class="rp-head">
+    <div>
+      <div class="c-runhead__key"><code id="rCmd"></code> <span id="rMode" class="a-chip"></span> <span id="rStatus"></span></div>
+      <h1 id="rTitle">Loading…</h1>
+      <div class="c-muted" id="rBlurb"></div>
+    </div>
+    <div class="rp-head__aside">
+      <button class="a-btn a-btn--outline" id="wakeBtn" hidden title="Send the session a short nudge so it carries on">Wake</button>
+      <a id="rSession" class="a-btn a-btn--outline" target="_blank" hidden>Open in Devin</a>
+      <button class="a-btn a-btn--outline" id="closeBtn" hidden title="End the Devin session; the answer stays on this page">Close session</button>
+    </div>
+  </div>
+
+  <div class="c-now" id="now"></div>
+  <div id="rerun" class="rp-rerun" hidden></div>
+
+  <section id="askCard" class="c-card c-card--ask" hidden>
+    <div class="c-card__title">Devin is asking you</div>
+    <div id="askItems"></div>
+    <div class="c-card__actions"><button class="a-btn a-btn--primary" id="askSend">Send answers</button></div>
+  </section>
+
+  <section id="gateCard" class="c-card c-card--gate" hidden>
+    <div class="c-card__title">Waiting for your sign-off: <span id="gateId" class="a-mono"></span></div>
+    <div class="a-prose rp-md" id="gateText"></div>
+    <div id="gateItems" class="w-gitems"></div>
+    <div class="c-card__actions">
+      <button class="a-btn a-btn--primary" id="gateSend" type="button" disabled>Decide every item</button>
+    </div>
+  </section>
+
+  <section class="rp-sec" id="outSec" hidden>
+    <h2>Output</h2>
+    <div id="arts"></div>
+  </section>
+
+  <section class="rp-sec">
+    <h2>What Devin said</h2>
+    <div id="feed" class="rp-feed"><div class="c-empty">Nothing yet. A new session takes a minute or two to start.</div></div>
+  </section>
+
+  <form class="c-compose rp-compose" id="compose" hidden>
+    <textarea id="composeText" class="a-input" rows="2" placeholder="Reply or ask a follow-up; it goes to the Devin session"></textarea>
+    <button class="a-btn a-btn--primary" type="submit">Send</button>
+  </form>
+  <div id="err" class="c-err" hidden></div>
+</main>
+<script src="/static/run.js"></script>
+</body>
+</html>

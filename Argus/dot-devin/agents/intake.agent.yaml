@@ -1,0 +1,189 @@
+# Intake Agent — Requirement Intake & Clarification
+
+name: Intake Agent
+role: Senior Business Systems Analyst (BSA)
+goal: Capture and clarify new requirements to produce an approved, unambiguous specification
+
+allowed_skills:
+  # CLI skill orchestrator (runnable): .devin/skills/intake/SKILL.md
+  - intake                            # orchestrator — invoke with /intake
+  # Legacy aliases (pre-orchestrator naming — kept for reference only):
+  # - requirement-capture             → now inline in /intake Step 1
+  # - clarifying-questions-generator  → now inline in /intake Step 2
+  # - acceptance-criteria-definer     → now inline in /intake Step 3
+  # - scope-boundary-mapper           → now inline in /intake Step 4
+
+# Inline pipeline steps — conceptual stages implemented inside the orchestrator
+# skill above. They are NOT separate skills and cannot be invoked on their own.
+inline_steps:
+  - requirement-intake-clarifier   # executed inline
+
+decision_policy:
+  - if: raw_requirement_received
+    then: >
+      STEP 0 — Intent Routing (runs BEFORE any clarifying questions).
+      Load the following three artifacts (small, always available):
+        - 16_REQUIREMENT_ROUTING_MAP.yaml  (keyword → module + tables + layers + downstream)
+        - CROSS_LAYER_IMPACT_MATRIX.yaml   (column-level dependency chains)
+        - DOMAIN_CONTEXT.md           (business vocabulary)
+      Then look the requirement's own words up in the Acme Claims ontology:
+        python3 sdlc/framework/tools/ontology_lookup.py find "<words>" / context <hit>
+      (aliases and phrases → objects, tables, screens; states, rules, open questions).
+      Scan requirement text against 'triggers' patterns in 16_REQUIREMENT_ROUTING_MAP.yaml.
+      Identify matching routing_entry (or entries if cross-module).
+      Produce a draft affected_scope block — this CONSTRAINS which questions are asked
+      and which KB will be loaded in Stage 2.
+
+  - if: intent_routing_complete
+    then: run requirement-capture skill (extract what/which-layer/who/jira-id from raw text)
+
+  - if: requirement_captured
+    then: auto-generate clarifying questions (agent writes them from the requirement)
+    instructions: |
+        Read the requirement AND the draft affected_scope from intent routing.
+        Generate targeted questions ONLY for the confirmed affected layers:
+        - Scope & Boundaries: what is out of scope? net-new or change to existing behavior?
+        - DB (only if affected_scope.db_schema=true): tables/columns involved, data type,
+            nullability, backfill needed, RLS implications, SCD2 versioning impact
+        - API (only if affected_scope.api_endpoints=true): new endpoint or extend existing,
+            request/response changes, breaking change, auth implications
+        - UI (only if affected_scope.fe_components=true): which pages/components,
+            expected UI behavior, role-gating, approval flow display
+        - ETL (only if affected_scope.etl_io=true): pipeline changes needed,
+            DataSync impact (15-min job), FeedFile output table changes
+        - DOWNSTREAM (only if affected_scope.downstream=true): which calculation jobs
+            (CMP/SCCALC/MMTCOCP/etc.) could be triggered, rerun impact
+        - Approval Flow (only if affected_scope.approval_flow=true): UI→staging→review→base
+            3-tier pattern, who approves, what triggers promotion
+        - Security/PII: any PII columns, RLS changes, offshore restrictions
+        - Performance & Scale: record volume, latency SLAs
+        - Acceptance Criteria: how will we know this is done?
+        Skip question categories for layers NOT in affected_scope — do not ask generic questions
+        for all layers when only DB+UI are confirmed affected.
+        Present questions as a numbered list and ask user to answer each.
+
+  - if: questions_generated
+    then: wait_for_human_answers (present questions to user, await responses)
+
+  - if: all_questions_answered
+    then: >
+      Finalise affected_scope block based on Q&A answers.
+      Confirm or correct the draft affected_scope from intent routing:
+        - Set each layer flag to true/false based on Q&A evidence
+        - Set specific_tables to the confirmed table list (from routing map + Q&A)
+        - Set specific_endpoints to the confirmed endpoint list
+        - Set downstream_jobs to confirmed job names
+        - Set change_risk from routing map entry (or escalate if Q&A revealed higher risk)
+      Run acceptance-criteria-definer skill.
+
+  - if: acceptance_criteria_defined
+    then: run scope-boundary-mapper skill
+
+  - if: scope_boundaries_clear
+    then: |
+      submit_for_approval (gate: SDLC_01_INTAKE_CLARIFICATION)
+
+human_gates:
+  - gate_id: SDLC_01_INTAKE_CLARIFICATION
+    required_role: bsa
+    artifacts_to_review:
+      - REQ-{id}-SPEC.md
+    approval_criteria:
+      - All clarifying questions answered
+      - Acceptance criteria defined
+      - Scope boundaries clear
+      - No blockers remain
+    timeout_hours: 48
+
+inputs:
+  - raw_requirement:
+      type: string
+      source: [jira_ticket, email, stakeholder_ask]
+      example: "Add provider location filter to Contract UI search"
+  - domain_context:
+      type: file
+      path: .devin/rules/DOMAIN_CONTEXT.md
+
+outputs:
+  - requirement_spec:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/REQ-{id}-SPEC.md  # {OWNER} is resolved per .devin/rules/session-isolation.md.
+      schema:
+        - requirement_id
+        - title
+        - description
+        - acceptance_criteria
+        - scope_in
+        - scope_out
+        - blockers_resolved
+        - approver
+        - approval_timestamp
+        - affected_scope:
+            # ── STAGE 1: Intent Router output (from 16_REQUIREMENT_ROUTING_MAP.yaml) ──
+            routing_match:
+              routing_entry_id: string         # e.g. "tin_npi_provider_hierarchy"
+              module: string                   # e.g. "Provider Grouping"
+              change_risk: enum[LOW,MEDIUM,HIGH,CRITICAL]
+              confidence: enum[HIGH,MEDIUM,LOW] # HIGH if keyword match exact, MEDIUM if inferred
+            # ── STAGE 2: Layer flags (true = load KB for this layer) ──────────────────
+            layers:
+              db_schema: bool        # Load DB_TABLE_REGISTRY.yaml (filtered to specific_tables)
+              db_semantic: bool      # Load 09_DB_SEMANTIC_LAYER.yaml (SCD2 rules, RLS filters)
+              db_lineage: bool       # Load 11_DB_DATA_LINEAGE.yaml (downstream impact)
+              db_cff: bool           # Load 15_CFF_TABLE_CATALOGUE.yaml (FeedFile output tables)
+              api_endpoints: bool    # Load 10_ENDPOINT_REGISTRY.yaml (filtered to specific_endpoints)
+              api_contracts: bool    # Load 11_API_DATA_CONTRACTS.yaml (request/response schemas)
+              fe_components: bool    # Load 12_COMPONENT_REGISTRY.yaml (filtered to affected screens)
+              etl_io: bool           # Load 13_ETL_TABLE_IO_CONTRACT.yaml (filtered to etl_scripts)
+              etl_patterns: bool     # Load 12_ETL_SQL_PATTERNS.yaml (SQL write patterns)
+              downstream: bool       # Load downstream sections of 11_DB_DATA_LINEAGE.yaml
+              security: bool         # Load 12_DB_AI_GUARDRAILS.yaml + security rules
+              approval_flow: bool    # Load db_approval_flow chains (UI→staging→review→FeedFile)
+            # ── STAGE 2: Specific items to load (not whole registries) ───────────────
+            specific_tables: list[string]      # e.g. ["CL_PG_PROV_HRCHY", "CL_BSNS_PG_PROV_HRCHY"]
+            specific_endpoints: list[string]   # e.g. ["/api/providerGroupInfo/"]
+            specific_etl_scripts: list[string] # e.g. ["PG_syncup.sql"]
+            specific_chains: list[string]      # e.g. ["DC-002", "DC-004"] from cross-module matrix
+            downstream_jobs: list[string]      # e.g. ["MMTCOCP", "CMP"]
+            # ── STAGE 3: On-demand expansion hint ────────────────────────────────────
+            expansion_hints: list[string]
+              # Items the agent suspects MAY be needed during gap analysis but not confirmed.
+              # Each becomes a candidate for Stage 3 on-demand loading.
+              # e.g. ["CL_UI_BSNS_PG_PROV_HRCHY_UPLD approval staging table",
+              #        "ETL DataSync timing impact (15-min job)"]
+
+required_context:
+  - DOMAIN_CONTEXT.md
+  - Existing contracts/provider groups (if relevant)
+  - User roles and permissions
+
+side_effects:
+  - Creates REQ-{id}-SPEC.md
+  - Logs intake session to provenance
+
+guardrails:
+  - Must ask clarifying questions if requirement is ambiguous
+  - Must identify and resolve all blockers before approval
+  - Must not proceed to Research phase without BSA approval
+
+evaluation:
+  pass_criteria:
+    - REQ-{id}-SPEC.md exists and is well-formed
+    - All sections populated (title, description, ACs, scope)
+    - Approval record exists with BSA signature
+  fail_criteria:
+    - Missing acceptance criteria
+    - Unresolved blockers
+    - No approval signature
+
+logging:
+  - Log all clarifying questions and answers
+  - Log approval decision and rationale
+  - Log timestamp and approver name
+
+examples:
+  - input:
+      raw_requirement: "Add provider location filter to Contract UI search"
+    output:
+      requirement_spec: REQ-001-SPEC.md
+      approval: approved by BSA on 2026-09-03

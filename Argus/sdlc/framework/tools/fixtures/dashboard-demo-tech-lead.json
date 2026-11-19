@@ -1,0 +1,359 @@
+{
+  "_comment": "Offline demo fixture for gen_dashboard.py --cache, tech-lead lens. Every row is fabricated so that each tab has something to show in a walkthrough. Roster names come from .devin/rules/people.yaml; ticket keys, questions, branches and sessions are invented. Render with: python3 sdlc/framework/tools/gen_dashboard.py --user resource3 --lens tech_lead --cache sdlc/framework/tools/fixtures/dashboard-demo-tech-lead.json",
+  "defect_matrix": "defects-by-specialty-demo.json",
+  "hygiene": "jira-hygiene-demo.json",
+  "grooming_prep": "grooming-prep-demo.json",
+  "base": "origin/feature/devin-sdlc",
+  "user": {"name": "resource3", "displayName": "Resource 3", "roles": ["tech_lead", "delivery_lead"]},
+
+  "questions_for_me": [
+    {
+      "key": "ACME-19102", "parent": "ACME-18698",
+      "parent_title": "Enhancements to downloaded spreadsheet off THL Attribution screen",
+      "asker": "Resource 10", "assignee": "resource3", "assignee_display": "Resource 3",
+      "question": "Excel refuses to sort the protected sheet while the hidden Original Subscriber ID column is locked. Can I unlock it and guard it with a reject-all validation instead, or must it stay locked?",
+      "answer": "", "answer_by": "", "age": 1, "waiting": false
+    },
+    {
+      "key": "ACME-19095", "parent": "ACME-18740",
+      "parent_title": "Provider grouping approver configuration",
+      "asker": "Resource 13", "assignee": "resource3", "assignee_display": "Resource 3",
+      "question": "Should the approver list be read from CL_UI_APRVL_CNFGRN per contract type, or stay hard-coded to three levels as today?",
+      "answer": "", "answer_by": "", "age": 4, "waiting": false
+    }
+  ],
+
+  "my_questions": [
+    {
+      "key": "ACME-19088", "parent": "ACME-18698",
+      "parent_title": "Enhancements to downloaded spreadsheet off THL Attribution screen",
+      "asker": "Resource 3", "assignee": "resource17", "assignee_display": "Resource 17",
+      "question": "Which Excel version do the THL users run? Sort behaviour on validation-guarded cells differs between 2016 and 365.",
+      "answer": "", "answer_by": "", "age": 2, "waiting": true
+    },
+    {
+      "key": "ACME-19071", "parent": "ACME-18712",
+      "parent_title": "Contract template upload validation",
+      "asker": "Resource 3", "assignee": "resource18", "assignee_display": "Resource 18",
+      "question": "Which SIT data set should the negative upload cases use?",
+      "answer": "SIT-2 refreshed set; SIT-1 has stale contract effective dates.", "answer_by": "Resource 18",
+      "age": 6, "waiting": false
+    }
+  ],
+
+  "approvals": [
+    {
+      "key": "ACME-19110",
+      "requirement": "REQ-THL-001",
+      "title": "ACME-18698 — Approval [SDLC_04] Routing & insertion points",
+      "session": "Jira approval sub-task ACME-19110 (requested by resource10)",
+      "gate_id": "SDLC_04_ROUTING_APPROVAL", "name": "Routing & Insertion Points",
+      "requirement_text": "One file (thlAttribution/service.py L1129-1200) plus a new tests.py; no DB, UI or ETL change. KB drift: workbook protection undocumented — KB file in the routing map.",
+      "owner": "resource10", "days": 1, "timeout_hours": 24, "time_left": 6,
+      "items": [
+        {"n": 1, "text": "Routing map: service.py _apply_data_sheet_edit_protection only; both callers untouched", "state": "pending"},
+        {"n": 2, "text": "New api/apps/thlAttribution/tests.py with six tests (pattern: bulkupload/tests.py)", "state": "pending"},
+        {"n": 3, "text": "KB fix in the same PR: MODULES/api/thlAttribution — document protection, greyed rows, hidden helper column", "state": "pending"},
+        {"n": 4, "text": "Allow formatColumns=False so users can resize and hide columns (not in the ticket)", "state": "pending"}
+      ]
+    },
+    {
+      "key": "session:REQ-2026-014/SDLC_05_CODE_REVIEW",
+      "requirement": "REQ-2026-014",
+      "title": "ACME-18712 — Contract template upload validation",
+      "session": "sdlc/framework/context/session/resource13/REQ-2026-014",
+      "gate_id": "SDLC_05_CODE_REVIEW", "name": "Code Review",
+      "requirement_text": "PR 2641 into feature/devin-sdlc: 3 files, 142 lines, 9 tests, pr-readiness PASS_WITH_WARNINGS (registry entry missing).",
+      "owner": "resource13", "days": 3, "timeout_hours": 48, "time_left": -24,
+      "items": [
+        {"n": 1, "text": "Diff as presented (bulkupload/validators.py, serializers.py, tests.py)", "state": "pending"},
+        {"n": 2, "text": "Accept the pr-readiness warning: endpoint registry updated in a follow-up", "state": "pending"},
+        {"n": 3, "text": "Update ACME-18712 story points: 3 -> 5 (upload rules grew during routing)", "state": "delegated"}
+      ]
+    },
+    {
+      "key": "session:REQ-2026-015/SDLC_01_INTAKE_CLARIFICATION",
+      "requirement": "REQ-2026-015",
+      "title": "ACME-18801 — Secondary approver for high-value contracts",
+      "session": "sdlc/framework/context/session/resource17/REQ-2026-015",
+      "gate_id": "SDLC_01_INTAKE_CLARIFICATION", "name": "Requirement Intake & Clarification",
+      "requirement_text": "Sent to you by Resource 17: 'Resource 3, please confirm the technical assumptions before I sign.' Open questions: none.",
+      "owner": "resource17", "days": 0, "timeout_hours": 48, "time_left": 44,
+      "items": [
+        {"n": 1, "text": "Spec as written: 5 acceptance criteria, scope = contract approval screen only", "state": "pending"},
+        {"n": 2, "text": "Assumption: contract value comes from a new CL_CNTRCT_PARM term, not from PMC", "state": "pending"},
+        {"n": 3, "text": "Update ACME-18801 acceptance criteria in Jira to match the spec", "state": "pending"}
+      ]
+    }
+  ],
+
+  "team_pipeline": [
+    {"requirement": "REQ-THL-001", "owner": "resource10", "phase": "Routing & Insertion Points", "blocked_on": "approval: SDLC_04_ROUTING_APPROVAL"},
+    {"requirement": "REQ-2026-014", "owner": "resource13", "phase": "Code Review", "blocked_on": "approval: SDLC_05_CODE_REVIEW"},
+    {"requirement": "REQ-2026-015", "owner": "resource17", "phase": "Requirement Intake", "blocked_on": "approval: SDLC_01_INTAKE_CLARIFICATION"},
+    {"requirement": "REQ-2026-011", "owner": "resource5", "phase": "Test Execution", "blocked_on": "QA run in SIT"},
+    {"requirement": "REQ-2026-009", "owner": "resource9", "phase": "Gap Analysis", "blocked_on": "question ACME-19060 (7 days)"}
+  ],
+
+  "branches": [
+    {"branch": "devin/ACME-18698-excel-sort-filter", "key": "ACME-18698", "author": "Resource 10", "committed": "2026-09-23", "ahead": "2", "behind": "0", "remote": true, "conflicts": false},
+    {"branch": "feature/ACME-18712-contract-template", "key": "ACME-18712", "author": "Resource 13", "committed": "2026-09-18", "ahead": "6", "behind": "31", "remote": true, "conflicts": true},
+    {"branch": "feature/ACME-18655-tin-hierarchy", "key": "ACME-18655", "author": "Resource 9", "committed": "2026-09-02", "ahead": "14", "behind": "58", "remote": true, "conflicts": false},
+    {"branch": "feature/ACME-18590-attribution-export", "key": "ACME-18590", "author": "Resource 7", "committed": "2026-08-21", "ahead": "3", "behind": "72", "remote": false, "conflicts": false}
+  ],
+  "branch_status": [
+    {"key": "ACME-18698", "status": "In Progress", "assignee": "Resource 10", "summary": "Enhancements to downloaded spreadsheet off THL Attribution screen", "resolved": false},
+    {"key": "ACME-18712", "status": "In Review", "assignee": "Resource 13", "summary": "Contract template upload validation", "resolved": false},
+    {"key": "ACME-18655", "status": "In Progress", "assignee": "Resource 9", "summary": "TIN hierarchy category code", "resolved": false},
+    {"key": "ACME-18590", "status": "Done", "assignee": "Resource 7", "summary": "Attribution export CSV encoding", "resolved": true}
+  ],
+
+  "panels": {
+    "my_work": [
+      {"key": "ACME-18698", "type": "Story", "summary": "Enhancements to downloaded spreadsheet off THL Attribution screen", "status": "In Progress", "sprint": "Acme Claims Sprint 26.4.1", "updated": "2026-09-23"},
+      {"key": "ACME-18760", "type": "Task", "summary": "SDLC framework: approval sub-tasks and dashboard controls", "status": "In Progress", "sprint": "Acme Claims Sprint 26.4.1", "updated": "2026-09-23"},
+      {"key": "ACME-18622", "type": "Spike", "summary": "Artifactory credential for Devin Cloud test runs", "status": "Blocked", "sprint": "Acme Claims Sprint 26.4.1", "updated": "2026-09-19"}
+    ],
+    "review_queue": [
+      {"key": "ACME-18712", "type": "Story", "summary": "Contract template upload validation", "assignee": "Resource 13", "sprint": "Acme Claims Sprint 26.4.1", "updated": "2026-09-20"},
+      {"key": "ACME-18690", "type": "Bug", "summary": "Attribution grid loses filter after page change", "assignee": "Resource 8", "sprint": "Acme Claims Sprint 26.4.1", "updated": "2026-09-22"},
+      {"key": "ACME-18644", "type": "Story", "summary": "Provider hierarchy export with TIN category", "assignee": "Resource 9", "sprint": "Acme Claims Sprint 26.3.2", "updated": "2026-09-15"}
+    ],
+    "aging_questions": [
+      {"key": "ACME-19060", "summary": "Gap analysis: does DataSync carry the attribution status for terminated providers?", "reporter": "Resource 9", "assignee": "Resource 1", "created": "2026-09-16"},
+      {"key": "ACME-19052", "summary": "Which fix version should the contract amendment history go into?", "reporter": "Resource 11", "assignee": "Resource 17", "created": "2026-09-14"},
+      {"key": "ACME-19048", "summary": "Is the 80% coverage threshold per app or per file for the ETL package?", "reporter": "Resource 12", "assignee": "Resource 18", "created": "2026-09-12"},
+      {"key": "ACME-19095", "summary": "Approver list from CL_UI_APRVL_CNFGRN or hard-coded three levels?", "reporter": "Resource 13", "assignee": "Resource 3", "created": "2026-09-19"}
+    ],
+    "grooming": [
+      {"key": "ACME-18992", "type": "Story", "summary": "Contract amendment history view", "status": "Refining", "points": "", "assignee": "", "updated": "2026-09-12"},
+      {"key": "ACME-18985", "type": "Story", "summary": "Bulk re-attribution across a provider group (needs_split)", "status": "Open", "points": "21", "assignee": "Resource 23", "updated": "2026-09-18"},
+      {"key": "ACME-18801", "type": "Story", "summary": "Secondary approver for high-value contracts", "status": "Refining", "points": "", "assignee": "", "updated": "2026-09-23"}
+    ]
+  },
+
+  "workload": {
+    "sprint": {"name": "Acme Claims Sprint 26.4.1 (9/16-10/6)", "start": "2026-09-16T12:01:00.000-04:00", "end": "2026-10-06T21:01:00.000-04:00"},
+    "issues": [
+      {"username": "resource13", "display": "Resource 13", "category": "new", "estimate_hours": 160.0},
+      {"username": "resource13", "display": "Resource 13", "category": "indeterminate", "estimate_hours": 40.0},
+      {"username": "resource10", "display": "Resource 10", "category": "new", "estimate_hours": 96.0},
+      {"username": "resource9", "display": "Resource 9", "category": "indeterminate", "estimate_hours": 72.0},
+      {"username": "resource23", "display": "Resource 23", "category": "new", "estimate_hours": 24.0},
+      {"username": "resource8", "display": "Resource 8", "category": "done", "estimate_hours": 64.0},
+      {"username": "resource11", "display": "Resource 11", "category": "new", "estimate_hours": 8.0}
+    ]
+  },
+
+  "roster_findings": [
+    ["schema", "resource15 Resource 15: no email and no devin_user_id"],
+    ["vocabulary", "resource3 Resource 3: primary_role 'solution_lead' is not in the role vocabulary"],
+    ["gap", "Gate SDLC_07_ENV_PROMOTION_APPROVAL: no active person holds release_manager"],
+    ["unresolved", "Jira assignee 'user1' on ACME-19048 is not on the roster"]
+  ],
+
+  "sessions": [
+    {"session_id": "devin-000000000000000000000000000076c6", "title": "ACME-18698 THL Attribution spreadsheet — routing approved, implementing", "status": "blocked", "substatus": "waiting_for_user", "updated": "2026-09-23T11:40:00Z", "tags": ["REQ-THL-001"]},
+    {"session_id": "devin-00000000000000000000000000001a0b", "title": "Approval SDLC_04 sent to Resource 5 — waiting on ACME-19110", "status": "suspended", "substatus": "suspended", "updated": "2026-09-22T16:05:00Z", "tags": ["REQ-2026-014", "waiting-approval"]},
+    {"session_id": "devin-0000000000000000000000000000b1a0", "title": "/roadmap regenerate — Sprint 26.4.1", "status": "finished", "substatus": "finished", "updated": "2026-09-21T09:12:00Z", "tags": []},
+    {"session_id": "devin-0000000000000000000000000000f809", "title": "REQ-2026-011 QA sign-off prep", "status": "working", "substatus": "working", "updated": "2026-09-23T12:30:00Z", "tags": ["REQ-2026-011"], "handed_to": "resource5"}
+  ],
+
+  "metrics": [
+    {
+      "event": "gate_presented",
+      "requirement_id": "REQ-DEMO-1",
+      "story_id": null,
+      "gate": "SDLC_01_INTAKE_CLARIFICATION",
+      "at": "2026-09-20T09:00:00Z"
+    },
+    {
+      "event": "gate_decided",
+      "requirement_id": "REQ-DEMO-1",
+      "story_id": null,
+      "gate": "SDLC_01_INTAKE_CLARIFICATION",
+      "decision": "approved",
+      "approver": "Demo BSA",
+      "at": "2026-09-20T15:30:00Z"
+    },
+    {
+      "event": "gate_presented",
+      "requirement_id": "REQ-DEMO-1",
+      "story_id": null,
+      "gate": "SDLC_03_BACKLOG_APPROVAL",
+      "at": "2026-09-21T10:00:00Z"
+    },
+    {
+      "event": "gate_decided",
+      "requirement_id": "REQ-DEMO-1",
+      "story_id": null,
+      "gate": "SDLC_03_BACKLOG_APPROVAL",
+      "decision": "needs_revision",
+      "approver": "Demo PO",
+      "at": "2026-09-22T10:00:00Z"
+    },
+    {
+      "event": "gate_presented",
+      "requirement_id": "REQ-DEMO-1",
+      "story_id": null,
+      "gate": "SDLC_03_BACKLOG_APPROVAL",
+      "at": "2026-09-22T14:00:00Z"
+    },
+    {
+      "event": "gate_decided",
+      "requirement_id": "REQ-DEMO-1",
+      "story_id": null,
+      "gate": "SDLC_03_BACKLOG_APPROVAL",
+      "decision": "approved",
+      "approver": "Demo PO",
+      "at": "2026-09-23T09:00:00Z"
+    },
+    {
+      "event": "gate_presented",
+      "requirement_id": "REQ-DEMO-1",
+      "story_id": "STORY-1",
+      "gate": "SDLC_04_ROUTING_APPROVAL",
+      "at": "2026-09-23T16:00:00Z"
+    },
+    {
+      "event": "gate_escalated",
+      "requirement_id": "REQ-DEMO-1",
+      "story_id": "STORY-1",
+      "gate": "SDLC_04_ROUTING_APPROVAL",
+      "at": "2026-09-25T17:00:00Z"
+    }
+  ],
+  "team_activity": {
+    "sprint": {
+      "name": "Acme Claims Sprint 26.4.1 (9/16-10/6)",
+      "start": "2026-09-16T12:01:00.000-04:00",
+      "end": "2026-10-06T21:01:00.000-04:00"
+    },
+    "issues": [
+      {
+        "key": "ACME-18698",
+        "summary": "THL Attribution spreadsheet export",
+        "type": "Story",
+        "status": "In Progress",
+        "category": "indeterminate",
+        "parent": "",
+        "username": "resource3",
+        "updated": "2026-09-30T10:00:00.000-0400"
+      },
+      {
+        "key": "ACME-18712",
+        "summary": "Attribution grid column widths",
+        "type": "Sub-task",
+        "status": "In Progress",
+        "category": "indeterminate",
+        "parent": "ACME-18698",
+        "username": "resource9",
+        "updated": "2026-09-30T10:00:00.000-0400"
+      },
+      {
+        "key": "ACME-18713",
+        "summary": "Attribution export unit tests",
+        "type": "Sub-task",
+        "status": "To Do",
+        "category": "new",
+        "parent": "ACME-18698",
+        "username": "resource9",
+        "updated": "2026-09-30T10:00:00.000-0400"
+      },
+      {
+        "key": "ACME-18720",
+        "summary": "Provider roster load to Snowflake",
+        "type": "Story",
+        "status": "In Progress",
+        "category": "indeterminate",
+        "parent": "",
+        "username": "resource13",
+        "updated": "2026-09-30T10:00:00.000-0400"
+      },
+      {
+        "key": "ACME-18721",
+        "summary": "Roster load reconciliation",
+        "type": "Sub-task",
+        "status": "Done",
+        "category": "done",
+        "parent": "ACME-18720",
+        "username": "resource13",
+        "updated": "2026-09-30T10:00:00.000-0400"
+      },
+      {
+        "key": "ACME-18730",
+        "summary": "Contract template defect",
+        "type": "Bug",
+        "status": "In Review",
+        "category": "indeterminate",
+        "parent": "",
+        "username": "resource10",
+        "updated": "2026-09-30T10:00:00.000-0400"
+      },
+      {
+        "key": "ACME-18741",
+        "summary": "Quality measures page filters",
+        "type": "Story",
+        "status": "To Do",
+        "category": "new",
+        "parent": "",
+        "username": "resource23",
+        "updated": "2026-09-30T10:00:00.000-0400"
+      },
+      {
+        "key": "ACME-18742",
+        "summary": "Regression pack for attribution",
+        "type": "Story",
+        "status": "In Progress",
+        "category": "indeterminate",
+        "parent": "",
+        "username": "resource19",
+        "updated": "2026-09-30T10:00:00.000-0400"
+      }
+    ]
+  },
+  "team_sessions": {
+    "days": 7,
+    "sessions": [
+      {
+        "session_id": "devin-000000000000000000000000000076c6",
+        "title": "ACME-18698 THL Attribution spreadsheet",
+        "status": "blocked",
+        "updated": 1790200000,
+        "tags": [
+          "sdlc-workbench",
+          "work_id:ACME-18698"
+        ],
+        "user_id": "resource3"
+      },
+      {
+        "session_id": "devin-00000000000000000000000000002a2a",
+        "title": "Fix attribution column widths",
+        "status": "working",
+        "updated": 1790190000,
+        "tags": [
+          "work_id:ACME-18712"
+        ],
+        "user_id": "resource9"
+      },
+      {
+        "session_id": "devin-00000000000000000000000000003b3b",
+        "title": "Contract template defect",
+        "status": "suspended",
+        "updated": 1790100000,
+        "tags": [],
+        "user_id": "resource10"
+      },
+      {
+        "session_id": "devin-00000000000000000000000000004c4c",
+        "title": "Roster load reconciliation query",
+        "status": "finished",
+        "updated": 1790000000,
+        "tags": [
+          "work_id:ACME-18721"
+        ],
+        "user_id": "resource13"
+      }
+    ]
+  }
+}

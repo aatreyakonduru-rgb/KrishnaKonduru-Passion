@@ -1,0 +1,12 @@
+# Argus settings. Changed on the dashboard's Argus config tab, which raises a reviewed pull request
+# (sdlc/framework/tools/workbench_config.py).
+#
+# test_on_pc: how Test on my PC runs for a person.
+#   local_hands  the person's Devin Cloud Argus session runs the test pack on their PC through Local Hands
+#                (devin connect <code>, each step approved on the PC). Needs the org's Local Hands setting on.
+#   devin_local  Argus on the PC starts Devin Local (devin acp) there. Needs the Devin API key on the PC.
+#   cloud_vm     the test pack runs on the Devin Cloud VM; nothing runs on the PC.
+#   off          Test on my PC is hidden.
+default:
+  test_on_pc: cloud_vm
+people: {}

@@ -1,0 +1,2 @@
+# These run under bash on every platform; Windows (CRLF) line endings break them.
+*.sh text eol=lf

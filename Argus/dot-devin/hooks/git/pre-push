@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# git pre-push: a Product Owner or BSA (may change the knowledge base, not code) may push only
+# knowledge-base files, and every commit must carry their Approved-by stamp, so their pull request
+# is knowledge-base only. Everyone else passes; the pre-commit check already covered their files.
+# The base is origin/<repo.kb_branch in .devin/rules/sdlc-profile.json>.
+# Install once per checkout (the repo blueprint does this in Devin Cloud):
+#   cp .devin/hooks/git/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push
+set -uo pipefail
+
+root="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 1
+. "$root/.devin/hooks/lib/python.sh"
+while read -r _local_ref local_sha _remote_ref _remote_sha || [ -n "${local_sha:-}" ]; do
+  case "$local_sha" in *[!0]*) ;; *) continue ;; esac
+  output="$(sdlc_python "$root/sdlc/framework/tools/access_guard.py" pr-check --head "$local_sha" 2>&1)"
+  status=$?
+  case "$status" in
+    0) ;;
+    2) printf '%s\n' "$output" >&2; exit 1 ;;
+    *) printf 'ACCESS-BLOCK: pull request check failed to run (exit %s). %s\n' "$status" "$output" >&2; exit 1 ;;
+  esac
+done
+exit 0

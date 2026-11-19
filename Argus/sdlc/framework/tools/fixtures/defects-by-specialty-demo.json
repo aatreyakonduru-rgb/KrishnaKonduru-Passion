@@ -1,0 +1,379 @@
+{
+  "_comment": "Offline demo for defects_by_specialty.py --cache and the dashboard's defect_matrix panel. Fabricated data; no real Jira content.",
+  "issues": [
+    {
+      "key": "ACME-90001",
+      "fields": {
+        "summary": "EOC SIT episode grouper drops the trigger claim",
+        "issuetype": {
+          "name": "Defect"
+        },
+        "status": {
+          "name": "Open"
+        },
+        "assignee": {
+          "displayName": "Resource 13"
+        },
+        "reporter": {
+          "displayName": "Resource 23"
+        },
+        "created": "2026-09-01T09:00:00.000-0400",
+        "updated": "2026-10-01T09:00:00.000-0400",
+        "duedate": null,
+        "fixVersions": [
+          {
+            "name": "2026-11-13",
+            "releaseDate": "2026-11-13",
+            "released": false
+          }
+        ],
+        "customfield_10002": null,
+        "customfield_10010": null,
+        "customfield_10021": {
+          "value": "SIT"
+        },
+        "customfield_10013": {
+          "value": "High"
+        },
+        "customfield_10004": [
+          {
+            "value": "EDA-ACME-MBR-EOC"
+          }
+        ],
+        "issuelinks": []
+      }
+    },
+    {
+      "key": "ACME-90002",
+      "fields": {
+        "summary": "Asthma U01 SIT look-back window off by one day",
+        "issuetype": {
+          "name": "Defect"
+        },
+        "status": {
+          "name": "In Progress"
+        },
+        "assignee": {
+          "displayName": "Resource 13"
+        },
+        "reporter": {
+          "displayName": "Resource 23"
+        },
+        "created": "2026-08-20T09:00:00.000-0400",
+        "updated": "2026-10-02T09:00:00.000-0400",
+        "duedate": null,
+        "fixVersions": [],
+        "customfield_10002": [
+          "com.atlassian.greenhopper.service.sprint.Sprint@1[id=1,rapidViewId=2,state=ACTIVE,name=Clncl Afnty 26S4 (09/16-10/06),startDate=2026-09-16T10:00:00.000-04:00,endDate=2026-10-06T10:00:00.000-04:00,completeDate=<null>,sequence=1]"
+        ],
+        "customfield_10010": null,
+        "customfield_10021": {
+          "value": "TEST - System Integration Test (SIT)"
+        },
+        "customfield_10013": {
+          "value": "Medium"
+        },
+        "customfield_10004": [
+          {
+            "value": "EDA-ACME-SDLCClnclAff"
+          }
+        ],
+        "issuelinks": []
+      }
+    },
+    {
+      "key": "ACME-90003",
+      "fields": {
+        "summary": "Perinatal U01 TennCare Episode Of Care (EOC) totals mismatch",
+        "issuetype": {
+          "name": "Defect"
+        },
+        "status": {
+          "name": "Open"
+        },
+        "assignee": null,
+        "reporter": {
+          "displayName": "Resource 23"
+        },
+        "created": "2026-09-10T09:00:00.000-0400",
+        "updated": "2026-09-12T09:00:00.000-0400",
+        "duedate": null,
+        "fixVersions": [
+          {
+            "name": "NA",
+            "releaseDate": "2026-12-31",
+            "released": false
+          }
+        ],
+        "customfield_10002": null,
+        "customfield_10010": null,
+        "customfield_10021": {
+          "value": "TEST - User Acceptance Test (UAT)"
+        },
+        "customfield_10013": {
+          "value": "Critical"
+        },
+        "customfield_10004": [
+          {
+            "value": "EDA-ACME-SDLCClnclAff"
+          }
+        ],
+        "issuelinks": []
+      }
+    },
+    {
+      "key": "ACME-90004",
+      "fields": {
+        "summary": "CHF- Cohort 4 attribution export missing members",
+        "issuetype": {
+          "name": "Defect"
+        },
+        "status": {
+          "name": "Open"
+        },
+        "assignee": {
+          "displayName": "Resource 23"
+        },
+        "reporter": {
+          "displayName": "Resource 23"
+        },
+        "created": "2026-07-15T09:00:00.000-0400",
+        "updated": "2026-08-30T09:00:00.000-0400",
+        "duedate": null,
+        "fixVersions": [
+          {
+            "name": "2026-09-18",
+            "releaseDate": "2026-09-18",
+            "released": false
+          }
+        ],
+        "customfield_10002": null,
+        "customfield_10010": null,
+        "customfield_10021": {
+          "value": "TEST - User Acceptance Test (UAT)"
+        },
+        "customfield_10013": {
+          "value": "High"
+        },
+        "customfield_10004": [
+          {
+            "value": "EDA-ACME-Financial"
+          }
+        ],
+        "issuelinks": []
+      }
+    },
+    {
+      "key": "ACME-90005",
+      "fields": {
+        "summary": "MSKFD0101 retro file rejects valid NPI",
+        "issuetype": {
+          "name": "Defect"
+        },
+        "status": {
+          "name": "Testing"
+        },
+        "assignee": {
+          "displayName": "Resource 23"
+        },
+        "reporter": {
+          "displayName": "Resource 23"
+        },
+        "created": "2026-09-20T09:00:00.000-0400",
+        "updated": "2026-10-05T09:00:00.000-0400",
+        "duedate": null,
+        "fixVersions": [
+          {
+            "name": "2026-11-13",
+            "releaseDate": "2026-11-13",
+            "released": false
+          }
+        ],
+        "customfield_10002": [
+          "com.atlassian.greenhopper.service.sprint.Sprint@2[id=2,rapidViewId=2,state=FUTURE,name=Clncl Afnty 26S5 (10/07-10/27),startDate=2026-10-07T10:00:00.000-04:00,endDate=2026-10-27T10:00:00.000-04:00,completeDate=<null>,sequence=2]"
+        ],
+        "customfield_10010": null,
+        "customfield_10021": {
+          "value": "TEST - System Integration Test (SIT)"
+        },
+        "customfield_10013": {
+          "value": "Medium"
+        },
+        "customfield_10004": [
+          {
+            "value": "EDA-ACME-PD"
+          }
+        ],
+        "issuelinks": []
+      }
+    },
+    {
+      "key": "ACME-90006",
+      "fields": {
+        "summary": "Bulk upload screen shows a blank error banner",
+        "issuetype": {
+          "name": "Defect"
+        },
+        "status": {
+          "name": "Open"
+        },
+        "assignee": {
+          "displayName": "Resource 13"
+        },
+        "reporter": {
+          "displayName": "Resource 23"
+        },
+        "created": "2026-09-25T09:00:00.000-0400",
+        "updated": "2026-10-04T09:00:00.000-0400",
+        "duedate": null,
+        "fixVersions": [
+          {
+            "name": "2027-01-15",
+            "releaseDate": "2027-01-15",
+            "released": false
+          }
+        ],
+        "customfield_10002": null,
+        "customfield_10010": "ACME-90100",
+        "customfield_10021": {
+          "value": "TEST - System Integration Test (SIT)"
+        },
+        "customfield_10013": {
+          "value": "Low"
+        },
+        "customfield_10004": [
+          {
+            "value": "Acme-Claims-Web"
+          }
+        ],
+        "issuelinks": []
+      }
+    },
+    {
+      "key": "ACME-90007",
+      "fields": {
+        "summary": "Scorecard measure threshold saves the wrong direction",
+        "issuetype": {
+          "name": "Defect"
+        },
+        "status": {
+          "name": "Open"
+        },
+        "assignee": null,
+        "reporter": {
+          "displayName": "Resource 23"
+        },
+        "created": "2026-06-01T09:00:00.000-0400",
+        "updated": "2026-07-01T09:00:00.000-0400",
+        "duedate": null,
+        "fixVersions": [],
+        "customfield_10002": null,
+        "customfield_10010": null,
+        "customfield_10021": {
+          "value": "TEST - User Acceptance Test (UAT)"
+        },
+        "customfield_10013": {
+          "value": "Medium"
+        },
+        "customfield_10004": null,
+        "issuelinks": []
+      }
+    },
+    {
+      "key": "ACME-90008",
+      "fields": {
+        "summary": "Vendor delineation grid sorts by the wrong column",
+        "issuetype": {
+          "name": "Defect"
+        },
+        "status": {
+          "name": "In Review"
+        },
+        "assignee": {
+          "displayName": "Resource 13"
+        },
+        "reporter": {
+          "displayName": "Resource 23"
+        },
+        "created": "2026-09-28T09:00:00.000-0400",
+        "updated": "2026-10-05T09:00:00.000-0400",
+        "duedate": null,
+        "fixVersions": [
+          {
+            "name": "2026-11-13",
+            "releaseDate": "2026-11-13",
+            "released": false
+          }
+        ],
+        "customfield_10002": null,
+        "customfield_10010": null,
+        "customfield_10021": {
+          "value": "TEST - System Integration Test (SIT)"
+        },
+        "customfield_10013": {
+          "value": "Low"
+        },
+        "customfield_10004": [
+          {
+            "value": "EDA-ACME-MBR-Specialty"
+          }
+        ],
+        "issuelinks": [
+          {
+            "outwardIssue": {
+              "key": "ACME-90200",
+              "fields": {
+                "summary": "ProgramC VA strategic vendor roster load"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "key": "ACME-90009",
+      "fields": {
+        "summary": "THL Attribution download times out",
+        "issuetype": {
+          "name": "Defect"
+        },
+        "status": {
+          "name": "Open"
+        },
+        "assignee": {
+          "displayName": "Resource 23"
+        },
+        "reporter": {
+          "displayName": "Resource 23"
+        },
+        "created": "2026-08-01T09:00:00.000-0400",
+        "updated": "2026-09-01T09:00:00.000-0400",
+        "duedate": null,
+        "fixVersions": [
+          {
+            "name": "2026-11-13",
+            "releaseDate": "2026-11-13",
+            "released": false
+          }
+        ],
+        "customfield_10002": null,
+        "customfield_10010": null,
+        "customfield_10021": {
+          "value": "TEST - System Integration Test (SIT)"
+        },
+        "customfield_10013": {
+          "value": "High"
+        },
+        "customfield_10004": [
+          {
+            "value": "Acme-Claims-Web"
+          }
+        ],
+        "issuelinks": []
+      }
+    }
+  ],
+  "epics": {
+    "ACME-90100": "ProgramB work-UI"
+  }
+}

@@ -1,0 +1,101 @@
+# ETL Specialist Agent — Acme Claims Data Pipeline Analysis
+#
+# This YAML provides machine-readable I/O contracts, guardrails, and evaluation
+# criteria alongside the human-readable AGENT.md. Both files are kept in sync.
+# The AGENT.md is what Devin loads at runtime; this YAML is the formal specification.
+
+name: ETL Specialist Agent
+role: ETL Pipeline Engineer
+goal: >
+  Analyze Acme Claims data pipelines (Python DataSync jobs, SQL run request scripts,
+  Lambda triggers, Glue jobs) with zero unconfirmed facts — every data flow,
+  schedule, and error handler traceable to actual script source code.
+
+allowed_skills:
+  - app-discovery  # When module = claims-etl — ETL-specific discovery path
+
+decision_policy:
+  - if: etl_discovery_invoked
+    then: >
+      Run script inventory first: list ALL .py and .sql files in claims-etl/.
+      Group by type: DataSync, run request generation, downstream trigger, email alert, ad-hoc.
+      For each script: read fully, extract schedule (cron/event), input tables, output tables,
+      error handling logic, S3 paths, Snowflake connection method.
+      Do NOT infer schedule from file name — read the actual schedule config.
+
+  - if: syncup_scripts_identified
+    then: >
+      Trace the full DataSync flow:
+      UI staging tables → transformation logic → FeedFile production tables → downstream triggers.
+      Map every table read and table written with the specific SQL statement that does it.
+      Document the 15-minute schedule confirmation source (code or config).
+
+  - if: run_request_scripts_identified
+    then: >
+      For each run request type (CMP, ACTVTY, SCCALC, SCBNCHMRK, Member Month, Affinity):
+      read the SQL script, extract: trigger conditions, input parameters, output tables,
+      downstream notification mechanism.
+
+  - if: all_scripts_read
+    then: >
+      Write discovery report with:
+      - Script inventory grouped by type
+      - Data flow diagrams (Mermaid)
+      - Schedule table (script → frequency → trigger condition)
+      - Error handling matrix (script → error type → recovery action)
+      - Integration points (S3 buckets, Snowflake tables, downstream system APIs)
+
+human_gates:
+  - gate_id: ETL_DISCOVERY_REVIEW
+    required_role: tech_lead
+    artifacts_to_review:
+      - "docs/knowledge-base/ETL/claims-etl/00_ETL_DISCOVERY_REPORT.md"
+    approval_criteria:
+      - All scripts inventoried (count matches actual file count)
+      - DataSync flow fully traced (every table in the chain documented)
+      - Schedules confirmed from code (not inferred from naming)
+      - Error handling documented for each script
+
+inputs:
+  - source_path:
+      type: directory
+      path: "claims-etl/"
+      subdirs:
+        - "scripts/python/"    # DataSync, downstream trigger, email alerts
+        - "scripts/sql/"       # Run request SQL, Finance, Scorecard, Affinity
+        - "scripts/config/"    # Configuration files
+
+outputs:
+  - discovery_report:
+      type: file
+      path: "docs/knowledge-base/ETL/claims-etl/00_ETL_DISCOVERY_REPORT.md"
+      required_sections:
+        - script_inventory (grouped by type, with file paths)
+        - syncup_flow (full chain: staging → FeedFile → downstream)
+        - run_request_types (one subsection per type)
+        - schedule_table (script, frequency, trigger source citation)
+        - data_flow_diagram (Mermaid)
+        - error_handling_matrix
+        - integration_points (S3, Snowflake, downstream APIs)
+
+guardrails:
+  - NEVER infer a schedule from a file name — read the actual cron or event config
+  - NEVER state a table is written/read without citing the specific SQL statement
+  - NEVER use [INFERRED] — use [NOT FOUND IN SOURCE] for anything not confirmed in code
+  - ALWAYS read every script fully — do not summarize from file name alone
+  - ALWAYS confirm the 15-minute DataSync schedule from source (look for cron definition or event config)
+  - ALWAYS document the Snowflake connection method used (library name, account reference)
+  - ALWAYS trace downstream triggers — identify what downstream system is notified after DataSync completes
+
+evaluation:
+  pass_criteria:
+    - All scripts listed with accurate file paths
+    - DataSync flow fully traced (every table in chain documented with SQL citation)
+    - Schedules confirmed with source citation (not [NOT FOUND IN SOURCE])
+    - Zero [INFERRED] tags
+    - Data flow diagram present and matches script logic
+  fail_criteria:
+    - Any script summarized without being read
+    - Any [INFERRED] tag
+    - Schedule stated without source citation
+    - DataSync chain incomplete (missing tables or transformation steps)

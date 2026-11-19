@@ -1,0 +1,56 @@
+{
+ "sample": true,
+ "sheet": "roadmap-2027.xlsx",
+ "pages_read": 1,
+ "epics": [
+  {
+   "row": 2,
+   "title": "Threshold override screen",
+   "specialty": "EOC",
+   "objective": "PCMH coordinators can override program thresholds in Acme Claims instead of emailing the analyst. Each override is saved with who made it and why.",
+   "outcomes": [
+    "An override is saved and shows on the member record",
+    "Every override writes an audit row",
+    "Coordinators no longer email thresholds to the analyst"
+   ],
+   "needed_by": "Q2 2027",
+   "release": "Acme Claims 2027.2",
+   "owner": "Resource 17",
+   "source": "Confluence: Threshold Override BRD (version 4, 2026-09-01)",
+   "questions": []
+  },
+  {
+   "row": 3,
+   "title": "Program year filter",
+   "specialty": "Foundational",
+   "objective": "Analysts can filter Member Journey and the reports by program year, so month-end reviews no longer need an Excel export.",
+   "outcomes": [
+    "Choosing a year shows only that year's members",
+    "The filter is kept when moving between pages"
+   ],
+   "needed_by": "Q1 2027",
+   "release": "",
+   "owner": "Resource 16",
+   "source": "Roadmap sheet, row 3",
+   "questions": [
+    "Which release should this go in? Q1 2027 has Acme Claims 2027.1 (February) and 2027.2 (April)."
+   ]
+  },
+  {
+   "row": 4,
+   "title": "CHF care gap view",
+   "specialty": "CHF",
+   "objective": "",
+   "outcomes": [],
+   "needed_by": "",
+   "release": "",
+   "owner": "",
+   "source": "",
+   "questions": [
+    "In two or three sentences: who uses this, and what changes for them?",
+    "What are two to four results that would show this is done?",
+    "Which date does the business need it by?"
+   ]
+  }
+ ]
+}

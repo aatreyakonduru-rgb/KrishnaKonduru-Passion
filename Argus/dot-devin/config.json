@@ -1,0 +1,77 @@
+{
+  "paths": {
+    "repo_root": "./",
+    "agentic_root": "./sdlc/framework/",
+    "knowledge_base": "./docs/knowledge-base/",
+    "session_context": "./sdlc/framework/context/session/",
+    "playbooks": "./sdlc/framework/playbooks/",
+    "workflows": "./sdlc/framework/workflows/",
+    "agents": "./.devin/agents/",
+    "templates": "./.devin/templates/",
+    "rules": "./.devin/rules/",
+    "skills": "./.devin/skills/"
+  },
+  "session_state": {
+    "storage_strategy": "local",
+    "local_home": "~/.sdlc/sessions",
+    "durable_copy": "jira-attachment",
+    "retention_days": 90,
+    "session_owner_scoped": true
+  },
+  "gates": {
+    "mode": "enforced",
+    "mode_notes": "enforced: the signer must hold the gate's required role, be a listed approver, or be a lead; nobody signs the code review on their own change. dev (the session owner may sign every gate in person, recorded as self_signed) is for building the framework only."
+  },
+  "hooks": {
+    "fail_mode": "closed"
+  },
+  "integrations": {
+    "available": [
+      "jira",
+      "confluence",
+      "bitbucket"
+    ],
+    "deferred": {
+      "snowflake": "not provisioned in the UEP environment \u2014 db-* skills and /app-knowledge-refresh are Desktop-only until it is",
+      "artifactory": "not provisioned \u2014 application test execution in /eval is deferred; framework tests run without it"
+    }
+  },
+  "git": {
+    "branch_strategy": "shared",
+    "commit_frequency": "milestone",
+    "push_frequency": "milestone"
+  },
+  "permissions": {
+    "_comment": "Devin Local asks before anything else. Read-only git and the evidence helper's local steps run without asking; evidence.py send and control are left to Argus's Return to Cloud button, so Devin Local can never post to Cloud on its own. Personal additions go in config.local.json.",
+    "allow": [
+      "Exec(git status)",
+      "Exec(git diff)",
+      "Exec(git log)",
+      "Exec(git show)",
+      "Exec(git rev-parse)",
+      "Exec(git ls-remote)",
+      "Exec(git fetch)",
+      "Exec(git branch --show-current)",
+      "Exec(python3 sdlc/framework/tools/evidence.py status)",
+      "Exec(python3 sdlc/framework/tools/evidence.py run)",
+      "Exec(python3 sdlc/framework/tools/evidence.py mark)",
+      "Exec(python3 sdlc/framework/tools/evidence.py verify)",
+      "Exec(python sdlc/framework/tools/evidence.py status)",
+      "Exec(python sdlc/framework/tools/evidence.py run)",
+      "Exec(python sdlc/framework/tools/evidence.py mark)",
+      "Exec(python sdlc/framework/tools/evidence.py verify)",
+      "Exec(py -3 sdlc/framework/tools/evidence.py status)",
+      "Exec(py -3 sdlc/framework/tools/evidence.py run)",
+      "Exec(py -3 sdlc/framework/tools/evidence.py mark)",
+      "Exec(py -3 sdlc/framework/tools/evidence.py verify)"
+    ],
+    "deny": [
+      "Exec(python3 sdlc/framework/tools/evidence.py send)",
+      "Exec(python3 sdlc/framework/tools/evidence.py control)",
+      "Exec(python sdlc/framework/tools/evidence.py send)",
+      "Exec(python sdlc/framework/tools/evidence.py control)",
+      "Exec(py -3 sdlc/framework/tools/evidence.py send)",
+      "Exec(py -3 sdlc/framework/tools/evidence.py control)"
+    ]
+  }
+}

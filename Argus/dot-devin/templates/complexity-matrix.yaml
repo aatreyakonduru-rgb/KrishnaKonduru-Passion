@@ -1,0 +1,444 @@
+# Complexity Matrix — Story Point Reference
+#
+# PURPOSE
+# ───────
+# Story points measure COMPLEXITY, RISK, and UNCERTAINTY — not hours.
+# Hours are a CONSEQUENCE of points, not the input.
+# This matrix is the single editable source of truth for how points are assigned.
+#
+# HOW TO USE
+# ──────────
+# 0. Check story_type_rules first — design/analysis stories, spikes, automation-test
+#    stories, SIT and UAT tickets do NOT use the five dimensions.
+# 1. Score the story against each dimension below (0, 1, or 2 per dimension).
+# 2. Sum the scores → look up the total in the points_lookup table.
+# 3. Apply any risk modifiers (bump up one Fibonacci level if modifier is present).
+# 4. Record the dimension scores + modifiers in the estimation_basis field.
+# 5. Hours are then READ from points using the hours_reference table — never set first.
+#
+# WHO EDITS THIS
+# ──────────────
+# Tech Lead or Scrum Master. Changes take effect from the next sprint planning.
+# All skills reference this file via: .devin/templates/complexity-matrix.yaml
+# Changing this file changes how ALL future stories are estimated.
+#
+# SOURCE
+# ──────
+# Ported from AI-Generated-db-documentation-sdlc/.devin/templates/complexity-matrix.yaml
+# Maintained in sync — if that file changes, update this one too.
+
+schema_version: "1.1"
+last_updated: "2026-09-21"
+maintained_by: Tech Lead
+
+# CHANGELOG
+# 1.1 — Added story_type_rules for design/analysis stories, spikes and
+#       automation-test stories (the five dimensions score all three near zero
+#       because they touch little or no product code). Recalibrated
+#       hours_reference against how this team actually uses points; the previous
+#       table said an 8 was 2-3 days, which did not match a single delivered
+#       story. Moved the UAT/SIT/grooming/split rules under story_type_rules
+#       and kept special_rules as aliases so existing skills keep working.
+# 1.0 — Initial five-dimension matrix.
+
+# ─── COMPLEXITY DIMENSIONS ────────────────────────────────────────────────────
+
+dimensions:
+
+  - id: SCOPE
+    name: Scope of Change
+    question: "How many distinct areas of the codebase does this touch?"
+    scores:
+      0:
+        label: Isolated
+        description: "One file or one function in one layer. Self-contained."
+        examples:
+          - "Add a column to one table (migration only)"
+          - "Rename a label in one UI component"
+      1:
+        label: Contained
+        description: "Multiple files within one layer, or two tightly coupled files across layers."
+        examples:
+          - "Add a column + update the serializer that reads it"
+          - "New endpoint + matching frontend service call"
+      2:
+        label: Broad
+        description: "Touches 3+ files or 2+ layers with independent logic in each."
+        examples:
+          - "New column → migration + API response + UI display + ETL job"
+          - "New business rule applied across DB, API validation, and UI form"
+
+  - id: RISK
+    name: Risk & Reversibility
+    question: "How hard is it to undo this if something goes wrong in production?"
+    scores:
+      0:
+        label: Safe
+        description: "Fully reversible. No data loss on rollback. No external consumers affected."
+        examples:
+          - "Read-only UI change"
+          - "Additive column with nullable default (no existing data changed)"
+      1:
+        label: Managed
+        description: "Reversible with care. Rollback requires a follow-up step or coordination."
+        examples:
+          - "Non-nullable column requiring a backfill"
+          - "API response field added (consumers may start depending on it)"
+      2:
+        label: High
+        description: "Hard to reverse. Data mutations, breaking changes, or external system coupling."
+        examples:
+          - "Column rename or removal (requires migration + all consumers updated)"
+          - "API contract change that breaks downstream consumers"
+          - "ETL job that backfills / transforms existing data"
+
+  - id: UNKNOWNS
+    name: Unknowns & Clarity
+    question: "How well do we understand the full scope of this story right now?"
+    scores:
+      0:
+        label: Clear
+        description: "We know exactly what needs to change. No open questions."
+        examples:
+          - "Same pattern done before — copy and adapt"
+          - "Requirement spec is detailed and unambiguous"
+      1:
+        label: Some gaps
+        description: "We understand the core but there are 1-2 unclear edges."
+        examples:
+          - "Business rule defined but edge cases not fully specified"
+          - "We know the table changes but not sure if stored procs also need updating"
+      2:
+        label: Significant unknowns
+        description: "Core approach is uncertain. Discovery work needed during the sprint."
+        examples:
+          - "No prior art in this codebase for this pattern"
+          - "Third-party integration — behaviour not fully documented"
+
+  - id: DEPENDENCY
+    name: Cross-Team / External Dependencies
+    question: "Does completing this story depend on another team, system, or approval?"
+    scores:
+      0:
+        label: None
+        description: "Self-contained. Our team controls everything needed."
+      1:
+        label: Internal
+        description: "Depends on another team within the org or a shared service we don't own."
+        examples:
+          - "Waiting on DBA to create a role"
+          - "Shared component owned by another squad"
+      2:
+        label: External
+        description: "Depends on a third-party vendor, external API, or regulatory body."
+        examples:
+          - "Third-party data feed format change"
+          - "Regulatory approval required before go-live"
+
+  - id: TESTABILITY
+    name: Testing Complexity
+    question: "How hard is it to verify this story is correct?"
+    scores:
+      0:
+        label: Straightforward
+        description: "Unit tests cover it. Visual inspection confirms UI changes."
+      1:
+        label: Moderate
+        description: "Requires integration test or data setup. More than unit tests needed."
+        examples:
+          - "Need to seed specific DB state to test the rule"
+          - "Requires SIT environment with real data volume"
+      2:
+        label: Complex
+        description: "End-to-end testing required. Hard to isolate. Performance or load testing needed."
+        examples:
+          - "Must test with production-like data volume"
+          - "Requires coordination with QA team and external system"
+
+# ─── POINTS LOOKUP TABLE ─────────────────────────────────────────────────────
+
+points_lookup:
+  - score_range: [0, 1]
+    fibonacci_points: 1
+    meaning: "Trivial. Isolated, safe, fully understood, no dependencies, easy to test."
+
+  - score_range: [2, 3]
+    fibonacci_points: 2
+    meaning: "Small. One or two complexity factors present but well managed."
+
+  - score_range: [4, 5]
+    fibonacci_points: 3
+    meaning: "Medium. A few complexity factors. Known pattern, manageable risk."
+
+  - score_range: [6, 7]
+    fibonacci_points: 5
+    meaning: "Large. Multiple complexity factors. Requires design and coordination."
+
+  - score_range: [8, 9]
+    fibonacci_points: 8
+    meaning: "Very large. High complexity across several dimensions. Consider splitting."
+
+  - score_range: [10]
+    fibonacci_points: 13
+    meaning: "Maximum complexity. Strongly recommend splitting into two stories."
+
+# ─── RISK MODIFIERS ──────────────────────────────────────────────────────────
+#
+# After looking up base points, apply modifiers if present.
+# Each modifier bumps up by ONE Fibonacci level (e.g. 3 → 5, 5 → 8).
+# Multiple modifiers do NOT stack beyond +2 Fibonacci levels total.
+# Cap at 13. If modifiers would push beyond 13, flag needs_split.
+
+risk_modifiers:
+  - id: MOD_BREAKING_CHANGE
+    label: Breaking API / Schema Change
+    description: "Change breaks an existing contract (API response shape, DB column type/name)."
+    bump: "+1 Fibonacci level"
+
+  - id: MOD_DATA_MIGRATION
+    label: Data Migration Required
+    description: "Existing production data must be transformed or backfilled."
+    bump: "+1 Fibonacci level"
+
+  - id: MOD_NO_PRIOR_ART
+    label: No Prior Art in Codebase
+    description: "This is the first time this pattern is implemented in this system."
+    bump: "+1 Fibonacci level"
+
+  - id: MOD_PERFORMANCE_SENSITIVE
+    label: Performance-Sensitive Path
+    description: "Change is on a high-volume query path or UI critical render path."
+    bump: "+1 Fibonacci level"
+
+  - id: MOD_SECURITY_SENSITIVE
+    label: Security / PII / Access Control
+    description: "Change touches authentication, authorisation, PII data, or RLS policies."
+    bump: "+1 Fibonacci level"
+
+modifier_cap_rule: >
+  Maximum +2 Fibonacci levels from modifiers, regardless of how many apply.
+  If base_points + modifiers > 13: set needs_split = true.
+  Do not create a story > 13 points. Split it.
+
+# ─── STORY TYPE RULES (check these BEFORE scoring the dimensions) ────────────
+#
+# The five dimensions describe product code changes. A story that changes little
+# or no product code scores near zero on all five and comes out far too small —
+# so these story types are estimated by their own rule instead. Check this
+# section first; if a rule matches, do not score the dimensions.
+
+story_type_rules:
+
+  design_analysis:
+    applies_when: >
+      The deliverable is a design or analysis artefact rather than working code:
+      wireframes, mock-ups, a data-mapping sheet, a BRD/FRD section, a
+      solution-options write-up. Typically titled "wireframe", "design",
+      "analysis", "mapping" or "POC document".
+    rule: "Points come from artefacts × stakeholder review rounds, not the five dimensions."
+    points:
+      - condition: "One artefact, one screen or flow, no stakeholder review round"
+        points: 2
+      - condition: "One artefact taken from low to high fidelity, one review round"
+        points: 3
+      - condition: "Two or three screens/flows, or two review rounds"
+        points: 5
+      - condition: "Four or more screens/flows, or three or more review rounds"
+        points: 8
+      - condition: "More than that"
+        action: "Set needs_split = true. Split by screen or by flow."
+    modifiers: "Only MOD_NO_PRIOR_ART applies. The other four are code risks and do not."
+    rationale: >
+      A wireframe story touches no code, so SCOPE, RISK and TESTABILITY are all 0
+      and the dimensions would price a full design cycle at 2 points. The real
+      cost driver is how many artefacts and how many rounds of stakeholder
+      feedback, so that is what this rule counts.
+    estimation_basis_line: "story_type=DESIGN: {n} artefact(s), {n} review round(s) → {points} pts"
+
+  spike:
+    applies_when: >
+      The story exists to answer a question, not to ship a change: titled
+      "spike", "investigate", "POC", "feasibility" or "research".
+    rule: "Never score a spike on the dimensions. Time-box it: 1 point per intended day, maximum 5."
+    requires:
+      - "A written question the spike must answer."
+      - "A named output — a document, a decision, or a follow-up story."
+      - "A follow-up implementation story, estimated after the spike lands."
+    modifiers: "None. A time-box is not a complexity estimate."
+    rationale: >
+      Scoring a spike on UNKNOWNS rewards the uncertainty it exists to remove,
+      and the number then gets treated as a commitment. A spike is bounded by the
+      time we are willing to spend, so the estimate is the time-box. If the
+      question is still open when the box closes, that is the finding — extend it
+      deliberately, do not let it drift.
+    estimation_basis_line: "story_type=SPIKE: time-boxed {n} day(s) → {points} pts, output={artefact}"
+
+  automation_test:
+    applies_when: >
+      The deliverable is automated test coverage for functionality built
+      elsewhere — typically titled "automation testing" or "automation scripts".
+    rule: "Points come from the number of scenarios automated."
+    points:
+      - condition: "1-3 scenarios against an existing, stable screen or API"
+        points: 2
+      - condition: "4-6 scenarios"
+        points: 3
+      - condition: "7-12 scenarios, or scenarios needing data setup or teardown"
+        points: 5
+      - condition: "More than 12 scenarios"
+        action: "Set needs_split = true. Split by screen or by scenario group."
+    modifiers: "Only MOD_NO_PRIOR_ART applies — new framework, new harness, or first automation on that surface."
+    rationale: >
+      Automation work is proportional to scenario count and data setup, not to
+      the complexity of the feature under test. Scoring it on the dimensions
+      makes it look like development work of the same size as the feature.
+    estimation_basis_line: "story_type=AUTOMATION: {n} scenario(s) → {points} pts"
+
+  uat:
+    rule: "Always 1 — no exceptions, no modifiers."
+    rationale: >
+      UAT is the PO exercising the acceptance criteria. It does not vary
+      in complexity. If UAT is genuinely complex, the acceptance criteria
+      need more work — not more points.
+
+  sit:
+    rule: "Derived from impl points: 1 if impl ≤ 3; 2 if impl = 5; 3 if impl = 8; 5 if impl = 13"
+    requires:
+      - "A link to the implementation story the points are derived from."
+    rationale: >
+      SIT effort scales with impl complexity but is never more than impl.
+      Modifiers do not apply to SIT points. Because the estimate is derived from
+      the dev story, the SIT ticket must name it — that link is also what lets
+      reporting see dev, SIT and UAT as one feature.
+
+# ─── SPECIAL RULES ───────────────────────────────────────────────────────────
+#
+# Kept under their original keys so existing skills keep resolving them.
+# uat_points and sit_points are the same rules as story_type_rules.uat / .sit.
+
+special_rules:
+  uat_points:
+    rule: "Always 1 — no exceptions, no modifiers."
+    rationale: >
+      UAT is the PO exercising the acceptance criteria. It does not vary
+      in complexity. If UAT is genuinely complex, the acceptance criteria
+      need more work — not more points.
+
+  sit_points:
+    rule: "Derived from impl points: 1 if impl ≤ 3; 2 if impl = 5; 3 if impl = 8; 5 if impl = 13"
+    rationale: >
+      SIT effort scales with impl complexity but is never more than impl.
+      Modifiers do not apply to SIT points.
+
+  needs_grooming:
+    trigger: "UNKNOWNS dimension score = 2 AND at least one other dimension score = 2"
+    action: "Set needs_grooming = true. Do not assign story_points. Leave null."
+    rationale: >
+      When there are significant unknowns combined with other complexity,
+      the team must do a discovery spike before estimating.
+
+  needs_split:
+    trigger: "Base score >= 10 OR (base_points + modifiers) > 13"
+    action: "Set needs_split = true. Suggest split boundaries by SCOPE dimension."
+    note: >
+      Split by scope — layer, screen, or flow. Do NOT split by phase: dev, SIT
+      and UAT are already separate tickets by design, so that each ticket fits
+      inside one sprint.
+
+# ─── HOURS REFERENCE (read-only — derived from points) ───────────────────────
+#
+# Calibrated to how this team actually uses points, one developer working on one
+# story, in a 3-week (15 working day) sprint. The previous table priced an
+# 8-point story at 2-3 days; in practice an 8 is most of a sprint for one
+# developer, which made every derived hours figure wrong by a factor of three.
+#
+# STATUS: provisional. It is calibrated from observed point usage, not from
+# logged time, because we currently record sub-task estimates without worklogs
+# (139 estimates against 9 worklog entries in sprints 26.4.1-26.4.2). Re-derive
+# it from worklogs once time logging is consistent, or delete it and estimate in
+# points only. Do not treat these hours as a commitment.
+
+hours_calibration:
+  basis: "Observed point usage, one developer, 3-week sprint (15 working days)"
+  status: provisional
+  review_when: "Worklog coverage is consistent enough to derive hours from actuals"
+
+hours_reference:
+  - fibonacci_points: 1
+    typical_hours: 4.0
+    range_hours: "2.0 – 6.0"
+    working_days: "~0.5 day"
+
+  - fibonacci_points: 2
+    typical_hours: 8.0
+    range_hours: "6.0 – 12.0"
+    working_days: "~1 day"
+
+  - fibonacci_points: 3
+    typical_hours: 16.0
+    range_hours: "12.0 – 24.0"
+    working_days: "2–3 days"
+
+  - fibonacci_points: 5
+    typical_hours: 32.0
+    range_hours: "24.0 – 44.0"
+    working_days: "4–6 days"
+
+  - fibonacci_points: 8
+    typical_hours: 60.0
+    range_hours: "48.0 – 76.0"
+    working_days: "7–10 days (most of a sprint)"
+
+  - fibonacci_points: 13
+    typical_hours: 96.0
+    range_hours: "80.0 – 120.0"
+    working_days: "12+ days — does not fit one sprint, split it"
+
+# ─── ESTIMATION_BASIS FORMAT ─────────────────────────────────────────────────
+
+estimation_basis_format:
+  template: |
+    SCOPE={score}/2 ({label}): {brief reason}
+    RISK={score}/2 ({label}): {brief reason}
+    UNKNOWNS={score}/2 ({label}): {brief reason}
+    DEPENDENCY={score}/2 ({label}): {brief reason}
+    TESTABILITY={score}/2 ({label}): {brief reason}
+    total_score={sum}/10 → {fibonacci_points} pts
+    modifiers=[{modifier_ids or NONE}]
+    final_points={fibonacci_points after modifiers}
+
+  example: |
+    SCOPE=1/2 (Contained): migration + serializer update in DB+API layers
+    RISK=1/2 (Managed): additive nullable column, rollback safe
+    UNKNOWNS=0/2 (Clear): same pattern as prior story, well understood
+    DEPENDENCY=0/2 (None): team owns all touched files
+    TESTABILITY=1/2 (Moderate): requires DB seed state for integration test
+    total_score=3/10 → 2 pts
+    modifiers=[NONE]
+    final_points=2
+
+  bottom_up_addition: >
+    When SDLC mode = bottom_up, also prepend: gap_id={gap_id}
+    Example: "gap_id=GAP-003, SCOPE=1/2 (Contained): ..."
+
+  story_type_template: |
+    When a story_type_rules entry applies, the dimensions are not scored. Record
+    the rule instead, using that rule's estimation_basis_line:
+      story_type={TYPE}: {rule inputs} → {points} pts
+      final_points={points}
+
+  story_type_examples: |
+    story_type=DESIGN: 1 artefact (low → high fidelity), 2 review rounds → 5 pts
+    final_points=5
+
+    story_type=SPIKE: time-boxed 3 day(s) → 3 pts, output=decision note + follow-up story
+    final_points=3
+
+    story_type=AUTOMATION: 5 scenario(s) → 3 pts
+    final_points=3
+
+    story_type=SIT: derived from impl 8 pts → 3 pts, impl story=ACME-nnnnn
+    final_points=3
+
+    story_type=UAT: fixed rule → 1 pt
+    final_points=1

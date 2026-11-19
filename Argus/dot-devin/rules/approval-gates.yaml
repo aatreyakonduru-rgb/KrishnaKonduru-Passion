@@ -1,0 +1,349 @@
+# Approval Gates for Acme Claims Agentic SDLC
+# Each gate defines: who approves, what they check, preconditions, timeout
+
+# Approvers are named people from .devin/rules/people.yaml, in the order they are asked. While someone is away
+# (the Time off and backups table), their approval backup from that table signs in their place; when they named
+# none, the next named approver, then the gate's backups. validate_framework.py fails a name that is not on the
+# roster unless it is listed under not_on_roster below (tools/gates.py approver_route).
+not_on_roster:
+  # On the SDLC_05 and SDLC_06 lists but not on the roster yet; the roster owner is asked (learn-more L-044).
+  - Resource 25
+  - Resource 26
+  - Resource 31
+  - Resource 27
+  - Resource 24
+  - Resource 33
+
+gates:
+  - id: DB_02_DISCOVERY_VALIDATION
+    name: DB Discovery Validation
+    stage: knowledge_base_builder
+    required_role: dev_team
+    preconditions:
+      - db_discovery_complete
+    artifacts_to_review:
+      - DB_SCHEMA_SUMMARY.md
+      - DB_TABLE_REGISTRY.yaml
+    approval_criteria:
+      - Schema assumptions match production reality
+      - All base tables documented
+      - Row access policies identified
+    blocks_if_failed: BRD generation
+    timeout_hours: 24
+    approvers:
+      - role: tech_lead
+        names: [Resource 4, Resource 5]
+        backups: [Resource 3, Resource 6]
+
+  - id: SDLC_01_INTAKE_CLARIFICATION
+    name: Requirement Intake & Clarification
+    stage: sdlc_intake
+    mode: both  # top_down: PO signs spec produced by intake-clarifier; bottom_up: BSA signs existing spec
+    mandatory: true  # presented even when intake asked no questions — never skipped
+    required_role: bsa
+    preconditions:
+      - raw_requirement_received
+    decision_items:
+      - The spec as written (acceptance criteria, scope, assumptions)
+      - One item per proposed Jira change: "Update ACME-nnnn <field> in Jira: <old> -> <new>"
+    artifacts_to_review:
+      - REQ-{id}-SPEC.md
+    approval_criteria:
+      - All clarifying questions answered
+      - Acceptance criteria defined and measurable (no vague language)
+      - Scope boundaries clear
+      - open_questions section empty
+      - No blockers remain
+    blocks_if_failed: Research phase
+    timeout_hours: 48
+    approvers:
+      - role: bsa
+        names: [Resource 16, Resource 5, Resource 17]
+        backups: []
+
+  - id: SDLC_02_GAP_ANALYSIS_REVIEW
+    name: Gap Analysis Review
+    stage: sdlc_research
+    mode: bottom_up
+    required_role: bsa
+    preconditions:
+      - intake_approved
+      - kb_loaded
+    artifacts_to_review:
+      - REQ-{id}-GAP-ANALYSIS.md
+    approval_criteria:
+      - Gap analysis completeness verified
+      - All affected modules identified
+      - Data/interface impacts documented
+      - Risk assessment included
+    blocks_if_failed: Story generation (bottom_up)
+    timeout_hours: 24
+    approvers:
+      - role: bsa
+        names: [Resource 16, Resource 5, Resource 17]
+        backups: []
+
+  - id: SDLC_02b_STORY_CANDIDATE_REVIEW
+    name: Epic & Story Candidate Review
+    stage: sdlc_research
+    mode: top_down
+    required_role: product_owner
+    preconditions:
+      - SDLC_01_signed              # spec approved
+      - story_candidates_generated  # epic-story-decomposer ran
+    artifacts_to_review:
+      - REQ-{id}-STORY-CANDIDATES.md
+    approval_criteria:
+      - Epic is in full business language (no technical terms, no file/table names)
+      - Each story describes a user-facing capability (not a technical layer change)
+      - Each story has a clear user role and observable outcome
+      - Story point estimates have documented T-shirt reasoning (estimation_basis)
+      - Needs-grooming stories are identified and acceptable
+      - Every impl story has a paired SIT story and UAT story
+      - Story summary suffixes follow {LAYER}-DEV / {LAYER}-SIT / {LAYER}-UAT convention
+    blocks_if_failed: Subtask generation — code is NOT inspected until this gate passes
+    timeout_hours: 24
+    approvers:
+      - role: product_owner
+        names: [Resource 16, Resource 17]
+        backups: []
+    notes: >
+      TOP-DOWN ONLY. This is the gate between business decomposition and
+      technical implementation. The PO approves the WHAT before engineers
+      determine the HOW via code inspection. No source code is read until
+      SDLC_02b is signed.
+
+  - id: SDLC_03_BACKLOG_APPROVAL
+    name: Epic & Story Backlog Approval
+    stage: sdlc_research
+    required_role: product_owner
+    preconditions:
+      - gap_analysis_approved
+    artifacts_to_review:
+      - REQ-{id}-BACKLOG.md
+    approval_criteria:
+      - Backlog prioritization agreed
+      - Sprint ordering confirmed
+      - Story acceptance criteria clear
+      - Effort estimates reasonable
+    blocks_if_failed: Planning phase
+    timeout_hours: 48
+    approvers:
+      - role: product_owner
+        names: [Resource 16, Resource 17]
+        backups: []
+
+  - id: SDLC_03a_STORY_ESTIMATION_REVIEW
+    name: Story Estimation & Decomposition Review
+    stage: sdlc_research
+    mode: both
+    required_role: tech_lead
+    preconditions:
+      bottom_up:
+        - SDLC_02_signed             # gap analysis approved
+        - backlog_draft_generated    # enriched-requirements-generator ran
+        - estimation_audit_complete  # complexity-estimator ran
+        - audit_status_not_fail      # audit_status = PASS or PASS_WITH_FLAGS
+      top_down:
+        - SDLC_02b_signed            # story candidates approved by PO
+        - subtasks_generated         # subtask-generator ran
+        - backlog_draft_generated    # enriched-requirements-generator ran
+        - estimation_audit_complete  # complexity-estimator ran
+        - audit_status_not_fail
+    artifacts_to_review:
+      - REQ-{id}-BACKLOG.md
+      - REQ-{id}-ESTIMATION-AUDIT.md
+      - REQ-{id}-SUBTASK-INSPECTION-REPORT.md  # top_down only — present if mode=top_down
+    approval_criteria:
+      - "[bottom_up] All story points traced to a gap_id and effort_estimate"
+      - "[top_down]  All story points have documented estimation_basis (T-shirt reasoning)"
+      - "[top_down]  All needs_reestimate flags reviewed and explicitly accepted or adjusted"
+      - "[top_down]  All layer corrections from subtask-generator reviewed and accepted"
+      - No story uses a non-Fibonacci value (1,2,3,5,8,13 only)
+      - Every impl story has a paired {LAYER}-SIT story
+      - Every impl story has a paired {LAYER}-UAT story
+      - All story summaries follow the {LAYER}-DEV / {LAYER}-SIT / {LAYER}-UAT suffix convention
+      - No story has points > 13 (must be split before approval)
+      - Needs-grooming stories are identified and listed
+      - Acceptance criteria are specific, measurable, and testable
+      - Story dependency ordering is logical (DB before API before UI)
+      - All subtasks cite a verified source file (top_down only — sourced from INSPECTION-REPORT)
+    blocks_if_failed: Jira backlog export (jira-backlog-exporter skill)
+    timeout_hours: 24
+    approvers:
+      - role: tech_lead
+        names: [Resource 4, Resource 5]
+        backups: [Resource 3, Resource 6]
+    notes: >
+      Both SDLC_03 and SDLC_03a must be signed before jira-backlog-exporter runs.
+      If audit_status = FAIL, the exporter is blocked until issues are resolved.
+      Needs-grooming stories may be approved as-is — they export with
+      story_points: null and label NEEDS-GROOMING for team grooming in Jira.
+      In top_down mode, the Tech Lead must also review the SUBTASK-INSPECTION-REPORT
+      to confirm layer assignments and needs_reestimate flags are resolved.
+
+  - id: SDLC_04_ROUTING_APPROVAL
+    name: Change Routing & Insertion Map Approval
+    stage: sdlc_plan
+    required_role: tech_lead
+    preconditions:
+      - stories_approved
+      - kb_cross_module_matrix_available
+    artifacts_to_review:
+      - REQ-{id}-STORY-{n}-ROUTING.md
+      - insertion-points.yaml
+    approval_criteria:
+      - All touched files exist and are linkable
+      - No prod mutations without feature flag
+      - Branch strategy documented
+      - Dependency order clear
+      - Rollback plan included
+    blocks_if_failed: Code generation
+    timeout_hours: 24
+    approvers:
+      - role: tech_lead
+        names: [Resource 4, Resource 5]
+        backups: [Resource 3, Resource 6]
+
+  - id: SDLC_05_CODE_REVIEW
+    name: Code Generation Review
+    stage: sdlc_implement
+    required_role: developer
+    preconditions:
+      - routing_approved
+      - feature_branch_created
+    artifacts_to_review:
+      - Pull Request
+      - AI verification report
+      - Code diff
+      - Independent verifier verdict (medium and high-risk stories)
+    approval_criteria:
+      - Code follows secure coding standards
+      - No hardcoded secrets or PII exposure
+      - Tests included
+      - Documentation updated
+      - AI verification passed
+      - Independent verifier passed (medium and high-risk stories)
+    blocks_if_failed: Test execution
+    timeout_hours: 48
+    approvers:
+      - role: developer
+        names: [Resource 6, Resource 25, Resource 14, Resource 13, Resource 8, Resource 26, Resource 31, Resource 7, Resource 27]
+
+  - id: HOTFIX_PLAN_CODE_APPROVAL
+    name: Hotfix Plan and Code Approval
+    stage: sdlc_hotfix
+    required_role: tech_lead
+    replaces: [SDLC_04_ROUTING_APPROVAL, SDLC_05_CODE_REVIEW]  # production incident defects only
+    preconditions:
+      - production_incident_defect  # tools/hotfix.py check
+    artifacts_to_review:
+      - REQ-{id}-STORY-{n}-ROUTING.md
+      - Pull Request
+      - AI verification report
+      - Independent verifier verdict
+    approval_criteria:
+      - The defect is a production incident (summary ends "- PROD", incident-INC label)
+      - The change is limited to the fix; routing and diff read together
+      - Independent verifier passed (every hotfix, whatever the risk tier)
+      - Rollback plan included
+      - Follow-up review sub-task raised (tools/hotfix.py followup)
+    blocks_if_failed: Test execution
+    timeout_hours: 4
+    approvers:
+      - role: tech_lead
+        names: [Resource 4, Resource 5]
+        backups: [Resource 3, Resource 6]
+
+  - id: SDLC_06_QA_SIGNOFF
+    name: Test Coverage & Results Sign-off
+    stage: sdlc_eval
+    required_role: qa_engineer
+    preconditions:
+      - code_review_approved
+      - tests_executed
+    artifacts_to_review:
+      - REQ-{id}-STORY-{n}-TEST-REPORT.md
+      - Coverage report
+      - Test execution logs
+    approval_criteria:
+      - Test coverage meets threshold (80%+)
+      - All acceptance criteria validated
+      - No critical defects
+      - Regression tests passed
+    blocks_if_failed: Environment promotion
+    timeout_hours: 24
+    approvers:
+      - role: test_lead
+        names: [Resource 24]
+      - role: tester
+        names: [Resource 33, Resource 19, Resource 21, Resource 18]
+
+  - id: SDLC_07_ENV_PROMOTION_APPROVAL
+    name: Environment Promotion Approval
+    stage: sdlc_release
+    required_role: ops_release_manager
+    preconditions:
+      - qa_signoff_complete
+    artifacts_to_review:
+      - Deployment plan
+      - Rollback plan
+      - Environment-specific config
+    approval_criteria:
+      - Deployment plan reviewed
+      - Rollback tested
+      - Monitoring/alerting configured
+      - Change window scheduled
+    blocks_if_failed: Production deployment
+    timeout_hours: 24
+    approvers:
+      - role: ops_release_manager
+        names: [Resource 16, Resource 5, Resource 17]
+        backups: []
+
+  - id: SDLC_08_KB_REFRESH_VALIDATION
+    name: Knowledge Base Refresh Validation
+    stage: sdlc_kb_refresh
+    required_role: tech_lead
+    preconditions:
+      - prod_deployment_complete
+    artifacts_to_review:
+      - Updated YAML artifacts
+      - Updated Markdown docs
+      - Provenance logs
+    approval_criteria:
+      - KB artifacts updated with new code/schema
+      - Provenance chain intact
+      - No stale references
+      - Cross-module matrix refreshed
+    blocks_if_failed: KB refresh completion — the KB refresh, and so the SDLC run, is not complete until this gate is signed
+    timeout_hours: 48
+    approvers:
+      - role: tech_lead
+        names: [Resource 4, Resource 5]
+        backups: [Resource 3, Resource 6]
+
+# Approval Metadata Schema
+approval_record_schema:
+  gate_id: string
+  requirement_id: string
+  story_id: string (optional)
+  approver_name: string
+  approver_role: string
+  decision: enum [approved, rejected, needs_revision]
+  status: enum [pending, waiting, approved, rejected]  # waiting = sent to someone else via /send-approval
+  approval_words: string  # the reviewer's exact reply; must start with "approved" (any case) or be a dashboard Approve action
+  timestamp: ISO8601
+  rationale: string
+  artifacts_reviewed: list[string]
+  decision_items: "list[{n: int, text: string, state: enum [pending, approved, rejected, delegated], by: string, note: string}]"
+  approval_subtask: string (optional, Jira key of the Approval sub-task)
+  delegated_to: string (optional, Jira username)
+  jira_updates: "list[{key: string, field: string, old: string, new: string, by: string, at: ISO8601}] (optional)"
+  next_gate: string (if approved)
+  role_mismatch: boolean
+
+# Approval words: only the word "approved" (approved / Approved / APPROVED) as the first word of the
+# reply, or the Approve action from /dashboard, records an approval. "continue", "ok", "approve",
+# "yes", "looks good" do not — the gate stays open. A gate advances only when every decision item
+# is approved; a rejected or still-delegated item blocks it. See .devin/rules/gate-presentation.md.

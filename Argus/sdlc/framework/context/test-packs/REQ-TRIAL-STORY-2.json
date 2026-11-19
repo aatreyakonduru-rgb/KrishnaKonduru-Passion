@@ -1,0 +1,79 @@
+{
+  "req_id": "REQ-TRIAL",
+  "story_id": "STORY-2",
+  "jira_key": "ACME-17735",
+  "pr_url": "https://git.acme.example/projects/ACME/repos/claims-web/pull-requests/2759",
+  "branch": "devin/ACME-17735-workbench-pc",
+  "commit": "97b9c16940a5129ccd4c27960f22e6569cfd2bcd",
+  "cloud_session": "https://acme.devinenterprise.com/sessions/0000000000000000000000000000e7c1",
+  "written_by": "Cloud session 000019ff, trial pack for PR #2759",
+  "setup": {
+    "env_files": [],
+    "needs": [
+      "Devin CLI signed in on this PC",
+      "Devin API key saved in Argus"
+    ],
+    "start": []
+  },
+  "checks": [
+    {
+      "id": "CHK-1",
+      "name": "Argus and Test on my PC unit tests",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "sdlc/framework/tools/tests",
+        "-p",
+        "test_pctest.py"
+      ],
+      "needs_env": [],
+      "timeout_minutes": 5
+    },
+    {
+      "id": "CHK-2",
+      "name": "Evidence helper unit tests",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "sdlc/framework/tools/tests",
+        "-p",
+        "test_evidence.py"
+      ],
+      "needs_env": [],
+      "timeout_minutes": 5
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "AC-1",
+      "text": "Argus shows no Jira token warning, and the ticket list loads through Devin Cloud",
+      "steps": [
+        "Open http://127.0.0.1:8787",
+        "Look under My work on the left"
+      ],
+      "expected": "Tickets appear after about a minute, with 'From Jira through Devin Cloud' under the list"
+    },
+    {
+      "id": "AC-2",
+      "text": "Test on my PC got this far without any typing in a terminal",
+      "steps": [
+        "Look at the steps list on the Test on my PC card"
+      ],
+      "expected": "Folder, checkout, pack, control pc and Devin Local all ticked"
+    },
+    {
+      "id": "AC-3",
+      "text": "Devin Local's permission questions appear as buttons on the page",
+      "steps": [
+        "Answer any question Devin Local asks on the page"
+      ],
+      "expected": "The button answers it and Devin Local carries on"
+    }
+  ]
+}

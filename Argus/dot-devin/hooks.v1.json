@@ -1,0 +1,46 @@
+{
+  "UserPromptSubmit": [
+    {
+      "matcher": "",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "bash \"${DEVIN_PROJECT_DIR:-$(git rev-parse --show-toplevel)}/.devin/hooks/gate-phase-advance-check.sh\"",
+          "timeout": 60
+        }
+      ]
+    }
+  ],
+  "PreToolUse": [
+    {
+      "matcher": "^(write|edit|apply_patch|notebook_edit|Write|Edit|MultiEdit|NotebookEdit)$",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "bash \"${DEVIN_PROJECT_DIR:-$(git rev-parse --show-toplevel)}/.devin/hooks/write-access-guard.sh\"",
+          "timeout": 60
+        },
+        {
+          "type": "command",
+          "command": "bash \"${DEVIN_PROJECT_DIR:-$(git rev-parse --show-toplevel)}/.devin/hooks/pii-guard.sh\"",
+          "timeout": 30
+        },
+        {
+          "type": "command",
+          "command": "bash \"${DEVIN_PROJECT_DIR:-$(git rev-parse --show-toplevel)}/.devin/hooks/no-hardcoded-secrets.sh\"",
+          "timeout": 30
+        }
+      ]
+    },
+    {
+      "matcher": "^(exec|Bash)$",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "bash \"${DEVIN_PROJECT_DIR:-$(git rev-parse --show-toplevel)}/.devin/hooks/shell-bypass-guard.sh\"",
+          "timeout": 30
+        }
+      ]
+    }
+  ]
+}

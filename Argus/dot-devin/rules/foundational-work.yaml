@@ -1,0 +1,14 @@
+# Which Argus Backlog stories count as Foundational: work on Acme Claims itself that serves every
+# specialty rather than one (a PostgreSQL upgrade, say). Definition from Resource 3 (resource3),
+# 2026-10-12. Read by sdlc/framework/console/backlog.py for Backlog → Group by Specialty.
+#
+# Each story is placed in this order:
+#   1. its specialty, from the keyword rules in defect-specialties.yaml (story summary, then epic name)
+#   2. Foundational, when the story or its epic carries one of `labels` (the epic label named in
+#      jira-ticket-standards.yaml → epic.specialty), or the story summary or epic name has one of
+#      `keywords` (whole words, case-insensitive)
+#   3. otherwise `misc`
+# A wrong placement is fixed here, not in code.
+labels: [Foundational, CORE, Platform]
+keywords: [Foundational, PostgreSQL, Postgres, upgrade]
+misc: Misc

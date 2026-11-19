@@ -1,0 +1,55 @@
+{
+ "sample": true,
+ "requirement": {
+  "id": "REQ-001",
+  "title": "Program year filter on the Member Journey page"
+ },
+ "questions": [
+  [
+   "Who",
+   "Who will use this, and in which part of their day?",
+   [
+    "Care coordinators, during weekly reviews",
+    "Program analysts, at month end"
+   ]
+  ],
+  [
+   "What",
+   "What should they be able to do that they cannot do today?",
+   [
+    "Filter the Member Journey page by program year"
+   ]
+  ],
+  [
+   "Why",
+   "What happens today without it?",
+   [
+    "They export to Excel and filter by hand"
+   ]
+  ],
+  [
+   "Rules",
+   "Are there business rules the filter must follow?",
+   [
+    "Only completed program years",
+    "Current year included"
+   ]
+  ],
+  [
+   "Done",
+   "How will the team know it works? Describe one or two checks.",
+   [
+    "Choosing 2025 shows only 2025 members"
+   ]
+  ],
+  [
+   "Priority",
+   "How important is this compared with the current sprint work?",
+   [
+    "Must have",
+    "Should have",
+    "Could have"
+   ]
+  ]
+ ]
+}

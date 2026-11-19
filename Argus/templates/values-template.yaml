@@ -1,0 +1,44 @@
+# Every value the install window asks, with the made-up Acme examples. Fill it in and pass it with
+#   python3 install.py --target <your repo> --values mine.yaml
+# or load it in the window. Secrets are never in this file: only the names of the Devin secrets.
+product_name: Acme Claims
+company_name: Acme Corp
+email_domain: "@acme.example"
+devin_host: acme.devinenterprise.com
+jira_host: jira.acme.example
+jira_project: ACME
+jira_token_env: ACME_JIRA_TOKEN
+wiki_host: wiki.acme.example
+wiki_space: ACMEWIKI
+confluence_token_env: ACME_CONFLUENCE_TOKEN
+git_host: git.acme.example
+repo_slug: ACME/claims-web
+deploy_slug: ACME/claims-deploy
+qa_repo_slug: ACME/claims-qa
+work_branch: feature/devin-sdlc
+# where the framework goes in your repo
+sdlc_dir: sdlc
+kb_dir: docs/knowledge-base
+settings:
+  tech_lead: {name: "Doe, Jane", email: jane.doe@acme.example, jira_user: jdoe}
+  it_team: Acme-Claims-Web
+  jira_statuses:
+    review: [In Review]
+    qa: [Ready for QA, In QA]
+    uat: [Business Review]
+    release: [Ready for Release]
+  jira_fields: {story_points: customfield_10001, sprint: customfield_10002, acceptance: customfield_10003,
+                it_team: customfield_10004, epic_link: customfield_10010}
+  confluence_parent: "100000"
+  pages:
+    roster: Acme Claims Team Roster
+    sprint_leave: Acme Claims Sprint Leave
+    demo_recordings: Acme Claims Demo Recordings
+    user_manual: Acme Claims Devin Cloud User Manual
+  environments:
+    - {name: dev, app_branch: develop, deploy_branch: develop, values: dev, gate: SDLC_05}
+    - {name: sit, app_branch: sit, deploy_branch: sit, values: sit, gate: SDLC_06}
+    - {name: uat, app_branch: uat, deploy_branch: uat, values: uat, gate: SDLC_06}
+    - {name: prod, app_branch: master, deploy_branch: master, values: prod, gate: SDLC_07}
+  kb_source_dirs: [api, web]
+  etl_repo_slug: ""

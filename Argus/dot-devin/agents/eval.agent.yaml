@@ -1,0 +1,140 @@
+# Eval Agent — Test Generation, Execution, Coverage Analysis
+
+name: Eval Agent
+role: QA Engineer
+goal: Generate tests, execute in test environment, verify coverage, and obtain QA sign-off
+
+allowed_skills:
+  # CLI skill orchestrator (runnable): .devin/skills/eval/SKILL.md
+  - eval                          # orchestrator — invoke with /eval REQ-{id} STORY-{n}
+  - qa-scenarios                  # draft Behave scenarios for ACME/claims-qa — /qa-scenarios REQ-{id} STORY-{n}
+  - test-on-pc                    # PC side: run the test pack in Devin Local, send evidence back
+  - build-check                   # install/lint/test/build where ARTIFACTORY_TOKEN exists (Cloud or PC)
+  # Legacy aliases (pre-orchestrator naming):
+  # - coverage-analyzer           → now inline in /eval Step 3
+  # - defect-tracker              → now inline in /eval Step 4
+
+# Inline pipeline steps — conceptual stages implemented inside the orchestrator
+# skill above. They are NOT separate skills and cannot be invoked on their own.
+inline_steps:
+  - test-gen   # executed inline
+  - test-exec   # executed inline
+
+decision_policy:
+  - if: code_review_approved
+    then: load_acceptance_criteria
+  - if: acceptance_criteria_loaded
+    then: run test-gen skill
+  - if: tests_generated
+    then: run test-exec skill
+  - if: tests_executed
+    then: run coverage-analyzer skill
+  - if: coverage_analyzed
+    then: run defect-tracker skill (if defects found)
+  - if: all_tests_passed AND coverage_met
+    then: |
+      submit_for_approval (gate: SDLC_06_QA_SIGNOFF)
+
+human_gates:
+  - gate_id: SDLC_06_QA_SIGNOFF
+    required_role: qa_engineer
+    artifacts_to_review:
+      - REQ-{id}-STORY-{n}-TEST-REPORT.md
+      - Coverage report
+      - Test execution logs
+    approval_criteria:
+      - Test coverage meets threshold (80%+)
+      - All acceptance criteria validated
+      - No critical defects
+      - Regression tests passed
+    timeout_hours: 24
+
+inputs:
+  - requirement_spec:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/REQ-{id}-SPEC.md  # {OWNER} is resolved per .devin/rules/session-isolation.md.
+  - story:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/REQ-{id}-BACKLOG.md
+  - code_changes:
+      type: pull_request
+      branch: feature/REQ-{id}-STORY-{n}-{description}
+  - pc_evidence:
+      type: attachment
+      path: evidence-REQ-{id}-STORY-{n}-{commit}.zip  # from /test-on-pc; checked with sdlc/framework/tools/evidence.py verify
+  - validation_tests:
+      type: file
+      path: docs/knowledge-base/DB-DOCS/15_DB_AI_VALIDATION_TESTS.yaml  # DB checks; lower regions have their own copy under DB-DOCS/SIT/ and DB-DOCS/DEV/ when built
+
+outputs:
+  - test_report:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/REQ-{id}-STORY-{n}-TEST-REPORT.md
+      schema:
+        - test_cases_generated
+        - test_cases_executed
+        - test_cases_passed
+        - test_cases_failed
+        - coverage_percentage
+        - defects_found
+        - regression_status
+  - test_pack:
+      type: file
+      path: sdlc/framework/context/test-packs/REQ-{id}-STORY-{n}.yaml  # template .devin/templates/test-pack.yaml, committed on the PR branch
+  - test_files:
+      type: files
+      paths:
+        - test_*.py (backend)
+        - "*.test.tsx (frontend)"
+
+required_context:
+  - REQ-{id}-SPEC.md (acceptance criteria)
+  - REQ-{id}-BACKLOG.md (story details)
+  - Code changes (PR)
+  - VALIDATION_TESTS.yaml (if exists)
+
+side_effects:
+  - Generates test files
+  - Executes tests in test environment
+  - Creates test report
+  - Logs defects (if any)
+  - Logs eval session to provenance
+
+guardrails:
+  - Must test all acceptance criteria
+  - Must achieve 80%+ code coverage
+  - Must run regression tests
+  - Must not proceed to Release without QA approval
+  - Must label every result ran on PC, ran in Cloud or not run; a written test is not run
+  - Must not use PC evidence for a commit other than the PR head
+  - Must not push to the PR branch while the PC has control
+
+evaluation:
+  pass_criteria:
+    - Test report exists and is complete
+    - Coverage >= 80%
+    - All acceptance criteria validated
+    - No critical defects
+    - QA approval recorded
+  fail_criteria:
+    - Coverage < 80%
+    - Critical defects found
+    - Acceptance criteria not validated
+    - No approval signature
+
+logging:
+  - Log test cases generated
+  - Log test execution results
+  - Log coverage percentage
+  - Log defects found
+  - Log approval decision and rationale
+
+examples:
+  - input:
+      story: STORY-001 (Add LOCATION_CD column)
+      code_changes: PR #123
+    output:
+      test_report: REQ-001-STORY-001-TEST-REPORT.md
+      test_files: test_location_filter.py
+      coverage: 85%
+      approval: approved by QA on 2026-09-03

@@ -1,0 +1,103 @@
+# Manual SDLC work register — read by sdlc/framework/tools/gate_review.py (/gate-review).
+#
+# One entry per task a person does by hand that a tool could do instead. Two kinds:
+#   manual_work     copying, checking, re-typing, looking things up. Candidates for automation.
+#   human_decision  someone accountable says yes or no. These stay with a person. Automation may
+#                   only prepare the evidence they read; it never makes the decision or skips it.
+# Every entry needs evidence ([E: source]). Unknown values are written "[?]" and show up in the
+# report's "Don't know" list. Add entries by PR; /gate-review proposes them, it does not add them.
+#
+# frequency: every-15-min | daily | weekly | monthly | quarterly | per-release | per-story | ad-hoc | "[?]"
+# status:    open | in_progress | automated | blocked
+
+tasks:
+  - id: KB-SHAREDRIVE-SYNC
+    kind: manual_work
+    stage: kb-refresh
+    task: Copy the latest files from the team share drive (access sheet, job scheduling sheet and similar) into the knowledge base
+    done_by_today: "[?]"
+    frequency: "[?]"
+    minutes_each: "[?]"
+    source_system: Team share drive / SharePoint
+    evidence:
+      - "[E: user message 2026-09-29 — 'update the knowledge base with latest files that are placed on our share drives']"
+      - "[E: docs/knowledge-base/SHARED/DOMAIN_CONTEXT.md:618 — context built from files in a local copy of the share drive]"
+      - "[E: docs/knowledge-base/CONFLUENCE-DERIVED/08_JOB_SCHEDULING_SHEET.md:3 — sheet supplied by hand on 2026-09-25]"
+    automation: Watch the share-drive folder, detect new or changed files, regenerate the KB pages and the manifest, raise a KB PR for Tech Lead review
+    needs: SharePoint/OneDrive read access for Devin Cloud (not available today)
+    candidate_owner: "[?]"
+    status: blocked
+
+  - id: SIT-TEST-RUN
+    kind: manual_work
+    stage: eval
+    task: A developer runs the unit and SIT tests that /eval lists and pastes the results back
+    done_by_today: Developer on the story
+    frequency: per-story
+    minutes_each: "[?]"
+    source_system: Local machine / SIT
+    evidence:
+      - "[E: .devin/skills/eval/SKILL.md:162 — 'Otherwise Devin cannot run tests directly']"
+    automation: Run /build-check for unit tests and lint; run the claims-qa Behave suite against SIT from Devin Cloud
+    needs: ARTIFACTORY_TOKEN secret; SIT browser access for the Behave suite
+    candidate_owner: "[?]"
+    status: blocked
+
+  - id: RELEASE-ENV-REPORT
+    kind: manual_work
+    stage: release
+    task: After each deployment the person reports back to /release what happened in each environment
+    done_by_today: Release Manager or developer
+    frequency: per-release
+    minutes_each: "[?]"
+    source_system: ACME/claims-deploy git history
+    evidence:
+      - "[E: .devin/skills/release/SKILL.md:206 — 'Ask the user to report what happened after each deployment']"
+    automation: Have /release read the deployed image tag per environment with promote_check.py instead of asking
+    needs: nothing new — promote_check.py already reads the deploy repo
+    candidate_owner: "[?]"
+    status: open
+
+  - id: PROD-TAG-PR-WATCH
+    kind: manual_work
+    stage: release
+    task: Someone has to notice that a Tekton prod image-tag PR is waiting to be merged
+    done_by_today: "[?]"
+    frequency: per-release
+    minutes_each: "[?]"
+    source_system: ACME/claims-deploy (release-tags/image-tag-update vs master)
+    evidence:
+      - "[E: docs/knowledge-base/DEPLOY-DERIVED/02_ENVIRONMENT_PROMOTION.md:42 — two prod tag updates waiting on 2026-09-29]"
+    automation: A daily scheduled check with promote_check.py that tells the Release Manager when a prod tag PR is waiting
+    needs: nothing new — a Devin automation on a schedule
+    candidate_owner: "[?]"
+    status: open
+
+  - id: BATCH-JOB-STATUS
+    kind: manual_work
+    stage: operations
+    task: Check whether a Acme Claims batch job ran, and how each step went, by running the audit queries in DBeaver
+    done_by_today: Acme Claims team
+    frequency: "[?]"
+    minutes_each: "[?]"
+    source_system: DataLake Aurora MySQL audt_cntrl tables (raw_job_audt, raw_etl_stp_audt, raw_etl_orchstrtr_audt)
+    evidence:
+      - "[E: user message 2026-09-29 — the audit queries used today]"
+      - "[E: getent hosts db.internal.acme.example on 2026-09-29 — no answer from Devin's machine]"
+    automation: A read-only /job-status <job-id> skill over the audit tables
+    needs: network route and assigned port to the DataLake RDS reader hosts, a read-only service ID, a MySQL client
+    candidate_owner: "[?]"
+    status: blocked
+
+  - id: PROD-TAG-MERGE
+    kind: human_decision
+    stage: release
+    task: Merge the Tekton prod image-tag PR into deploy master
+    gate: SDLC_07_ENV_PROMOTION_APPROVAL
+    done_by_today: Release Manager
+    frequency: per-release
+    source_system: ACME/claims-deploy
+    evidence:
+      - "[E: docs/knowledge-base/DEPLOY-DERIVED/02_ENVIRONMENT_PROMOTION.md:42 — 'a PR ... that a person has to approve']"
+    automation: Keep with the Release Manager. /promote already assembles what they check (what goes out, missing config)
+    status: open

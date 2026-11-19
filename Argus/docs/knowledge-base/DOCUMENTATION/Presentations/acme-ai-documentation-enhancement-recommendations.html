@@ -1,0 +1,301 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Acme Claims AI Documentation — Enhancement Recommendations</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #1f2328;
+    background: #ffffff;
+    padding: 32px 16px 48px;
+  }
+  .page { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { color: #57606a; font-size: 13px; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid #e5e7eb; }
+  h2 { font-size: 16px; font-weight: 700; margin: 32px 0 10px; color: #1f2328; border-left: 3px solid #3b82d4; padding-left: 10px; }
+  h3 { font-size: 13.5px; font-weight: 700; margin: 20px 0 6px; color: #1f2328; }
+  p { margin-bottom: 10px; }
+  ul, ol { margin: 6px 0 12px 20px; }
+  li { margin-bottom: 4px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 16px; font-size: 13px; }
+  th { background: #f7f8fa; text-align: left; padding: 7px 10px; border: 1px solid #e5e7eb; font-weight: 600; color: #1f2328; }
+  td { padding: 7px 10px; border: 1px solid #e5e7eb; vertical-align: top; color: #1f2328; }
+  tr:nth-child(even) td { background: #f7f8fa; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 3px; margin-right: 4px; }
+  .high   { background: #fee2e2; color: #b91c1c; }
+  .medium { background: #fef3c7; color: #92400e; }
+  .low    { background: #dcfce7; color: #166534; }
+  .new    { background: #dbeafe; color: #1e40af; }
+  .fix    { background: #ede9fe; color: #5b21b6; }
+  code { font-family: "Cascadia Code", "Consolas", monospace; font-size: 12px; background: #f7f8fa; border: 1px solid #e5e7eb; padding: 1px 5px; border-radius: 3px; }
+  .section-intro { background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px 16px; margin-bottom: 14px; font-size: 13px; color: #57606a; }
+  .improvement-block { border: 1px solid #e5e7eb; border-radius: 6px; padding: 14px 16px; margin-bottom: 14px; }
+  .improvement-block h3 { margin-top: 0; }
+  .file-ref { font-size: 12px; color: #57606a; font-family: "Cascadia Code", "Consolas", monospace; display: block; margin-bottom: 6px; }
+  hr { border: none; border-top: 1px solid #e5e7eb; margin: 24px 0; }
+  footer { margin-top: 40px; padding-top: 14px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 12px; color: #57606a; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Acme Claims AI Documentation — Enhancement Recommendations</h1>
+  <p class="subtitle">Analysis of Prompts, Outputs, and Domain Context in light of new UI Process Documentation  |  August 2025</p>
+
+  
+  <div class="section-intro">
+    <strong>What was reviewed:</strong> All prompt files in <code>Prompts/Acme Claims-API-FE/</code>, <code>Acme Claims-SHARED/</code>, <code>Acme Claims-DB/</code>, <code>Acme Claims-ETL-PIPELINE/</code>; all output files in <code>Outputs/Acme Claims-FE/</code>; the shared <code>DOMAIN_CONTEXT.md</code>; and <code>Answers_Required/</code> logs.<br /><br />
+    <strong>Key finding:</strong> The new UI Process Documentation has dramatically enriched the knowledge base around the <em>user experience layer</em> (exact field names, screen flows, error messages, validation rules, conditional logic). However, this knowledge is only partially absorbed into the prompts and outputs. Six high-impact and seven medium-impact gaps are identified below with specific file-level fixes.
+  </div>
+
+  
+  <h2>1. Domain Context (DOMAIN_CONTEXT.md) — What to Add</h2>
+  <p>This is the single most leveraged file — it is injected into every session. Enriching it here propagates automatically to all downstream prompts and outputs.</p>
+
+  <div class="improvement-block">
+    <h3><span class="badge high">HIGH</span> §16 is incomplete — Provider Group workflow is missing screen-level detail</h3>
+    <span class="file-ref">Prompts/Acme Claims-SHARED/DOMAIN_CONTEXT.md · §16</span>
+    <p>The GUI workflow section (§16) covers Contract Configuration in detail (all 3 steppers, field types, validation rules) but has almost no equivalent for the <strong>Provider Group</strong> workflow. The PG workflow steps listed in §3 are high-level only. The new UI Process documentation should allow you to add:</p>
+    <ul>
+      <li>Exact PG creation screen fields (PG Name, LOB association, TIN/NPI entry, Remit Info tabs)</li>
+      <li>Bulk Upload vs. Inline entry paths</li>
+      <li>Dashboard tabs: Summary, TIN/NPI, Remittance, Attribution + "Days Left to Refresh"</li>
+      <li>Lock indicator behaviour — when another user is editing a PG, the lock overlay fires</li>
+      <li>PG approval states: Draft → Pending Approval → Under Review → Approved / Rejected (and corresponding My Queue sections)</li>
+      <li>Rollback action — confirmed from source code; document when it applies</li>
+    </ul>
+    <p><strong>Action:</strong> Add a new subsection <em>"§16b — Provider Group GUI Workflow"</em> mirroring the structure of §16.</p>
+  </div>
+
+  <div class="improvement-block">
+    <h3><span class="badge high">HIGH</span> UI Interaction Patterns not documented as reusable rules</h3>
+    <span class="file-ref">Prompts/Acme Claims-SHARED/DOMAIN_CONTEXT.md · §16</span>
+    <p>§16 documents Pentagon icon and multi-value popups only in the context of Contract steppers. But these UI patterns are used across PG screens, Definitions screens, and Template screens too. Prompts that generate FRDs and User Manuals need to know to apply these rules everywhere, not just in contracts. Create a reusable <strong>§16c — Universal UI Interaction Patterns</strong>:</p>
+    <table>
+      <tr><th>Pattern</th><th>Trigger</th><th>Behaviour</th></tr>
+      <tr><td>X icon</td><td>Any field</td><td>Clears/removes the value</td></tr>
+      <tr><td>Pentagon icon (⬠)</td><td>Complex nested fields</td><td>Opens "Dependent Data" popup; Add Row = new entry; applies for Affinity, TennCare fields, Quality Bonus, CC Fee, Target Trend, and equivalent PG fields</td></tr>
+      <tr><td>Allow Multiple Values</td><td>Multi-value fields</td><td>Opens "Enter Values for [Section]" popup → Add New</td></tr>
+      <tr><td>Save and Next</td><td>Stepper navigation</td><td>Saves current stepper; toast: "Success - Data Saved Successfully for Screen: [name]"</td></tr>
+      <tr><td>Save and Release</td><td>Collaborative editing</td><td>Moves to Global queue — accessible from other users' Draft section</td></tr>
+      <tr><td>Review and Submit All</td><td>Submission</td><td>Moves to Under Review state</td></tr>
+      <tr><td>Filter icon (My Queue)</td><td>Global filter</td><td>Search by Contract ID or PG ID before taking action</td></tr>
+    </table>
+  </div>
+
+  <div class="improvement-block">
+    <h3><span class="badge medium">MEDIUM</span> Definitions and Templates navigation sub-sections not documented</h3>
+    <span class="file-ref">Prompts/Acme Claims-SHARED/DOMAIN_CONTEXT.md · §16 UI Navigation Structure</span>
+    <p>The navigation tree in §16 ends with <em>Definitions</em> and <em>Templates</em> as placeholders. The new UI docs should reveal what <em>Definitions</em> contains (benefit packages, employer groups, specialty groups, etc.) and what <em>Templates</em> covers (pre-built contract templates by type). Add these as sub-bullets so prompts generating the User Manual know to document them.</p>
+  </div>
+
+  <div class="improvement-block">
+    <h3><span class="badge medium">MEDIUM</span> Missing: Dashboard screen documented (counts by status, drill-down)</h3>
+    <span class="file-ref">Prompts/Acme Claims-SHARED/DOMAIN_CONTEXT.md · §16</span>
+    <p>The <code>07_UI_SPECIFICATION.md</code> output references Dashboard Cards showing counts per status, but this is not in the domain context. Both the Contract Dashboard and PG Dashboard status count cards should be documented as authoritative UI facts (status labels, what clicking a card does, what the grid shows). This lets PROMPT_5 (User Manual) produce accurate dashboard documentation without guessing.</p>
+  </div>
+
+  
+  <h2>2. Prompts — Specific Enhancements per Prompt File</h2>
+
+  <div class="improvement-block">
+    <h3><span class="badge high">HIGH</span> PROMPT_5_USER_MANUAL.md — Too generic; outputs prove it</h3>
+    <span class="file-ref">Prompts/Acme Claims-API-FE/PROMPT_5_USER_MANUAL.md</span>
+    <p>The current output (<code>Outputs/Acme Claims-FE/04_USER_MANUAL.md</code>) is extremely thin — it describes Contract Configuration in 8 generic bullet points with no field names, no dropdown values, no error messages, no conditional logic. Compare this to the authoritative detail in §16 of the domain context. The prompt is not <em>directing</em> the AI to use §16.</p>
+    <p><strong>Add to PROMPT_5:</strong></p>
+    <ul>
+      <li>An explicit instruction: <em>"For Contract Configuration screens, use Domain Context §16 as the authoritative field list. Do not summarise — reproduce every field name, dropdown option, conditional, and validation rule from §16 in procedural (How-To) format."</em></li>
+      <li>A matching instruction for PG screens once §16b is added to the domain context.</li>
+      <li>An explicit list of screen sections the User Manual must cover: My Queue (Draft / Under Review / Pending for Approval tabs), Contract Dashboard, PG Dashboard, Definitions, Templates, Assign Approvers, Request Rerun.</li>
+      <li>A <code>[SCREENSHOT NEEDED]</code> placeholder rule for exact UI labels that cannot be inferred from code — currently this rule exists but is not applied consistently.</li>
+    </ul>
+  </div>
+
+  <div class="improvement-block">
+    <h3><span class="badge high">HIGH</span> PROMPT_6_PROCESS_DOCUMENTATION.md — Needs "UI field → FeedFile column" traceability section</h3>
+    <span class="file-ref">Prompts/Acme Claims-API-FE/PROMPT_6_PROCESS_DOCUMENTATION.md</span>
+    <p>The process documentation prompt covers swim lanes well, but the outputs lack a critical artefact now that UI field knowledge is rich: a <strong>UI Screen → Snowflake FeedFile Column mapping</strong>. Each business process step should identify which UI fields write to which FeedFile table columns via DataSync. The domain context already has §13 (Contract Field Vocabulary) and §6 (FeedFile table catalogue). The prompt should require:</p>
+    <ul>
+      <li>A new section in each process: <em>"Data Written to Snowflake"</em> — maps each UI field captured in that process step to the target FeedFile column.</li>
+      <li>Example: "Contract Name (UI) → <code>CNTRCT_NM</code> in <code>CL_CNTRCT_PARM</code> via DataSync".</li>
+    </ul>
+    <p>This is the most valuable cross-reference document for the DB team and downstream consumers, and with the current knowledge base it is fully derivable without new stakeholder input.</p>
+  </div>
+
+  <div class="improvement-block">
+    <h3><span class="badge high">HIGH</span> PROMPT_3_FUNCTIONAL_REQUIREMENTS.md — Conditional logic rules not being captured</h3>
+    <span class="file-ref">Prompts/Acme Claims-API-FE/PROMPT_3_FUNCTIONAL_REQUIREMENTS.md</span>
+    <p>The FRD output (<code>02_FUNCTIONAL_REQUIREMENTS.md</code>) is missing all conditional business rules that are now documented in §16 of the domain context. These are real functional requirements:</p>
+    <ul>
+      <li>If <code>Contract Type = Musculoskeletal or ProgramB</code> → <code>Contract Sub Type</code> becomes mandatory (51 options)</li>
+      <li>If <code>Pre Trigger Duration</code> is entered → <code>Pre Trigger Duration Units</code> becomes mandatory</li>
+      <li>Pentagon popup toggling (Yes/No reveals dependent data form rows)</li>
+      <li>Approver Level 1 ≠ Approver Level 2 — system enforces this</li>
+      <li>Comments on Approve/Reject: max 250 characters</li>
+    </ul>
+    <p><strong>Add to PROMPT_3:</strong> A "Conditional Mandatory Fields" section requirement. Instruct the AI to extract all conditional rules from §16 of the domain context as formal FR statements in the format: <em>"The system SHALL make [Field X] mandatory when [Field Y] = [Value Z]."</em></p>
+  </div>
+
+  <div class="improvement-block">
+    <h3><span class="badge medium">MEDIUM</span> PROMPT_7_DIAGRAMS.md — Missing "UI Screen → API Endpoint → FeedFile Table" data flow diagram</h3>
+    <span class="file-ref">Prompts/Acme Claims-API-FE/PROMPT_7_DIAGRAMS.md</span>
+    <p>The diagrams prompt produces good architecture and C4 diagrams but doesn't produce the most useful operational diagram now that UI knowledge is complete: a <strong>data flow diagram that traces from each UI screen through the API endpoint to the Snowflake table</strong>. Add a new mandatory diagram type:</p>
+    <ul>
+      <li><em>"Diagram 5 — UI-to-Data Flow per Business Entity"</em></li>
+      <li>Separate flows for: Contract (Stepper 1/2/3 → DataSync → CL_CNTRCT_* tables), Provider Group (PG creation → DataSync → CL_PG* tables), Run Request (Rerun UI → CL_RUN_RQST → DPDF job trigger)</li>
+      <li>Use the confirmed DPDF Job IDs from §7 of domain context</li>
+    </ul>
+  </div>
+
+  <div class="improvement-block">
+    <h3><span class="badge medium">MEDIUM</span> PROMPT_2_BUSINESS_REQUIREMENTS.md — Needs role-specific capability matrix</h3>
+    <span class="file-ref">Prompts/Acme Claims-API-FE/PROMPT_2_BUSINESS_REQUIREMENTS.md</span>
+    <p>The BRD output lacks a comprehensive role-to-screen access matrix. The domain context now has §9 (RBAC roles) and §16 (navigation/workflow), which together can produce an authoritative matrix. Add a required output section:</p>
+    <table>
+      <tr><th>Role</th><th>Screens Accessible</th><th>Actions Permitted</th></tr>
+      <tr><td>ACME-PROVIDER-CONTRACT-*</td><td>My Queue, Contract Config, PG Dashboard</td><td>Create, Edit, Submit, Save and Release</td></tr>
+      <tr><td>ACME-PROVIDER-CONTRACT-APPROVER</td><td>My Queue (Pending for Approval tab), Assign Approvers</td><td>Approve, Reject (with comment)</td></tr>
+      <tr><td>ACME-PROVIDER-CONTRACT-ADMIN</td><td>All of above + Approver Management</td><td>Assign Approvers list management</td></tr>
+      <tr><td>ACME-FINANCE-*</td><td>PMC/Finance screens</td><td>View financial configuration</td></tr>
+    </table>
+    <p>This should be a mandatory section in every BRD output for UI modules.</p>
+  </div>
+
+  <div class="improvement-block">
+    <h3><span class="badge medium">MEDIUM</span> ETL and DB prompts — Add UI-originated data context</h3>
+    <span class="file-ref">Prompts/Acme Claims-ETL-PIPELINE/ · Prompts/Acme Claims-DB/</span>
+    <p>The ETL and DB prompt pipelines are documented from the data/pipeline perspective but do not reference which <em>UI actions</em> originate the data they process. Now that the UI layer is fully documented, each ETL and DB prompt should load <code>Outputs/Acme Claims-FE/05_PROCESS_DOCUMENTATION.md</code> as an optional prerequisite so the ETL/DB AI can say: <em>"This DataSync SQL executes when the user clicks Save and Next on Stepper 1 of Contract Configuration."</em> This closes the documentation gap between layers.</p>
+  </div>
+
+  
+  <h2>3. Output Documents — Specific Gaps to Re-generate</h2>
+
+  <div class="improvement-block">
+    <h3><span class="badge high">HIGH</span> 04_USER_MANUAL.md — Needs full regeneration</h3>
+    <span class="file-ref">Outputs/Acme Claims-FE/04_USER_MANUAL.md</span>
+    <p>The current document is structurally thin — it describes Contract Configuration in 8 generic bullets and Provider Group in 7. With §16 now in the domain context and the enhanced PROMPT_5 described above, a full regeneration should produce:</p>
+    <ul>
+      <li>Step-by-step walkthrough of all 3 Contract steppers with every field, every dropdown option, every conditional rule</li>
+      <li>Provider Group creation walkthrough (Inline and Bulk Upload paths)</li>
+      <li>My Queue navigation: Draft / Under Review / Pending for Approval tabs, Filter icon usage, Save and Release vs. Review and Submit</li>
+      <li>Approver workflow: how to assign approvers, L1/L2 validation rule, approve/reject with comment</li>
+      <li>Dashboard: how to read status count cards and drill into the grid</li>
+      <li>Request Rerun: when to use it, what it does</li>
+      <li>Glossary sidebar at first use of every acronym (PMC, SSAV, LOB, PSL, etc.)</li>
+    </ul>
+    <p><strong>Priority: Regenerate after updating PROMPT_5 and §16b of domain context.</strong></p>
+  </div>
+
+  <div class="improvement-block">
+    <h3><span class="badge high">HIGH</span> 05_PROCESS_DOCUMENTATION.md — Process 1 (PG Lifecycle) is missing detail</h3>
+    <span class="file-ref">Outputs/Acme Claims-FE/05_PROCESS_DOCUMENTATION.md</span>
+    <p>The current output for Process 1 is structurally correct but has placeholder SLOs (<code>[from discovery]</code>) and sparse swim lane steps. With new UI knowledge, the gaps that can be filled immediately are:</p>
+    <ul>
+      <li>Exact My Queue tabs for PG: Draft / Pending Approval / Under Review / Approved / Rejected</li>
+      <li>Lock indicator — when the lock overlay shows and what the user must do (wait or contact the editing user)</li>
+      <li>Days Left to Refresh in the Attribution tab — what it means operationally</li>
+      <li>Rollback action — when it is available and what it reverts</li>
+      <li>Daily email SLA (5 business days) with audit note that escalation is stated but not automated</li>
+    </ul>
+  </div>
+
+  <div class="improvement-block">
+    <h3><span class="badge medium">MEDIUM</span> 02_FUNCTIONAL_REQUIREMENTS.md — Grid column definitions incomplete</h3>
+    <span class="file-ref">Outputs/Acme Claims-FE/02_FUNCTIONAL_REQUIREMENTS.md</span>
+    <p>Grid column definitions are partially started (TIN/NPI substitution grid is documented) but the Contract Dashboard grid and PG Dashboard grid column lists carry <code>[REQUIRES STAKEHOLDER INPUT]</code> flags. The <code>07_UI_SPECIFICATION.md</code> file already has the confirmed column references from <code>PGDashboardConfig.tsx</code>. These should be cross-linked and the FRD updated — no new stakeholder input needed, just cross-reference the <code>07_UI_SPECIFICATION.md</code> evidence.</p>
+  </div>
+
+  <div class="improvement-block">
+    <h3><span class="badge medium">MEDIUM</span> 07_UI_SPECIFICATION.md — Incomplete after A3 (Contract Module)</h3>
+    <span class="file-ref">Outputs/Acme Claims-FE/07_UI_SPECIFICATION.md</span>
+    <p>The document has good detail for the application shell and starts on A2 (PG Module) and A3 (Contract Module) but the Definitions screens, Templates screens, Request Rerun screen, and Admin screens (Assign Approvers) are not documented. These are all confirmed to exist from §16 navigation structure in the domain context. They should be added as new sections A4–A7.</p>
+  </div>
+
+  <div class="improvement-block">
+    <h3><span class="badge low">LOW</span> FE_SERVICES_DOCUMENTATION.md — Add business context column</h3>
+    <span class="file-ref">Outputs/Acme Claims-FE/FE_SERVICES_DOCUMENTATION.md</span>
+    <p>The services documentation is thorough at the TypeScript interface level but each service function lacks a <em>"Business Context"</em> column mapping it to a UI screen + user action. Example: <code>getProviderGroupList()</code> → "Called on PG Dashboard load; populates the AG Grid on the My Queue page." This makes the document useful to BSAs and new developers, not just TypeScript engineers.</p>
+  </div>
+
+  
+  <h2>4. New Prompt / Output to Create</h2>
+
+  <div class="improvement-block">
+    <h3><span class="badge new">NEW</span> PROMPT_13_UI_TO_DATA_FIELD_MAPPING.md</h3>
+    <span class="file-ref">Prompts/Acme Claims-API-FE/ (new file)</span>
+    <p>This is the highest-value new artefact the current knowledge base can produce. It would generate a single cross-cutting reference document mapping every UI field visible to the user → the backend API parameter → the Snowflake column it writes → the FeedFile table it lands in via DataSync. No equivalent currently exists and it directly answers the question "what does clicking Save actually do to the database?"</p>
+    <p><strong>Output: </strong><code>Outputs/Acme Claims-FE/13_UI_FIELD_TO_DATA_MAPPING.md</code></p>
+    <p><strong>Prerequisite inputs:</strong> Domain Context §13 + §16 (UI fields), <code>07_UI_SPECIFICATION.md</code> (confirmed screen elements), <code>Outputs/Acme Claims-DB/07_DB_SCHEMA_CATALOG.md</code> (column definitions), ETL DataSync SQL docs.</p>
+  </div>
+
+  <div class="improvement-block">
+    <h3><span class="badge new">NEW</span> PROMPT_14_VALIDATION_RULES_CATALOGUE.md</h3>
+    <span class="file-ref">Prompts/Acme Claims-API-FE/ (new file)</span>
+    <p>The new UI Process documentation contains a rich set of validation rules that are spread across §16 of the domain context (field types, conditional mandatories, character limits, numeric-only rules, dropdown constraints). These should be consolidated into a single testable catalogue used by QA, BSAs, and the test generation prompt (SDLC_PROMPT_F). Format: FR ID | Screen | Field | Rule Type | Rule Description | Error Message.</p>
+    <p><strong>Output: </strong><code>Outputs/Acme Claims-FE/14_VALIDATION_RULES_CATALOGUE.md</code></p>
+  </div>
+
+  <div class="improvement-block">
+    <h3><span class="badge new">NEW</span> 08_CHANGE_IMPACT_MATRIX.md for Acme Claims-FE</h3>
+    <span class="file-ref">Outputs/Acme Claims-FE/ (new file — DB module already has this)</span>
+    <p>The DB output folder already has <code>04_DB_CHANGE_IMPACT_MATRIX.md</code>. The FE module lacks an equivalent. Now that the UI layer is fully mapped (screens → services → API endpoints → Snowflake tables), a change impact matrix can be produced: for any given UI screen or feature, what other screens/services/FeedFile tables are affected if it changes? This is critical for sprint planning and change routing (SDLC_PROMPT_D).</p>
+  </div>
+
+  
+  <h2>5. Prompt Hygiene / Housekeeping</h2>
+
+  <table>
+    <tr><th>Issue</th><th>File</th><th>Fix</th></tr>
+    <tr>
+      <td>Two versions of the domain context exist</td>
+      <td><code>Prompts/Acme Claims-SHARED/DOMAIN_CONTEXT.md</code> and <code>Prompts/Acme Claims-API-FE/PROMPT_0_DOMAIN_CONTEXT.md</code></td>
+      <td>The SHARED version is the live record. The API-FE PROMPT_0 version should be replaced with a redirect note pointing to the SHARED version. Currently both are maintained separately and could drift.</td>
+    </tr>
+    <tr>
+      <td>GAP-ANALYSIS output folder is empty</td>
+      <td><code>Outputs/GAP-ANALYSIS/</code></td>
+      <td>The SDLC_PROMPT_B (Gap Analysis) has never been run. Now that full UI knowledge exists, running it would produce the most useful SDLC artefact in the set. Prioritise after domain context update.</td>
+    </tr>
+    <tr>
+      <td>DEPRECATED prompts still present in Acme Claims-API-FE/</td>
+      <td>4 × DEPRECATED_PROMPT_*.md files</td>
+      <td>Move to Archive folder to keep the prompt directory clean and avoid confusion about which prompt to use.</td>
+    </tr>
+    <tr>
+      <td>PROMPT_7_DIAGRAMS.md references "ETL = AWS Glue + Lambda" but DOMAIN_CONTEXT.md (SHARED) says "ETL = Python scripts (claims-etl)"</td>
+      <td><code>Prompts/Acme Claims-API-FE/PROMPT_7_DIAGRAMS.md</code> line 48 and <code>Prompts/Acme Claims-API-FE/PROMPT_0_DOMAIN_CONTEXT.md</code> line 91</td>
+      <td>The API-FE PROMPT_0 says "AWS Glue jobs + Lambda functions + Python scripts" — the Glue/Lambda part is not confirmed from source. Align with the verified statement from the SHARED context: "Python scripts (claims-etl)".</td>
+    </tr>
+    <tr>
+      <td>FE_questions.md shows 0 open questions but outputs still have [REQUIRES STAKEHOLDER INPUT]</td>
+      <td><code>Answers_Required/FE_questions.md</code> vs. <code>Outputs/Acme Claims-FE/07_UI_SPECIFICATION.md</code></td>
+      <td>The questions file should be updated to track the column-definition gaps found in the UI spec. 3 answered ≠ all questions resolved.</td>
+    </tr>
+  </table>
+
+  
+  <h2>6. Recommended Action Sequence</h2>
+
+  <table>
+    <tr><th>#</th><th>Action</th><th>Priority</th><th>Effort</th><th>Downstream benefit</th></tr>
+    <tr><td>1</td><td>Add §16b (PG GUI Workflow) and §16c (Universal UI Patterns) to <code>DOMAIN_CONTEXT.md</code></td><td><span class="badge high">HIGH</span></td><td>1–2 hrs</td><td>All FE prompts improve automatically</td></tr>
+    <tr><td>2</td><td>Update <code>PROMPT_5_USER_MANUAL.md</code> to explicitly reference §16 and §16b for field-level detail</td><td><span class="badge high">HIGH</span></td><td>30 min</td><td>User manual becomes complete</td></tr>
+    <tr><td>3</td><td>Regenerate <code>Outputs/Acme Claims-FE/04_USER_MANUAL.md</code></td><td><span class="badge high">HIGH</span></td><td>1 AI session</td><td>Key deliverable for new team members</td></tr>
+    <tr><td>4</td><td>Add "UI field → FeedFile column" requirement to <code>PROMPT_6_PROCESS_DOCUMENTATION.md</code>; update output</td><td><span class="badge high">HIGH</span></td><td>1 AI session</td><td>Closes the biggest FE↔DB documentation gap</td></tr>
+    <tr><td>5</td><td>Add conditional FR rules requirement to <code>PROMPT_3_FUNCTIONAL_REQUIREMENTS.md</code>; regenerate FRD §2</td><td><span class="badge medium">MEDIUM</span></td><td>1 AI session</td><td>FRD becomes testable; QA can write test cases directly</td></tr>
+    <tr><td>6</td><td>Create new <code>PROMPT_14_VALIDATION_RULES_CATALOGUE.md</code> and generate its output</td><td><span class="badge medium">MEDIUM</span></td><td>2 hrs + 1 session</td><td>QA acceleration; test coverage artefact</td></tr>
+    <tr><td>7</td><td>Run <code>SDLC_PROMPT_B_GAP_ANALYSIS.md</code> to populate <code>Outputs/GAP-ANALYSIS/</code></td><td><span class="badge medium">MEDIUM</span></td><td>1 AI session</td><td>Identifies what UI features have no requirement docs</td></tr>
+    <tr><td>8</td><td>Create new <code>PROMPT_13_UI_TO_DATA_FIELD_MAPPING.md</code> and generate output</td><td><span class="badge medium">MEDIUM</span></td><td>2 hrs + 1 session</td><td>Most useful cross-layer reference document</td></tr>
+    <tr><td>9</td><td>Consolidate duplicate domain context files; move DEPRECATED prompts to Archive</td><td><span class="badge low">LOW</span></td><td>20 min</td><td>Prevents future drift / confusion</td></tr>
+    <tr><td>10</td><td>Complete <code>07_UI_SPECIFICATION.md</code> sections A4–A7 (Definitions, Templates, Rerun, Assign Approvers)</td><td><span class="badge low">LOW</span></td><td>1 AI session</td><td>Completes the UI spec</td></tr>
+  </table>
+
+  <footer>Made with IBM Bob</footer>
+</div>
+</body>
+</html>

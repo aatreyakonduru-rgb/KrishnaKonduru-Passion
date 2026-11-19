@@ -1,0 +1,7 @@
+Name,Email,Jira user,Primary role,Gate roles,Allocation,Delegate,Delivery
+"Doe, Jane",jane.doe@acme.example,jdoe,lead,tech_lead,100,"Lee, Sam",yes
+"Lee, Sam",sam.lee@acme.example,slee,developer,"developer, dev_team",100,"Doe, Jane",yes
+"Patel, Ravi",ravi.patel@acme.example,rpatel,product_owner,product_owner,50,,yes
+"Gomez, Ana",ana.gomez@acme.example,agomez,bsa,bsa,100,,yes
+"Chen, Wei",wei.chen@acme.example,wchen,qa_lead,"test_lead, tester",100,,yes
+"Kim, Joon",joon.kim@acme.example,jkim,scrum_master,,100,,no

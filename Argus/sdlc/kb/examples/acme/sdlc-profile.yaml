@@ -1,0 +1,124 @@
+# Made-up example of the Workbench team settings, the YAML twin of sdlc-profile.json.
+# Copy one of the two to .devin/rules/ in your repo and put your own values in. The YAML file is used
+# only when PyYAML is installed; without it the Workbench reads sdlc-profile.json.
+product:
+  name: Acme Claims
+  brand: Acme Claims
+  legacy_systems:
+  - OldClaims
+jira:
+  host: https://jira.acme.example
+  project: ACME
+  it_team: Acme-Claims-Web
+  token_env: ACME_JIRA_TOKEN
+  fields:
+    story_points: customfield_10001
+    sprint: customfield_10002
+    acceptance: customfield_10003
+    it_team: customfield_10004
+  queries_note: Ticket lists the Workbench reads. {user} is the person's Jira username. qa and uat must match the QA and UAT queues in .devin/rules/dashboard-roles.yaml; waiting finds the Approval and Question
+    sub-tasks assigned to the person.
+  queries:
+    sprint: project = ACME AND "IT Team" = "Acme-Claims-Web" AND sprint in openSprints() AND issuetype in (Story, Bug, Task) ORDER BY rank ASC
+    open: project = ACME AND "IT Team" = "Acme-Claims-Web" AND resolution = Unresolved AND issuetype in (Story, Bug, Task) ORDER BY updated DESC
+    mine: project = ACME AND assignee = "{user}" AND resolution = Unresolved ORDER BY updated DESC
+    mine_sprint: project = ACME AND assignee = "{user}" AND sprint in openSprints() ORDER BY rank ASC
+    qa: project = ACME AND status in ({statuses.qa}) AND resolution = Unresolved ORDER BY status ASC, updated ASC
+    uat: project = ACME AND status in ({statuses.uat}) AND resolution = Unresolved ORDER BY status ASC, updated ASC
+    waiting: project = ACME AND labels in (Approval, Question) AND assignee = "{user}" AND resolution = Unresolved ORDER BY created ASC
+  statuses_note: Jira statuses per queue. JQL in jira.queries and .devin/rules/dashboard-roles.yaml says {statuses.qa}
+    and gets the list filled in, so a renamed status is one edit here.
+  statuses:
+    review:
+    - In Review
+    qa:
+    - Ready for QA
+    - In QA
+    retest:
+    - Resolved
+    - Ready for QA
+    uat:
+    - Business Review
+    uat_recheck:
+    - Resolved
+    - Business Review
+    - Live Check
+    business_approval:
+    - Awaiting Approval
+    release:
+    - Ready for Release
+    prod_validation:
+    - Live Check
+    demo_ready:
+    - In Review
+    - Ready for Release
+  phases_note: Phase suffix of a story summary (' - DEV') and prefix of a sub-task ('DEV- ...'), in delivery order.
+  phases:
+  - DEV
+  - QA
+repo:
+  host: git.acme.example
+  slug: ACME/claims-web
+  kb_branch: main
+  deploy_slug: ACME/claims-deploy
+  services:
+  - web
+  - api
+# Environments in promotion order: promote_check.py and /promote read them.
+workflow:
+  _note: 'Environments in promotion order (in_order: false keeps one out of the order). app_branch and deploy_branch
+    are the branches in the app and deploy repos, values the suffix of values-<env>.yaml / tekton-values-<env>.yaml,
+    gate the approval needed before promoting into it, tag_branch where the pipeline writes the image tag when a
+    person has to merge it, verified: false refuses the environment until the mapping is confirmed. Used by promote_check.py
+    and /promote.'
+  environments:
+  - name: dev
+    app_branch: main
+    deploy_branch: dev
+    values: dev
+  - name: qa
+    app_branch: release/qa
+    deploy_branch: qa
+    values: qa
+  - name: prod
+    app_branch: release/prod
+    deploy_branch: prod
+    values: prod
+    gate: SDLC_07_ENV_PROMOTION_APPROVAL
+devin:
+  app: https://acme.devinenterprise.com
+  org_id: org-00000000000000000000000000000000
+# The team's Confluence pages. Tools build links from these; a moved or renamed page is one edit here.
+confluence:
+  host: https://wiki.acme.example
+  space: ACME
+  token_env: ACME_CONFLUENCE_TOKEN
+  pages:
+    user_manual:
+      id: '100001'
+      title: Acme Claims Devin User Manual
+    roster:
+      id: '100002'
+      title: Acme Claims Team Roster
+    team_home:
+      id: '100000'
+      title: Acme Claims
+    sprint_leave:
+      id: '000000003'
+      title: ACME Sprint Leave
+    demo_recordings:
+      id: '100000005'
+      title: ACME Demo Recordings
+docs:
+  _note: Repo-relative paths of the documents people are pointed at. Move a document, change its path here.
+  workbench_manual: sdlc/framework/reference/HELP.html
+  presentation: docs/knowledge-base/DOCUMENTATION/Presentations/overview.html
+  architecture: sdlc/ARCHITECTURE.html
+  framework_manual: sdlc/USER-MANUAL.md
+  roster_governance: sdlc/ROSTER-GOVERNANCE.md
+paths:
+  kb: docs/knowledge-base
+act_as:
+  _note: 'Jira usernames of the people who may switch the Workbench to someone else (Me > Who you are) and use "su - <name>" in a Devin session. Hidden from everyone else.'
+  allowed:
+    - AB10001

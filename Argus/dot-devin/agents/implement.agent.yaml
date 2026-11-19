@@ -1,0 +1,123 @@
+# Implement Agent — Code Generation, Dev Environment Testing
+
+name: Implement Agent
+role: Developer
+goal: Generate code, execute in dev environment, create PR, and obtain code review approval
+
+allowed_skills:
+  # CLI skill orchestrator (runnable): .devin/skills/implement/SKILL.md
+  - implement                     # orchestrator — invoke with /implement REQ-{id} STORY-{n}
+  # Child skills (executed inline by /implement):
+  - pr-readiness                  # .devin/skills/pr-readiness/SKILL.md — AI verification (SDLC_05 artifact)
+  - security-audit                # .devin/skills/security-audit/SKILL.md — security check during code gen
+  - build-check                   # .devin/skills/build-check/SKILL.md — install, lint, test, build (needs ARTIFACTORY_TOKEN)
+  # Legacy aliases (pre-orchestrator naming):
+  # - code-gen-dev                → now inline in /implement Steps 1-2
+  # - dev-env-test                → now inline in /implement Step 3 (test generation)
+  # - pr-creator                  → now inline in /implement Step 6 (PR description)
+  # - ai-verification             → now /pr-readiness skill
+
+decision_policy:
+  - if: routing_approved AND insertion_points_identified
+    then: create_feature_branch
+  - if: feature_branch_created
+    then: run code-gen-dev skill
+  - if: code_generated
+    then: run dev-env-test skill
+  - if: dev_tests_passed
+    then: update_kb_artifacts (if schema/API changes)
+  - if: kb_artifacts_updated
+    then: run pr-creator skill
+  - if: pr_created
+    then: run ai-verification skill
+  - if: ai_verification_passed
+    then: "submit_for_approval (gate: SDLC_05_CODE_REVIEW)"
+
+human_gates:
+  - gate_id: SDLC_05_CODE_REVIEW
+    required_role: developer
+    artifacts_to_review:
+      - Pull Request
+      - AI verification report
+      - Code diff
+    approval_criteria:
+      - Code follows secure coding standards
+      - No hardcoded secrets or PII exposure
+      - Tests included
+      - Documentation updated
+      - AI verification passed
+    timeout_hours: 48
+
+inputs:
+  - routing_map:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/REQ-{id}-STORY-{n}-ROUTING.md  # {OWNER} is resolved per .devin/rules/session-isolation.md.
+  - insertion_points:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/insertion-points.yaml
+  - coding_patterns:
+      type: file
+      path: docs/knowledge-base/ETL/claims-etl/12_ETL_SQL_PATTERNS.yaml  # ETL/SQL changes only; for app code follow the nearest existing code at the insertion point
+
+outputs:
+  - code_changes:
+      type: pull_request
+      branch: feature/REQ-{id}-STORY-{n}-{description}
+  - ai_verification_report:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/REQ-{id}-STORY-{n}-AI-VERIFICATION.md
+  - updated_kb_artifacts:
+      type: files
+      paths:
+        - DB_TABLE_REGISTRY.yaml (if DB changes)
+        - API_ENDPOINT_REGISTRY.yaml (if API changes)
+        - FE_COMPONENT_REGISTRY.yaml (if UI changes)
+
+required_context:
+  - REQ-{id}-STORY-{n}-ROUTING.md (approved)
+  - insertion-points.yaml
+  - CODING_PATTERNS.yaml
+  - DB_AI_GUARDRAILS.yaml (if DB changes)
+  - Secure coding rules
+
+side_effects:
+  - Creates feature branch
+  - Generates code files
+  - Updates KB artifacts
+  - Creates pull request
+  - Logs implementation session to provenance
+
+guardrails:
+  - Must follow secure coding standards (rules/secure-coding.md)
+  - Must not hardcode secrets or PII
+  - Must use parameterized SQL (no string concatenation)
+  - Must include tests
+  - Must not proceed to Eval without Developer approval
+
+evaluation:
+  pass_criteria:
+    - Feature branch created
+    - Code generated and committed
+    - Dev tests passed
+    - PR created with AI verification report
+    - Developer approval recorded
+  fail_criteria:
+    - Code violates secure coding standards
+    - Tests fail in dev environment
+    - No PR created
+    - No approval signature
+
+logging:
+  - Log feature branch name
+  - Log files changed
+  - Log test results
+  - Log approval decision and rationale
+
+examples:
+  - input:
+      routing_map: REQ-001-STORY-001-ROUTING.md (Add LOCATION_CD column)
+      insertion_points: V001__add_location_cd.sql (new file)
+    output:
+      code_changes: PR #123 (feature/REQ-001-STORY-001-add-location-cd)
+      ai_verification_report: REQ-001-STORY-001-AI-VERIFICATION.md
+      approval: approved by Developer on 2026-09-03

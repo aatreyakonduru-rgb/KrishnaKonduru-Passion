@@ -1,0 +1,81 @@
+# Live KB files that no shared prompt builds, so a rebuild must never replace them.
+# Paths are relative to paths.kb_root in kb-profile.yaml; * matches any characters, including /.
+# Used by sdlc/kb/tools/kb_compare.py --keep and kb_promote.py --keep.
+# Each source note says where the file came from, as read from the file itself.
+
+keep:
+  # Built from spreadsheets and documents
+  - path: DB-DOCS/15_CFF_TABLE_CATALOGUE.yaml
+    source: "FeedFile workbook: Acme Claims Contract PG Definition FeedFile's 10_March_2025.xlsx"
+  - path: DB-DOCS/16_REQUIREMENT_ROUTING_MAP.yaml
+    source: "15_CFF_TABLE_CATALOGUE.yaml plus the FeedFile workbook (10 March 2025)"
+  - path: SHARED/DOMAIN_CONTEXT_REFERENCE.md
+    source: "Reference sections copied word for word from the archived prompt-era domain context (2026-09-30)"
+  - path: SHARED/DOMAIN_CONTEXT.md
+    source: "Team-written domain context, citing 6 workbooks and 1 Word document"
+  - path: SHARED/ACME_GCP_SNOWFLAKE_DECOMMISSION.md
+    source: "Snowflake GCP Acme Claims decommission notice e-mail, shared by Resource 3"
+  - path: SHARED/AGENT_START_HERE.yaml
+    source: "Chat agent entry point, curated (question type to KB file and live source)"
+  - path: SHARED/ANSWER_MODES.md
+    source: "Chat agent entry point, curated (business vs tech answer style)"
+  - path: SHARED/LIVE_SOURCES.yaml
+    source: "Chat agent entry point, curated (Snowflake, repos, Jira, Confluence and known access limits)"
+  - path: DB-DOCS/DB_SCHEMA_SUMMARY.md
+    source: "DBA-provided CREATE TABLE DDL and column dictionary"
+  - path: DB-DOCS/DB_COLUMN_GLOSSARY.yaml
+    source: "DBA-provided column descriptions"
+  - path: DB-DOCS/DB_TABLE_REGISTRY.yaml
+    source: "Curated table registry checked against P01 INFORMATION_SCHEMA; read by kbgen/gen_etl_kb.py"
+  - path: MODULES/claims-web/api/11_API_DATA_CONTRACTS.DOC-DERIVED.yaml
+    source: "Derived from the functional and technical requirements documents"
+
+  # Written by hand
+  - path: ETL/claims-etl-sdlcfin_files/*
+    source: "Finance metric formulas from ACMEETL/claims-etl-sdlcfin_files (built by Resource 3), with tables matched in T01 Snowflake INFORMATION_SCHEMA"
+  - path: DB-DOCS/OPEN_QUESTIONS.md
+    source: "Open questions for team review, prepared by Resource 3"
+  - path: DB-DOCS/_PIPELINE-LOG/*
+    source: "DB pipeline bookkeeping: Jira story, session state, validation and staleness logs"
+  - path: MODULES/claims-web/api/UI_Jira_Story_1.md
+    source: "Jira story ACME-16599"
+  - path: MODULES/00_REPO_APPLICATION_INDEX.md
+    source: "Repo application index from each app's package.json and setup.py"
+
+  # Built by the kbgen scripts: rebuild by rerunning the script, not a prompt
+  - path: DB-DOCS/SIT/*
+    source: "kbgen scripts (extract_db_snapshot, gen_db_kb, gen_semantic_assets, gen_ui_field_map) against SIT01_CLAIMS"
+  - path: DB-DOCS/DEV/*
+    source: "kbgen scripts (extract_db_snapshot, gen_db_kb, gen_semantic_assets, gen_ui_field_map) against DEV01_CLAIMS"
+  - path: DB-DOCS/16_DB_APP_JOINS.yaml
+    source: "kbgen/extract_app_joins.py"
+  - path: DB-DOCS/README.md
+    source: "kbgen/gen_semantic_assets.py"
+
+  # Knowledge-base root files
+  - path: KNOWLEDGE-MANIFEST.yaml
+    source: "sdlc/framework/tools/kb_manifest.py generate"
+  - path: README.md
+    source: "Knowledge-base index, written by hand"
+
+  # Whole folders built from other sources
+  - path: CONFLUENCE-DERIVED/*
+    source: "Confluence pages"
+  - path: JIRA-DERIVED/*
+    source: "Jira"
+  - path: FIGMA-DERIVED/*
+    source: "Figma"
+  - path: DEPLOY-DERIVED/*
+    source: "claims_deploy repo"
+  - path: QA-AUTOMATION-DERIVED/*
+    source: "QA automation repo"
+  - path: DOCUMENTATION/*
+    source: "Presentations and Argus manual"
+  - path: DECISIONS/*
+    source: "ADRs"
+  - path: VALIDATION/*
+    source: "Validation runs"
+  - path: REPORTS/*
+    source: "Dated outputs: onboarding guides, status reports, sprint reviews, release notes, PI plans, migration status"
+  - path: Archive/*
+    source: "Superseded files kept for reference; nothing reads them"

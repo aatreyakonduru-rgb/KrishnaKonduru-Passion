@@ -1,0 +1,95 @@
+# Team profile for the shared knowledge-base prompts.
+#
+# The prompts in sdlc/kb/kb-prompts/ that say `shareable: true` hold no team data. Every team-specific
+# value they need comes from this file (or the environment file it points to), through the
+# placeholders listed in sdlc/kb/kb-prompts/placeholders.yaml. This file stays in the team repo; it is
+# never shipped.
+#
+# Values below were copied from the prompts as they stood before they were made shareable
+# (DB_PROMPT_1_DISCOVERY.md v1.2, 2026-09-28) and from snowflake-environments.yaml.
+
+product:
+  name: Acme Claims
+  short_name: Acme Claims
+  domain_context: .devin/rules/DOMAIN_CONTEXT.md
+
+team:
+  roster_file: .devin/rules/people.yaml
+
+app:
+  # Application source folders, used to trace columns to API and UI code.
+  source_dirs:
+    - api
+    - web/microfrontends
+    - web-admin
+    - web-portal
+    - api-portal
+
+etl:
+  # Batch/ETL repos documented by /etl-run-pipeline. Each is a separate repo cloned next to this one.
+  modules:
+    - claims-etl
+  source_repo: https://git.acme.example/ACMEETL/claims-etl.git
+  clone_dir: ../claims-etl
+
+paths:
+  kb_root: docs/knowledge-base
+  db_docs: docs/knowledge-base/DB-DOCS
+  module_docs: docs/knowledge-base/MODULES/claims-web
+  etl_docs: docs/knowledge-base/ETL
+  context_dir: docs/knowledge-base/SHARED
+
+db:
+  engine: snowflake
+  # database, iam_database, warehouse and schema per environment
+  environments_file: .devin/rules/snowflake-environments.yaml
+  # The environment the DB knowledge base is built from when no --env is given.
+  # Ours is prod (team decision, 2026-09-30); the Devin nonprod MCP cannot reach it.
+  kb_environment: prod
+  related_schemas:
+    - CLAIMS_DATA_STG
+    - CLAIMS_DATA_RAWZ
+    - CLAIMS_DATA_RAWZ_STG
+    - CLAIMS_DATA_ETL_SEMANTIC
+    - CLAIMS_DATA_APPCODE
+  restricted_view_schemas:
+    - CLAIMS_UI_DATA_ALLPHI
+    - CLAIMS_UI_DATA_NOPHI
+    - CLAIMS_UI_DATA_NOHAPHI
+  code_column_suffixes: [_CD, _IND, _TYPE]
+  key_column_suffixes: [_ID]
+  priority_code_columns:
+    - CL_UI_PG_STTS.STTS_CD
+    - CL_RUN_RQST_STTS.STTS_CD
+    - CL_RUN_RQST.RQST_TYPE_CD
+    - CL_RUN_RQST.SCHDL_TYPE_CD
+    - CL_RUN_RQST.RQST_STG_CD
+    - CL_RQST_PRCS_CNTRL.PRCS_TYPE_CD
+    - CL_RQST_PRCS_CNTRL.RQST_TYPE_CD
+  active_record_filter:
+    column: VALID_TO_DTM
+    open_value: '9999-12-31'
+  # Filters every query must carry. Tenant values seen on SIT CL_PG (59/59, all rows).
+  global_filters:
+    - "RAW_CLNT_ID = 59 AND RAW_TNNT_ID = 59  (tenant isolation)"
+  # Where an AI agent reads from by default (masked views).
+  default_view_schema: CLAIMS_UI_DATA_NOPHI
+  known_joins:
+    - CL_CNTRCT_PG.PG_ID -> CL_PG.PG_ID
+    - CL_CNTRCT_PG.CNTRCT_ID -> CL_CNTRCT_PARM.CNTRCT_ID
+    - CL_SC_RSLT.RUN_RQST_ID -> CL_RUN_RQST.RUN_RQST_ID
+    - CL_SC_RQST_DTL.RUN_RQST_ID -> CL_RUN_RQST.RUN_RQST_ID
+    - CL_RUN_RQST.PARNT_RUN_RQST_ID -> CL_RUN_RQST.RUN_RQST_ID
+    - CL_CNTRCT_SC_CNFGRN.CNTRCT_ID -> CL_CNTRCT_PARM.CNTRCT_ID
+
+# Used by `prompts.py lint`: none of these may appear in a shared prompt.
+# Every value above (and in value_files) is checked as well.
+lint:
+  # Your own product names, schema prefixes and code words: `sdlc/kb/tools/prompts.py lint`
+  # fails if any of them shows up in a prompt you share.
+  leak_terms: []
+  leak_patterns: []
+  # settings values that are not yours alone (the sample settings use them too)
+  allow_values: [DOMAIN_CONTEXT.md, '9999-12-31', docs/knowledge-base]
+  value_files:
+    - .devin/rules/snowflake-environments.yaml

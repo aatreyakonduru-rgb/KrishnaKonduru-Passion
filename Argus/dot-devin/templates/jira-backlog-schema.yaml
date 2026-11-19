@@ -1,0 +1,159 @@
+# Acme Claims Jira Backlog Schema
+#
+# PURPOSE
+# ───────
+# Defines the structure of JIRA-BACKLOG.yaml files produced by the SDLC pipeline.
+# The Product Owner team uses this file to import stories into Jira manually
+# (or via Jira's CSV/YAML import tooling).
+#
+# IMPORTANT: No skill in the Acme Claims pipeline creates Jira issues via API.
+# This file is a structured output for PO review and manual Jira creation.
+#
+# TICKET CONTENT RULES
+# ────────────────────
+# What each field must contain, and the Jira field it lands in, is in
+# .devin/rules/jira-ticket-standards.yaml. The copy-paste shapes people use when
+# writing tickets by hand are in .devin/templates/jira-issue-templates.md.
+# Note in particular that acceptance criteria live in their own Acme Claims field
+# (customfield_10003), not in the description.
+#
+# SOURCE
+# ──────
+# Adapted from AI-Generated-db-documentation-sdlc/.devin/templates/jira-backlog-schema.yaml
+
+schema_version: "1.1"
+last_updated: "2026-09-21"
+
+# ─── TOP-LEVEL STRUCTURE ─────────────────────────────────────────────────────
+
+jira_backlog:
+  requirement_id: string          # REQ-YYYY-NNN
+  requirement_summary: string     # One-line summary of the requirement
+  generated: string               # ISO8601 timestamp
+  mode: string                    # bottom_up | top_down
+  total_story_points: integer
+  stories_count: integer
+
+  # Epic — one per requirement
+  epic:
+    title: string
+    description: string           # Business objective in plain language
+    acceptance_criteria:          # List of measurable business outcomes
+      - string
+
+  # Stories — list of implementation + SIT + UAT stories
+  stories:
+    - id: string                  # STORY-001, STORY-002, etc.
+      title: string               # Format: "{LAYER}-{SUMMARY}-{DEV|SIT|UAT}"
+      type: string                # DEV | SIT | UAT
+      layer: string               # Django Backend | Next.js Frontend | Database | ETL
+      story_points: integer       # Fibonacci: 1, 2, 3, 5, 8, 13 (or null if needs_grooming)
+      priority: string            # Must Have | Should Have | Could Have
+      assignee: string            # Team or role (not individual — PO assigns)
+
+      description: string         # What needs to be done, in plain language
+      acceptance_criteria:        # Testable, measurable pass/fail criteria
+        - string
+
+      technical_tasks:            # DEV stories only — specific implementation tasks
+        - string
+
+      dependencies:               # Other story IDs that must complete first
+        - string
+
+      gap_id: string              # Gap that drove this story (bottom_up only, e.g. GAP-003)
+
+      estimation_basis: string    # Multi-line complexity matrix scores (see complexity-matrix.yaml)
+      # Format:
+      # SCOPE={score}/2 ({label}): {reason}
+      # RISK={score}/2 ({label}): {reason}
+      # UNKNOWNS={score}/2 ({label}): {reason}
+      # DEPENDENCY={score}/2 ({label}): {reason}
+      # TESTABILITY={score}/2 ({label}): {reason}
+      # total_score={n}/10 → {pts} pts
+      # modifiers=[{list or NONE}]
+      # final_points={pts}
+
+      needs_grooming: boolean     # true if UNKNOWNS=2 + another dimension=2
+      needs_split: boolean        # true if score >= 10 or points > 13
+
+  # Estimation audit summary
+  estimation_audit:
+    total_impl_points: integer
+    total_sit_points: integer
+    total_uat_points: integer
+    total_points: integer
+    needs_grooming_count: integer
+    needs_split_count: integer
+    audit_status: string          # PASS | PASS_WITH_FLAGS | FAIL
+
+# ─── WHERE EACH FIELD LANDS IN JIRA ──────────────────────────────────────────
+# Used when these stories are created in Jira — by hand today, through the API if
+# that decision is taken (see open_decisions.ticket_creation_path in
+# .devin/rules/jira-ticket-standards.yaml). Verified against project Acme Claims.
+
+jira_field_map:
+  title:               summary
+  description:         description
+  acceptance_criteria: customfield_10003   # Acceptance Criteria — NOT the description
+  story_points:        customfield_10001
+  priority:            customfield_10012   # Issue Priority: Must/Should/Could Have
+  epic_link:           customfield_10010
+  sprint:              customfield_10002
+  it_team:             customfield_10004   # always Acme-Claims-Web
+  layer:               components
+  estimation_basis:    description          # appended as the final block
+  dependencies:        "issuelinks: Depend (soft) / Blocks (hard)"
+  type:                "summary suffix - DEV | - SIT | - UAT, plus the sibling link below"
+  sibling_link:        "SIT --Tests--> DEV, UAT --Relates--> SIT"
+
+# ─── EXAMPLE ─────────────────────────────────────────────────────────────────
+
+example:
+  jira_backlog:
+    requirement_id: "REQ-2026-001"
+    requirement_summary: "Add TIN category to provider group hierarchy"
+    generated: "2026-07-14T10:00:00Z"
+    mode: "bottom_up"
+    total_story_points: 14
+    stories_count: 6
+
+    epic:
+      title: "TIN Category — Provider Group Hierarchy"
+      description: "Allow finance users to classify TIN entries by category for improved reporting."
+      acceptance_criteria:
+        - "Finance users can assign a category to each TIN entry in the provider group hierarchy"
+        - "Category is persisted and visible after page refresh"
+        - "Existing TIN entries without a category default to 'Uncategorized'"
+
+    stories:
+      - id: "STORY-001"
+        title: "DB-Add-TIN-Category-Column-DEV"
+        type: "DEV"
+        layer: "Database"
+        story_points: 2
+        priority: "Must Have"
+        assignee: "DBA Team"
+        description: "Add TIN_CTGRY_CD column to CL_UI_BSNS_PG_PROV_HRCHY table."
+        acceptance_criteria:
+          - "Column exists in CLAIMS_UI_DATA schema with VARCHAR(10) type"
+          - "Column is nullable with no default"
+          - "Migration script reviewed and approved by DBA"
+        technical_tasks:
+          - "Write DDL: ALTER TABLE CL_UI_BSNS_PG_PROV_HRCHY ADD COLUMN TIN_CTGRY_CD VARCHAR(10)"
+          - "Write rollback DDL"
+          - "Test in Silver environment"
+        dependencies: []
+        gap_id: "GAP-001"
+        estimation_basis: |
+          gap_id=GAP-001
+          SCOPE=1/2 (Contained): one DDL change on one table
+          RISK=0/2 (Safe): additive nullable column, rollback is DROP COLUMN
+          UNKNOWNS=0/2 (Clear): standard pattern, same as prior migrations
+          DEPENDENCY=0/2 (None): DBA team owns this
+          TESTABILITY=1/2 (Moderate): needs DB seed to verify nullable default
+          total_score=2/10 → 2 pts
+          modifiers=[NONE]
+          final_points=2
+        needs_grooming: false
+        needs_split: false

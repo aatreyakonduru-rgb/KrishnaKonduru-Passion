@@ -1,0 +1,49 @@
+# Location: sdlc/framework/context/session/{OWNER}/{REQ_ID}/{REQ_ID}-INTAKE-QUESTIONS.yaml
+#
+# Input to sdlc/framework/tools/gen_intake_form.py, which renders this
+# into {REQ_ID}-INTAKE-FORM.html — the single-file form the requester fills in.
+# Written by /intake at Step 3 (Generate Clarifying Questions).
+#
+# Section names should mirror the Step 3 topic areas for the active mode:
+#   top_down  — What, Who, Why, Rules, Acceptance Criteria, Scope, Priority
+#   bottom_up — Scope & Boundaries, Data / DB, API, UI / Frontend, ETL / Pipeline,
+#               Performance & Scale, Acceptance Criteria
+# Omit sections that do not apply to the requirement; never ask a question the
+# requester has already answered in the raw requirement.
+
+requirement_id: "REQ-YYYY-NNN"
+title: "One-sentence business summary of the requirement"
+mode: "top_down"                  # top_down | bottom_up
+owner: "{OWNER}"                  # session owner slug — see .devin/rules/session-isolation.md
+
+sections:
+  - name: "What"
+    intro: "Optional one-line framing shown under the section heading."
+    questions:
+      # id: stable snake_case key. It is how the answer is matched back to the
+      # question, so never reuse an id for a different question.
+      - id: "what_new_capability"
+        text: "What should a user be able to do that they cannot do today?"
+        help: "Optional hint — an example answer, or what makes an answer usable."
+        required: true
+        type: "textarea"          # textarea (default) | text | choice
+
+  - name: "Priority"
+    questions:
+      - id: "priority"
+        text: "How should this be prioritised?"
+        required: true
+        type: "choice"
+        options:                  # required for type: choice
+          - "Must Have"
+          - "Should Have"
+          - "Could Have"
+      - id: "target_sprint"
+        text: "Target sprint, if known."
+        type: "text"
+
+# Every question renders with a "Not applicable / unknown" checkbox, which submits
+# the answer as "N/A" — so do not add your own N/A option to a choice question.
+# Unanswered questions are omitted from the answers block entirely; the form warns
+# the requester about unanswered `required: true` questions but still lets them
+# submit, and /intake asks for the remainder in chat.

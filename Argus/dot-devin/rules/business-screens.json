@@ -1,0 +1,84 @@
+{
+  "_about": "What Product Owners, BSAs and Scrum Masters do, grouped by job. Argus shows each lens's groups as the 'What I do' list (every task opens a screen with buttons; Jira changes are previewed first) and hides the developer controls. The dashboard shows the same groups as read-only tabs: each task's panels, with a link back to the task in Argus. A task opens one of: pane (a Backlog screen: groom, groomprep, plan, calendar, followups, create), skill (a single-task Devin session), menu (approvals or sessions in the top bar). Panels not named by any task go under Reference.",
+  "workbench_url": "http://127.0.0.1:8787/",
+  "lenses": {
+    "po_office": [
+      {"group": "Plan", "tasks": [
+        {"id": "roadmap", "label": "Roadmap", "what": "This year's plan and the sprint grid", "skill": "product-roadmap", "panels": ["epics"]},
+        {"id": "epics-from-roadmap", "label": "Epics from the roadmap", "what": "Turn roadmap rows into epics, with their risks and dependencies", "skill": "epics-from-roadmap", "panels": ["risk_register"]},
+        {"id": "what-if", "label": "What if", "what": "What moves when a date, a person or a story changes", "skill": "what-if"},
+        {"id": "pi-plan", "label": "PI plan", "what": "Plan the next program increment", "skill": "pi-plan"},
+        {"id": "feasibility", "label": "Feasibility check", "what": "Can we do this, and roughly how big is it", "skill": "feasibility-check"}
+      ]},
+      {"group": "Groom", "tasks": [
+        {"id": "grooming-prep", "label": "Grooming prep", "what": "Get ready for the next grooming call", "pane": "groomprep", "panels": ["grooming_prep"]},
+        {"id": "backlog", "label": "Backlog", "what": "Groom, point, edit, move, clone, split, hold", "pane": "groom", "panels": ["backlog", "grooming"]},
+        {"id": "new-ticket", "label": "New epic or story", "what": "From notes or documents, checked against the rule book", "pane": "create"},
+        {"id": "story-review", "label": "Story review", "what": "Check stories against the rule book before the sprint", "skill": "po-story-review"},
+        {"id": "hygiene", "label": "Fix Jira hygiene", "what": "Tickets that break the rule book", "skill": "jira-hygiene", "panels": ["jira_hygiene"]}
+      ]},
+      {"group": "Sprint", "tasks": [
+        {"id": "plan-sprint", "label": "Plan the sprint", "what": "This sprint and next against velocity", "pane": "plan", "panels": ["sprint_scope", "aging_work"]},
+        {"id": "calendar", "label": "Sprint calendar", "what": "Sprint dates, points and release dates", "pane": "calendar"}
+      ]},
+      {"group": "Demo and release", "tasks": [
+        {"id": "demos", "label": "Book demos", "what": "Stories ready to demo: record when it is booked and given", "pane": "groom", "filter": "DEMO", "panels": ["demo_ready", "demo_queue"]},
+        {"id": "decisions", "label": "Business decisions", "what": "Settle the questions waiting on the business", "skill": "document-validation", "panels": ["awaiting_business_approval", "doc_questions"]},
+        {"id": "defects", "label": "Defects by specialty", "what": "Open SIT and UAT defects per specialty", "skill": "defects-by-specialty", "panels": ["specialty_defects"]},
+        {"id": "release-notes", "label": "Release notes", "what": "Draft the notes for a release", "skill": "release-notes"}
+      ]},
+      {"group": "Mine", "tasks": [
+        {"id": "approvals", "label": "Approvals and questions", "what": "Gates and questions waiting on you", "menu": "approvals", "panels": ["approvals"]},
+        {"id": "learn", "label": "Learn about who you serve", "what": "Questions Devin Cloud has for you", "skill": "learn-more", "panels": ["learn_questions"]},
+        {"id": "vacation", "label": "Vacation", "what": "Book time off and see who is out", "skill": "vacation", "panels": ["vacation_planner"]},
+        {"id": "status-report", "label": "Status report", "what": "A status summary for your leadership", "skill": "status-report"},
+        {"id": "sessions", "label": "My sessions", "what": "Close or hand over your Devin sessions", "menu": "sessions", "panels": ["my_sessions"]}
+      ]}
+    ],
+    "bsa": [
+      {"group": "Shape", "tasks": [
+        {"id": "intake", "label": "New requirement", "what": "Describe it; Devin Cloud asks its questions and drafts the BRD and FRD for you to review", "skill": "intake", "panels": ["my_work", "pipeline"]},
+        {"id": "review-document", "label": "Review a document", "what": "Settle the open questions in a BRD or FRD", "skill": "document-validation", "panels": ["doc_questions", "kb_freshness"]},
+        {"id": "compliance", "label": "What touches HIPAA and HEDIS", "what": "Features that handle protected health information or quality measures", "skill": "compliance-view"},
+        {"id": "research", "label": "Research", "what": "Ask about the application and get sourced answers", "skill": "research"},
+        {"id": "export-jira", "label": "Export to Jira", "what": "Turn an approved FRD into stories, previewed first", "skill": "export-jira"}
+      ]},
+      {"group": "Groom", "tasks": [
+        {"id": "grooming-prep", "label": "Grooming prep", "what": "Get ready for the next grooming call", "pane": "groomprep", "panels": ["grooming_prep"]},
+        {"id": "backlog", "label": "Backlog", "what": "Groom, point, edit, move, clone, split", "pane": "groom", "panels": ["backlog", "grooming"]},
+        {"id": "new-ticket", "label": "New epic or story", "what": "From notes or documents, checked against the rule book", "pane": "create"}
+      ]},
+      {"group": "Answer", "tasks": [
+        {"id": "route-question", "label": "Questions with no answerer", "what": "Send each one to the right person as a Jira Question sub-task", "skill": "ask-question", "panels": ["unrouted_questions"]},
+        {"id": "decisions", "label": "Business decisions", "what": "Stories waiting on a business call", "skill": "document-validation", "panels": ["awaiting_business_approval"]}
+      ]},
+      {"group": "Mine", "tasks": [
+        {"id": "approvals", "label": "Approvals and questions", "what": "BSA gates and questions waiting on you", "menu": "approvals", "panels": ["approvals", "pipeline_health"]},
+        {"id": "learn", "label": "Learn about who you serve", "what": "Questions Devin Cloud has for you", "skill": "learn-more", "panels": ["learn_questions"]},
+        {"id": "vacation", "label": "Vacation", "what": "Book time off and see who is out", "skill": "vacation", "panels": ["vacation_planner"]},
+        {"id": "sessions", "label": "My sessions", "what": "Close or hand over your Devin sessions", "menu": "sessions", "panels": ["my_sessions"]}
+      ]}
+    ],
+    "scrum_master": [
+      {"group": "Daily", "tasks": [
+        {"id": "standup", "label": "Stand-up check", "what": "What to ask whom before stand-up, and work that has stopped", "pane": "followups", "part": "standup", "panels": ["sm_standup", "aging_work", "observation_triage"]}
+      ]},
+      {"group": "Sprint", "tasks": [
+        {"id": "plan-sprint", "label": "Plan the sprint", "what": "Commitment against capacity and velocity, load per person", "pane": "plan", "panels": ["sprint_scope", "sm_commitment", "sm_load", "sprint_workload"]},
+        {"id": "calendar", "label": "Sprint calendar", "what": "Sprint dates, points and release dates", "pane": "calendar"},
+        {"id": "sprint-close", "label": "Sprint close check", "what": "Is every story ready for the sprint to close", "skill": "sprint-close-check", "panels": ["sm_close"]},
+        {"id": "sprint-review", "label": "Sprint review summary", "what": "Draft the sprint review for the business", "skill": "sprint-review-summary"}
+      ]},
+      {"group": "Health", "tasks": [
+        {"id": "status-report", "label": "Status report", "what": "Cycle time, defect removal, cost and AI use in one summary", "skill": "status-report", "panels": ["sm_cycle", "sm_dre", "sm_cost", "sm_ai"]},
+        {"id": "hygiene", "label": "Fix Jira hygiene", "what": "Tickets that break the rule book", "skill": "jira-hygiene", "panels": ["jira_hygiene", "specialty_defects"]},
+        {"id": "backlog", "label": "Backlog", "what": "What is groomed and what is not", "pane": "groom", "panels": ["backlog", "grooming"]}
+      ]},
+      {"group": "Mine", "tasks": [
+        {"id": "learn", "label": "Learn about who you serve", "what": "Questions Devin Cloud has for you", "skill": "learn-more", "panels": ["learn_questions"]},
+        {"id": "time-off", "label": "Time off", "what": "Who is off which day and the capacity it leaves, saved to the Sprint Leave page; the vacation planner for backups", "pane": "followups", "part": "leave", "more": "vacation", "panels": ["sm_leave", "vacation_planner"]},
+        {"id": "sessions", "label": "My sessions", "what": "Close or hand over your Devin sessions", "menu": "sessions", "panels": ["my_sessions"]}
+      ]}
+    ]
+  }
+}

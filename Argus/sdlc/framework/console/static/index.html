@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="en" data-theme="acme">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" href="data:," />
+<title>{{WORKBENCH_TITLE}}</title>
+<link rel="stylesheet" href="/static/kit.css" />
+<link rel="stylesheet" href="/static/acme.css" />
+<link rel="stylesheet" href="/static/console.css" />
+</head>
+<body>
+<div class="w-app">
+
+  <header class="w-top">
+    <div class="w-brand" id="brandHome" role="button" tabindex="0" title="Home"><img class="w-brand__logo" src="/static/argus-logo.svg" alt="" /><b>{{WORKBENCH_BRAND}}</b><span class="w-brand__sub">&nbsp;Argus</span></div>
+    <button type="button" class="w-nav__btn w-navtoggle" id="navToggle" aria-expanded="false" aria-controls="nav">Menu ▾</button>
+    <nav class="w-nav" id="nav" aria-label="Argus menus">
+      <button type="button" class="w-nav__btn w-upd" id="navUpdate" hidden></button>
+      <button type="button" class="w-nav__btn w-upd" id="navPcNeed" hidden></button>
+      <button type="button" class="w-nav__btn" id="navPc" title="Test a PR branch on this PC with Devin Local, then hand the evidence back to Cloud">Test on my PC</button>
+      <button type="button" class="w-nav__btn" id="navAuto" title="Automate a ticket in the test automation repo: set up, write, run and triage in Devin Cloud" hidden>Automation</button>
+      <button type="button" class="w-nav__btn" id="navBacklog" title="Log hours; groom, point, play poker, move between sprints, clone, create from notes — every change shown as a preview first" hidden>Backlog</button>
+      <button type="button" class="w-nav__btn" id="navDashboard" title="Your role's dashboard (/dashboard), opens in a new tab" hidden>Dashboard</button>
+      <div class="w-menu" id="menuTools">
+        <button type="button" class="w-nav__btn" data-menubtn="tools" aria-haspopup="true" aria-expanded="false">My tools ▾</button>
+        <div class="w-drop" id="drop-tools" hidden></div>
+      </div>
+      <div class="w-menu">
+        <button type="button" class="w-nav__btn" data-menubtn="kb" aria-haspopup="true" aria-expanded="false">Knowledge base ▾</button>
+        <div class="w-drop" id="drop-kb" hidden></div>
+      </div>
+      <div class="w-menu">
+        <button type="button" class="w-nav__btn" data-menubtn="approvals" aria-haspopup="true" aria-expanded="false">Waiting on me <span class="c-count" id="nApprovals" title="Not checked yet">–</span> ▾</button>
+        <div class="w-drop w-drop--wide" id="drop-approvals" hidden></div>
+      </div>
+      <div class="w-menu">
+        <button type="button" class="w-nav__btn" data-menubtn="sessions" aria-haspopup="true" aria-expanded="false">My sessions <span class="c-count" id="nSessions">0</span> ▾</button>
+        <div class="w-drop w-drop--wide" id="drop-sessions" hidden></div>
+      </div>
+    </nav>
+    <button type="button" class="w-nav__btn w-topsearch" id="topSearch" title="Find a tool, ticket key or session (Ctrl+K)">Search <kbd>Ctrl+K</kbd></button>
+    <button type="button" class="w-nav__btn" id="feedbackBtn" title="Tell the leads what went wrong or what you would like. Argus adds your session details.">Feedback</button>
+    <div class="w-menu" id="menuHelp">
+      <button type="button" class="w-health" id="healthDot" data-state="not_checked" title="Jira and Devin Cloud: not checked yet" aria-label="Jira and Devin Cloud status"></button>
+      <button type="button" class="w-nav__btn" data-menubtn="help" aria-haspopup="true" aria-expanded="false">Help ▾</button>
+      <div class="w-drop w-drop--right w-drop--wide" id="drop-help" hidden></div>
+    </div>
+    <div class="w-who w-menu" id="menuMe">
+      <button type="button" class="w-nav__btn w-who__btn" data-menubtn="me" aria-haspopup="true" aria-expanded="false" title="You, your role, help and settings"><span id="whoName">Who are you?</span> <span class="a-chip w-role" id="roleChip" title="Menus, dashboard lens and gate checks follow this role"></span> ▾</button>
+      <div class="w-drop w-drop--right w-drop--wide" id="drop-me" hidden>
+        <div class="w-drop__head">You</div>
+        <label class="w-drop__field">Who you are <select id="whoSel" class="a-select" title="Who you are, from .devin/rules/people.yaml"></select></label>
+        <button type="button" class="w-drop__item" id="themeBtn" title="Switch look: {{PRODUCT}} → earth → dark"><b>Switch look</b><span id="themeName">{{PRODUCT}} → earth → dark</span></button>
+        <button type="button" class="w-drop__item" data-sent="1"><b>What I sent today</b><span>Your changes from the Backlog screens today, with their Jira links</span></button>
+        <div id="drop-settings"></div>
+      </div>
+    </div>
+    <button type="button" class="w-nav__btn w-exit" id="exitBtn" title="End your open Devin Cloud sessions and close Argus">Exit</button>
+  </header>
+  <div id="healthBar" class="w-healthbar" role="status" hidden></div>
+  <div id="tpBanner" class="tp-banner" hidden></div>
+  <div id="framedBar" class="w-framed" role="status" hidden><span><b>Argus is open inside the Devin page.</b> Each run you start is a new Devin session, and the Devin page switches to it, taking Argus with it. Open Argus in its own tab and it stays where you are.</span><a class="a-btn a-btn--primary w-sync" id="framedOpen" href="/" target="_blank" rel="noopener">Open in its own tab</a><button type="button" class="w-fold" id="framedClose" title="Hide until the next run starts" aria-label="Hide">×</button></div>
+  <aside class="w-panel" id="sidePanel" aria-label="Side panel" hidden><div class="w-panel__bar"><b id="spTitle"></b><a id="spNew" class="a-btn a-btn--outline w-sync" target="_blank" rel="noopener">Open in a new tab</a><button type="button" class="a-btn a-btn--outline w-sync" id="spClose">Close</button></div><iframe id="spFrame" title="Side panel"></iframe></aside>
+  <div class="w-offline" id="offline" role="alert" hidden>Can't reach Argus program on this PC. If it is restarting after an update, wait a moment; otherwise start it again from the desktop icon. Retrying…</div>
+
+  <div class="w-preview" id="previewBar" hidden></div>
+
+  <div class="w-cols">
+    <aside class="c-left">
+      <button type="button" class="w-rail" data-fold="left" title="Show My work" aria-label="Show My work">»</button>
+      <div class="w-colhead"><span id="leftHead">My work</span> <button type="button" class="w-fold" data-fold="left" title="Hide this column">«</button></div>
+      <div class="c-left__tabs" id="leftTabs" role="tablist">
+        <button type="button" class="c-tab is-active" data-lefttab="tickets" role="tab" aria-selected="true">My work</button>
+        <button type="button" class="c-tab" data-lefttab="tools" role="tab" aria-selected="false">What I do</button>
+      </div>
+      <div id="taskList" class="c-list w-tasks" hidden></div>
+      <div id="toolList" class="c-list w-tasks" hidden></div>
+      <div class="c-left__controls">
+        <select id="scope" class="a-select" aria-label="Which tickets to list">
+          <option value="mine_sprint">Assigned to me · this sprint</option>
+          <option value="mine">Assigned to me</option>
+          <option value="sprint">All current sprint tickets · {{IT_TEAM}}</option>
+          <option value="open">All open · {{IT_TEAM}}</option>
+          <option value="qa">Ready for QA · Test Ready, Testing</option>
+          <option value="uat">Ready for UAT · Ready for UAT, UAT, Staging</option>
+          <option value="automation">Automation tickets assigned to me</option>
+          <option value="automation_open">All open automation tickets</option>
+        </select>
+        <input id="filter" class="a-input" type="search" aria-label="Filter the ticket list" placeholder="Filter by key or words…" />
+      </div>
+      <div id="storyList" class="c-list"><div class="c-empty">Loading tickets…</div></div>
+      <div id="storySource" class="c-muted w-source"></div>
+      <button type="button" class="w-newreq" id="customToggle" aria-expanded="false" aria-controls="customForm">+ New requirement</button>
+      <form class="w-start" id="customForm" hidden>
+        <label class="w-label" for="customText">New requirement</label>
+        <textarea id="customText" class="a-input" rows="7" placeholder="What I need: Add a Business Approved Date and Approved By to every contract.&#10;Where: the Approved dashboard tab, shown read-only.&#10;Done when: both are stamped at final approval and shown on the tab."></textarea>
+        <div class="w-start__row">
+          <label class="c-switch"><input type="checkbox" id="customDry" checked /> Dry run</label>
+          <label class="c-switch" title="Ticked: after the PR, the change is tested on your PC with Test on my PC. Not ticked: Devin tests it in Devin Cloud."><input type="checkbox" id="customLocal" /> Bring to local</label>
+          <button class="a-btn a-btn--primary" type="submit" id="customStart">Start SDLC</button>
+        </div>
+        <div class="c-muted">Bring to local: after the PR you test the change on this PC (Test on my PC). Left unticked, Devin Cloud tests it.</div>
+        <div id="customErr" class="c-err" hidden></div>
+      </form>
+    </aside>
+
+    <main class="c-main">
+      <div id="welcome" class="c-welcome">
+        <div id="today" class="w-today" aria-live="polite"></div>
+        <div id="welcomeWarn"></div>
+      </div>
+
+      <div id="storyView" hidden>
+        <div class="c-story">
+          <button type="button" class="a-btn a-btn--ghost w-back" data-navback>&larr; Back</button>
+          <div class="c-story__key"><a id="sKey" target="_blank"></a> <span id="sStatus" class="a-badge"></span> <span id="sPoints" class="a-chip"></span></div>
+          <h1 id="sSummary"></h1> <button type="button" class="w-help" data-helpfor="4. Work a ticket with Devin Cloud" title="Open this part of the user manual" aria-label="Help for this screen">?</button>
+          <div class="c-story__meta" id="sMeta"></div>
+          <div class="c-story__desc" id="sDesc">Loading description…</div>
+          <div class="c-story__actions">
+            <label class="c-switch"><input type="checkbox" id="dryRun" checked /> Dry run (no commits, PRs, Jira or Confluence writes)</label>
+            <label class="c-switch" title="Ticked: after the PR, the story is tested on your PC with Test on my PC. Not ticked: Devin tests it in Devin Cloud."><input type="checkbox" id="localTest" /> Bring to local (test on my PC)</label>
+            <button class="a-btn a-btn--primary" id="startBtn">Start SDLC (dry run)</button>
+            <button type="button" class="a-btn a-btn--outline" id="storyHours" title="Log hours on this ticket's sub-task from the Backlog tab">Log hours</button>
+          </div>
+          <div id="startErr" class="c-err" hidden></div>
+          <div id="sRun" class="c-card w-srun" hidden aria-live="polite"></div>
+          <div class="c-story__acts" id="sActs" aria-label="Everything for this ticket"></div>
+        </div>
+      </div>
+
+      <div id="runView" hidden>
+        <button type="button" class="a-btn a-btn--ghost w-back" data-navback>&larr; Back</button>
+        <p id="rReused" class="c-muted" hidden></p>
+        <div id="rLong" hidden></div>
+        <header class="c-runhead">
+          <div class="c-runhead__bar">
+            <div class="c-runhead__key"><a id="rKey" target="_blank"></a> <span id="rMode" class="a-chip"></span> <span id="rStatus" class="a-badge"></span> <a id="rJira" class="a-chip c-jira" target="_blank" hidden></a></div>
+            <div class="c-runhead__aside">
+              <button class="a-btn a-btn--outline" id="runPcBtn" title="Check out this run's PR branch on this PC and test it with Devin Local">Test on my PC</button>
+              <button class="a-btn a-btn--outline" id="wakeBtn" hidden title="Send the session a short nudge so it carries on">Wake</button>
+              <a id="rSession" class="a-btn a-btn--outline" target="_blank">Open in Devin</a>
+              <button class="a-btn a-btn--outline" id="refreshBtn">Refresh</button>
+              <button type="button" class="w-help" data-helpfor="4. Work a ticket with Devin Cloud" title="Open this part of the user manual" aria-label="Help for this screen">?</button>
+              <div class="w-menu" id="runMore">
+                <button type="button" class="a-btn a-btn--outline" data-menubtn="runmore" aria-haspopup="true" aria-expanded="false">More ▾</button>
+                <div class="w-drop w-drop--right" id="drop-runmore" hidden>
+                  <button type="button" class="w-drop__item" id="archiveBtn" hidden title="Hide this session from Argus lists; it stays in Devin and can be resumed">Archive</button>
+                  <button type="button" class="w-drop__item" id="closeBtn" hidden title="End the Cloud session for good; the run record stays here">End Cloud session</button>
+                  <button type="button" class="w-drop__item c-danger" id="deleteBtn" title="End the Cloud session and remove this run from the story's Previous runs and from My sessions">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <h1 id="rSummary"></h1>
+        </header>
+
+        <div class="w-prog" id="runProg" hidden></div>
+        <ol class="c-stages" id="stages"></ol>
+
+        <div class="c-now" id="now"></div>
+
+        <div id="askCard" class="c-card c-card--ask" hidden>
+          <div class="c-card__title">Questions for you <span class="c-muted" id="askRound"></span></div>
+          <div id="askItems"></div>
+          <div class="c-card__actions"><button class="a-btn a-btn--primary" id="askSend">Send answers</button></div>
+        </div>
+
+        <div class="c-feedbar"><b>Messages</b> <button type="button" class="a-btn a-btn--outline w-sync" id="feedTrace" title="The step-by-step detail of what the run loaded and decided">Trace</button></div>
+        <div class="c-body" id="runBody">
+          <div class="c-feed" id="feed"></div>
+          <div id="runErr" class="c-err" hidden></div>
+        </div>
+
+        <div class="c-dock">
+          <button class="a-btn a-btn--ghost c-dock__toggle" type="button" id="composeToggle">Message the session…</button>
+          <form class="c-compose" id="compose" hidden>
+            <textarea id="composeText" class="a-input" rows="2" placeholder="Free-text message to the Devin session (questions and gates have their own cards)"></textarea>
+            <button class="a-btn a-btn--primary" type="submit">Send</button>
+          </form>
+        </div>
+      </div>
+
+      <div id="backlogView" hidden>
+        <div class="c-story">
+          <div class="bl-top"><h1>Backlog <span id="blMode" class="c-pill">previews only</span></h1> <span id="blAge" class="c-muted w-age"></span> <button type="button" class="w-help" data-helpfor="backlog" title="Open this part of the user manual" aria-label="Help for this screen">?</button> <button type="button" class="a-btn a-btn--outline" id="blBack" title="Back to the ticket list and the screen you had open">← My work</button></div>
+          <p class="c-muted" id="blIntro">Your day-to-day Jira work from buttons: groom, point, play planning poker, move between sprints, clone, add meeting notes, log your hours, or draft an epic or story from pasted notes. Every change is shown first as exactly what would be written to Jira; nothing is written until writes are switched on for the test tickets.</p>
+          <div class="bl-grid">
+            <div class="bl-col">
+              <div class="bl-head">
+                <b>Groomable work</b>
+                <input id="blFilter" class="a-input" placeholder="Filter by key, title, sprint, epic…" autocomplete="off">
+                <button type="button" class="a-btn a-btn--outline" id="blRefresh">Refresh</button>
+              </div>
+              <div id="blChips" class="bl-chips"></div>
+              <details class="bl-viewmenu" id="blViewMenu"><summary class="a-btn a-btn--outline">View ▾</summary>
+              <div class="bl-views">
+                <select id="blViews" class="a-select" aria-label="Saved views"><option value="">Saved views…</option></select>
+                <input id="blViewName" class="a-input" placeholder="Name this view" aria-label="Name for the current filter" autocomplete="off">
+                <button type="button" class="a-btn a-btn--outline" id="blViewSave">Save view</button>
+                <button type="button" class="a-btn a-btn--outline" id="blViewLink" title="Copies a link that opens the Backlog with this filter">Copy link</button>
+                <button type="button" class="a-btn a-btn--outline" id="blViewDel" hidden>Delete view</button>
+              </div>
+              <div class="bl-groupby">
+                <label>Group by <select id="blGroupBy" class="a-select"><option value="">Nothing</option><option value="specialty">Specialty</option><option value="epic">Epic</option><option value="sprint">Sprint</option><option value="assignee">Assignee</option></select></label>
+                <label>Sort <select id="blSort" class="a-select"><option value="">Jira rank</option><option value="points">Points, high first</option><option value="stale">Oldest update first</option></select></label>
+              </div>
+              </details>
+              <div id="blList" class="c-list"><div class="c-empty">Loading…</div></div>
+              <div class="c-muted" id="blSelHint">Tick tickets to move, order or change them together.</div>
+              <div class="bl-bulk" id="blBulkRow1" hidden>
+                <span id="blSelCount" class="c-muted">0 selected</span>
+                <select id="blSprintTo" class="a-select"><option value="">Move to…</option></select>
+                <button type="button" class="a-btn a-btn--primary" id="blMove" disabled>Preview move</button>
+                <button type="button" class="a-btn a-btn--outline" id="blOrder" title="Selected tickets, in the order they must ship: A blocks B blocks C">Set order</button>
+              </div>
+              <div class="bl-bulk" id="blBulkRow2" hidden>
+                <select id="blBulkField" class="a-select" aria-label="What to change on the selected tickets"><option value="">Change on all selected…</option><option value="points">Points</option><option value="sprint">Sprint</option><option value="epic">Epic</option><option value="assignee">Assignee</option></select>
+                <span id="blBulkValueBox"></span>
+                <button type="button" class="a-btn a-btn--outline" id="blBulkPreview" disabled>Preview</button>
+              </div>
+              <div id="blBulkBox" class="c-card bl-bulkbox" hidden></div>
+            </div>
+            <div class="bl-col bl-main">
+              <div id="blDetail" class="c-card" data-blview="groom"><div class="c-empty">Pick a ticket on the left to see its description and acceptance criteria and groom it.</div></div>
+              <div class="c-card" id="blCreatePane" data-blview="create" hidden>
+                <div class="bl-head"><b>New epic or story</b> <button type="button" class="a-btn a-btn--outline" data-navback>Back</button></div>
+                <div class="bl-sec"><b>With Devin: intake questions, then drafts</b>
+                  <span class="c-muted">Type the need, upload files to read from, or both. Devin reads them, asks the BSA (and the PO) numbered questions, then drafts the epic and stories in the rule-book shape for the PO to approve.</span>
+                </div>
+                <div class="bl-row">
+                  <select id="ciKind" class="a-select"><option>Epic with stories</option><option>Epic</option><option>Story</option><option>Epics from a roadmap</option></select>
+                  <input id="ciFiles" type="file" multiple accept=".docx,.doc,.pdf,.xlsx,.xls,.csv,.pptx,.txt,.md,.png,.jpg,.jpeg" title="Word, PDF, Excel, CSV, PowerPoint, text or images — up to 10 files, 25 MB">
+                </div>
+                <textarea id="ciText" class="a-input" rows="4" placeholder="What is needed, for whom and why — or leave it short and upload the documents"></textarea>
+                <div class="bl-row">
+                  <label class="c-switch"><input type="checkbox" id="ciDry" checked> Dry run</label>
+                  <span class="c-muted" id="ciDryNote">Dry run: you get the epic and stories as a Markdown file; nothing is written to Jira. Untick to create them in Jira, with the files attached, after the PO approves.</span>
+                  <button type="button" class="a-btn a-btn--primary" id="ciStart">Start intake</button>
+                </div>
+                <div class="c-err" id="ciErr" hidden></div>
+                <div class="bl-sec bl-sec--groom"><b>Quick draft: one ticket from pasted notes, no Devin session</b></div>
+                <textarea id="blNotes" class="a-input" rows="4" placeholder="Paste meeting notes here, or drop a .txt / .md file on this box — the title, description and numbered acceptance criteria are drafted from them"></textarea>
+                <div class="bl-row">
+                  <select id="blType" class="a-select"><option value="Story">Story</option><option value="Epic">Epic</option><option value="Defect">Defect</option><option value="Task">Task</option></select>
+                  <select id="blEpic" class="a-select"><option value="">Epic…</option></select>
+                  <select id="blPhase" class="a-select"></select>
+                  <select id="blPriority" class="a-select"><option value="">Priority…</option><option>P1</option><option>P2</option><option>P3</option><option>P4</option></select>
+                  <button type="button" class="a-btn a-btn--outline" id="blDraft">Draft from notes</button>
+                </div>
+                <div class="bl-row">
+                  <select id="blSpecialty" class="a-select" title="Specialty — goes at the front of the title"><option value="">Specialty…</option></select>
+                  <input id="blSummary" class="a-input" placeholder="Title: 'EOC - Threshold override screen - DEV'">
+                </div>
+                <textarea id="blDesc" class="a-input" rows="3" placeholder="Description"></textarea>
+                <textarea id="blAc" class="a-input" rows="3" placeholder="Acceptance criteria — 1. … 2. … 3. …"></textarea>
+                <div class="bl-row">
+                  <span class="c-muted">Points</span>
+                  <select id="blPoints" class="a-select"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>5</option><option>8</option><option>13</option></select>
+                  <span class="c-muted">= <span id="blHoursTotal">?</span> original estimate; sub-tasks default to add up to it</span>
+                  <button type="button" class="a-btn a-btn--outline" id="blSubDefault">Standard DEV sub-tasks</button>
+                </div>
+                <div class="bl-row">
+                  <input id="blBlockedBy" class="a-input" placeholder="Must ship after (ticket keys, comma-separated) — adds 'Blocks' links and an Order line">
+                  <input id="blOrderWhy" class="a-input" placeholder="because…">
+                </div>
+                <textarea id="blSubtasks" class="a-input" rows="3" placeholder="Sub-tasks, one per line — 'DEV- Analysis of the story | 4h' (leave the hours off to split evenly)"></textarea>
+                <div class="bl-row">
+                  <label class="c-switch"><input type="checkbox" id="blAiUsed" checked> AI-Used</label>
+                  <span class="c-muted">AI-Used goes on every new ticket by default; if AI was not used, change the label to AI-NA on the ticket yourself.</span>
+                  <button type="button" class="a-btn a-btn--outline" id="blCheck">Rule-book check</button>
+                  <button type="button" class="a-btn a-btn--primary" id="blCreate">Preview create</button>
+                </div>
+                <div id="blChecks"></div>
+              </div>
+              <div class="c-card" id="blCalendar" data-blview="calendar" hidden></div>
+              <div class="c-card" id="blPlan" data-blview="plan" hidden></div>
+              <div class="c-card" id="blFollow" data-blview="followups" hidden></div>
+              <div class="c-card" id="blGroomPrep" data-blview="groomprep" hidden></div>
+              <div class="c-card" id="blPrevCard" hidden>
+                <div class="bl-head"><b>Previews</b> <span class="c-muted">what Argus would have sent to Jira</span></div>
+                <div id="blPreviews"><div class="c-empty">Nothing previewed yet.</div></div>
+              </div>
+            </div>
+          </div>
+          <div id="blErr" class="c-err" hidden></div>
+        </div>
+      </div>
+
+      <div id="pcView" hidden>
+        <div class="c-story">
+          <button type="button" class="a-btn a-btn--ghost w-back" data-navback>&larr; Back</button>
+          <h1>Test on my PC <button type="button" class="w-help" data-helpfor="5. Test a ticket on your PC" title="Open this part of the user manual" aria-label="Help for this screen">?</button></h1>
+          <p class="c-muted">Cloud wrote the code and the test pack. This checks the PR branch out into its own folder on this PC, starts Devin Local with <code>/test-on-pc</code>, and shows you what it asks. <b>Return to Cloud</b> sends the evidence to the same Cloud session and hands control back.</p>
+          <div class="c-card" id="pcSetup">
+            <div class="c-card__title">This PC</div>
+            <div id="pcSetupBody"></div>
+            <form id="pcKeyForm" class="w-pc__row" hidden>
+              <input id="pcKey" class="a-input" type="password" autocomplete="off" placeholder="Paste your Devin API key (Devin Cloud → Settings → API keys)" />
+              <button class="a-btn a-btn--primary" type="submit">Save key</button>
+            </form>
+            <div id="pcSetupErr" class="c-err" hidden></div>
+            <div class="w-start__row">
+              <span class="c-muted">Python, Git, Bitbucket, Devin Cloud and Devin Local, checked in one go</span>
+              <button type="button" class="a-btn a-btn--outline" id="pcCheck">Check my PC</button>
+            </div>
+            <ul class="w-doc" id="pcCheckOut" hidden></ul>
+          </div>
+          <form class="c-card" id="pcForm">
+            <div class="c-card__title">What to test</div>
+            <label class="w-label" for="pcTicket">Ticket</label>
+            <input id="pcTicket" class="a-input" list="pcTicketList" autocomplete="off" placeholder="Pick a ticket from My work, or type one ({{PROJECT}}-1234)" />
+            <datalist id="pcTicketList"></datalist>
+            <div class="c-muted" id="pcFound"></div>
+            <div id="pcHist"></div>
+            <label class="w-label" for="pcBranch">PR branch (filled in from the ticket)</label>
+            <input id="pcBranch" class="a-input" list="pcBranchList" autocomplete="off" placeholder="devin/{{PROJECT}}-1234-short-name" />
+            <datalist id="pcBranchList"></datalist>
+            <label class="w-label" for="pcSession">Cloud session (filled in from the test pack; evidence goes back here)</label>
+            <input id="pcSession" class="a-input" placeholder="{{DEVIN_APP}}/sessions/…" />
+            <label class="w-label" for="pcPack">Test pack (only if the branch has more than one)</label>
+            <input id="pcPack" class="a-input" placeholder="REQ-001-STORY-1.yaml" />
+            <div class="w-start__row"><span class="c-muted" id="pcWhere"></span><button class="a-btn a-btn--primary" type="submit" id="pcStart">Test on my PC</button></div>
+            <div id="pcErr" class="c-err" hidden></div>
+          </form>
+          <div id="pcTests"></div>
+        </div>
+      </div>
+
+      <div id="autoView" hidden>
+        <div class="c-story">
+          <button type="button" class="a-btn a-btn--ghost w-back" data-navback>&larr; Back</button>
+          <h1>Automation <button type="button" class="w-help" data-helpfor="Automation screen (automation engineers)" title="Open this part of the user manual" aria-label="Help for this screen">?</button></h1>
+          <p class="c-muted">Write and run automation for a ticket in <b id="autoRepo"></b>. Each step starts a Devin Cloud session that runs the app and the browsers on its own machine; it asks you at Gate 1 before writing tests and commits nothing until you say push.</p>
+          <div class="c-card">
+            <div class="c-card__title">What to automate</div>
+            <label class="w-label" for="autoTicket">Ticket, or what to automate when there is no ticket</label>
+            <input id="autoTicket" class="a-input" autocomplete="off" placeholder="A ticket ({{PROJECT}}-1234), or e.g. Contract screen – bulk upload negative cases" />
+            <div id="autoAcWrap" hidden>
+              <label class="w-label" for="autoAc">Acceptance criteria (optional; Devin drafts them at Gate 1 when left empty)</label>
+              <textarea id="autoAc" class="a-input" rows="4" placeholder="One per line: what the test should check"></textarea>
+            </div>
+            <label class="w-label" for="autoBase">Base branch</label>
+            <select id="autoBase" class="a-select" title="The branch new automation work starts from and its pull request goes back into"></select>
+            <div class="w-auto__row">
+              <label class="w-label" for="autoTags">Tags to run <input id="autoTags" class="a-input" autocomplete="off" placeholder="@Contract" /></label>
+              <label class="w-label" for="autoProc">Browsers at once <select id="autoProc" class="a-select" title="1 = one browser; more = parallel workers on the Cloud machine"></select></label>
+              <label class="w-label"><input type="checkbox" id="autoDry" checked /> Dry run</label>
+            </div>
+          </div>
+          <div class="c-card">
+            <div class="c-card__title">Steps</div>
+            <ol class="c-stages w-flows" id="autoFlow" aria-label="Where this ticket's automation stands"></ol>
+            <div id="autoSteps"></div>
+            <div id="autoErr" class="c-err" hidden></div>
+          </div>
+          <div class="c-card">
+            <div class="c-card__title">Sessions for this ticket</div>
+            <div id="autoRuns"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="c-right" id="right">
+      <button type="button" class="w-rail" data-fold="right" title="Show To approve and the run's documents" aria-label="Show To approve and the run's documents">«<span class="c-count" id="railApprove" hidden></span></button>
+      <section class="w-chat" id="pcChat">
+        <div class="w-colhead">Chat with Devin Cloud</div>
+        <label class="w-label" for="chatWith">Talk to</label>
+        <select id="chatWith" class="a-select"></select>
+        <div class="w-chat__log" id="chatLog"></div>
+        <form id="chatForm" class="w-chat__form">
+          <textarea id="chatText" class="a-input" rows="3" placeholder="Type a message (Ctrl+Enter sends)"></textarea>
+          <div class="w-start__row"><span class="c-muted" id="chatHint"></span><button class="a-btn a-btn--primary" type="submit" id="chatSend">Send</button></div>
+        </form>
+        <div id="chatErr" class="c-err" hidden></div>
+      </section>
+      <section class="w-sign">
+        <div class="w-colhead">To approve <button type="button" class="w-fold" data-fold="right" title="Hide this column">»</button></div>
+        <div id="signEmpty" class="c-empty">Nothing is waiting for your approval.</div>
+        <div id="gateCard" class="c-card c-card--gate" hidden>
+          <div class="c-card__title"><span id="gateId" class="a-mono"></span> <span id="gateName"></span></div>
+          <div class="w-gate__meta" id="gateMeta"></div>
+          <div id="gateCriteria" class="w-criteria"></div>
+          <details class="w-gate__full"><summary>Read what Devin presented</summary><div class="c-gate__text a-prose" id="gateText"></div></details>
+          <div id="gateItems" class="w-gitems"></div>
+          <div class="c-jira-opt" id="jiraOpt" hidden>
+            <label class="c-switch"><input type="checkbox" id="jiraCreate" /> Also create a Jira story in {{PROJECT}} from this spec</label>
+            <label class="c-switch c-jira-opt__who">assigned to <select id="jiraAssignee" class="a-select"></select></label>
+            <div class="c-muted" id="jiraDone" hidden></div>
+          </div>
+          <div class="c-jira-opt w-subs" id="stOpt" hidden>
+            <label class="c-switch"><input type="checkbox" id="stCreate" /> <span>Add sub-tasks to <b id="stKey"></b> before coding starts</span></label>
+            <div class="c-muted" id="stHint"></div>
+            <div id="stHave" class="c-muted"></div>
+            <div id="stRows" class="w-subs__rows"></div>
+            <div class="w-subs__foot"><button type="button" class="a-btn a-btn--outline" id="stAdd">+ Add sub-task</button><span id="stTotal"></span></div>
+            <div class="c-err" id="stErr" role="alert" hidden></div>
+      <div class="c-muted" id="stDone" hidden></div>
+          </div>
+          <div class="c-card__actions">
+            <button class="a-btn a-btn--primary" id="gateSend" type="button" disabled>Decide every item</button>
+            <button class="a-btn a-btn--outline" id="fwdToggle" type="button">Forward…</button>
+          </div>
+          <form id="fwdForm" class="w-fwd" hidden>
+            <label class="w-label">Send this gate to <select id="fwdPerson" class="a-select"></select></label>
+            <input id="fwdItems" class="a-input" placeholder="Only some items? e.g. 2, 4 (blank = all)" />
+            <textarea id="fwdNote" class="a-input" rows="2" placeholder="Why this person, and what they should look at (required)"></textarea>
+            <div class="c-muted">Devin creates a Jira approval sub-task for them (send-approval skill) and waits for their "approved".</div>
+            <button class="a-btn a-btn--primary" type="submit">Send for approval</button>
+          </form>
+        </div>
+        <div id="fwdList"></div>
+      </section>
+      <div class="c-right__tabs" id="rightTabs">
+        <button class="c-tab is-active" data-right="artefacts">Documents <span class="c-count" id="nArt">0</span></button>
+        <button class="c-tab" data-right="diffs">Diffs <span class="c-count" id="nDiff">0</span></button>
+        <button class="c-tab" data-right="pr">PR</button>
+        <button class="c-tab" data-right="skills">Skills</button>
+        <button class="c-tab" data-right="trace">Trace</button>
+        <button class="c-tab" data-right="chat">Chat</button>
+      </div>
+      <div class="c-right__body">
+        <div data-pane="artefacts" id="paneArt"><div class="c-empty">Open a run to see its documents.</div></div>
+        <div data-pane="diffs" id="paneDiff" hidden></div>
+        <div data-pane="pr" id="panePr" hidden></div>
+        <div data-pane="skills" id="paneSkills" hidden></div>
+        <div data-pane="trace" id="paneTrace" hidden></div>
+        <div data-pane="chat" id="paneChat" hidden></div>
+      </div>
+    </aside>
+  </div>
+  <div class="w-started" id="startedNote" role="status" hidden></div>
+  <footer class="w-ctxbar" id="ctxBar" aria-live="polite" hidden>
+    <b class="w-ctxbar__title" id="ctxTitle"></b>
+    <span class="w-ctxbar__text" id="ctxText"></span>
+    <button type="button" class="w-fold" id="ctxClose" title="Hide this bar; Help → Take the tour still explains the page">×</button>
+    <button type="button" class="w-help" data-helpfor="3. Find your way around" title="Open this part of the user manual" aria-label="Help for this screen">?</button>
+  </footer>
+</div>
+
+<div class="w-modal" id="actionModal" hidden>
+  <form class="w-modal__box" id="actionForm">
+    <h2 id="amTitle"></h2>
+    <p id="amBlurb" class="c-muted"></p>
+    <div class="c-muted">Runs <code id="amCmd"></code> in your Argus assistant session in Devin Cloud. The answer opens here.</div>
+    <label class="w-label" for="amText" id="amAsk">What should it work on? <span class="c-muted w-modal__need">It needs <code id="amNeed"></code></span> <span class="c-muted" id="amOptional">(optional)</span></label>
+    <div class="w-modal__choices" id="amChoices" hidden></div>
+    <textarea id="amText" class="a-input" rows="3"></textarea>
+    <label class="c-switch"><input type="checkbox" id="amDry" checked /> Dry run (no commits, PRs, Jira or Confluence writes)</label>
+    <div id="amErr" class="c-err" hidden></div>
+    <div class="c-card__actions">
+      <button class="a-btn a-btn--primary" type="submit" id="amStart">Start</button>
+      <button class="a-btn a-btn--outline" type="button" id="amCancel">Cancel</button>
+    </div>
+  </form>
+</div>
+<div class="w-modal" id="taskModal" hidden>
+  <form class="w-modal__box" id="taskForm">
+    <h2 id="tmTitle"></h2>
+    <p id="tmSummary"></p>
+    <pre class="a-pre w-task__desc" id="tmDesc" hidden></pre>
+    <p><a id="tmLink" target="_blank" href="#">Open in Jira</a></p>
+    <label class="w-label" for="tmText" id="tmLabel">Your answer</label>
+    <textarea id="tmText" class="a-input" rows="4"></textarea>
+    <div class="c-muted" id="tmNote"></div>
+    <div id="tmErr" class="c-err" hidden></div>
+    <div class="c-card__actions">
+      <button class="a-btn a-btn--primary" type="submit" id="tmSend">Send answer</button>
+      <button class="a-btn a-btn--outline" type="button" id="tmReject" hidden>Reject</button>
+      <button class="a-btn a-btn--outline" type="button" id="tmCancel">Cancel</button>
+    </div>
+  </form>
+</div>
+<div class="w-float" id="traceFloat" hidden role="dialog" aria-label="Trace">
+  <div class="w-float__bar" id="traceFloatBar">
+    <span class="w-float__title">Trace <span class="c-muted" id="traceFloatRun"></span></span>
+    <span class="w-float__btns">
+      <button type="button" class="w-float__btn" data-tracefloat="min" title="Minimise">–</button>
+      <button type="button" class="w-float__btn" data-tracefloat="close" title="Close">×</button>
+    </span>
+  </div>
+  <div class="w-float__body" id="traceFloatBody"></div>
+</div>
+<div class="w-modal" id="qsModal" hidden>
+  <div class="w-modal__box w-qs" role="dialog" aria-modal="true" aria-label="Quick search">
+    <input type="search" id="qsText" class="a-input" placeholder="Find a tool, ticket key or session…" aria-label="Find a tool, ticket key or session" autocomplete="off">
+    <div id="qsList" class="w-qs__list" role="listbox"></div>
+    <div class="c-muted">↑ ↓ to move, Enter to open, Esc to close</div>
+  </div>
+</div>
+<div class="w-modal" id="keysModal" hidden>
+  <div class="w-modal__box" role="dialog" aria-modal="true" aria-labelledby="keysTitle">
+    <h2 id="keysTitle">Keyboard shortcuts</h2>
+    <table class="w-keys"><tbody>
+      <tr><td><kbd>Ctrl</kbd> + <kbd>K</kbd></td><td>Quick search: tools, tickets and sessions</td></tr>
+      <tr><td><kbd>/</kbd></td><td>Filter the list on screen</td></tr>
+      <tr><td><kbd>↑</kbd> <kbd>↓</kbd></td><td>Move through a list</td></tr>
+      <tr><td><kbd>Enter</kbd></td><td>Open the ticket, session or tool</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Close a menu or a box</td></tr>
+      <tr><td><kbd>?</kbd></td><td>This list</td></tr>
+    </tbody></table>
+    <div class="c-card__actions"><button type="button" class="a-btn a-btn--primary" data-closemodal="keysModal">Close</button></div>
+  </div>
+</div>
+<div class="w-modal" id="sentModal" hidden>
+  <div class="w-modal__box w-sent" role="dialog" aria-modal="true" aria-labelledby="sentTitle">
+    <h2 id="sentTitle">What I sent today</h2>
+    <p class="c-muted">Every change you made from the Backlog screens today: written to Jira, or kept as a preview while writes are off.</p>
+    <div id="sentList"></div>
+    <div class="c-card__actions"><button type="button" class="a-btn a-btn--primary" data-closemodal="sentModal">Close</button></div>
+  </div>
+</div>
+<div class="w-tour" id="tourBox" role="dialog" aria-live="polite" aria-labelledby="tourTitle" hidden>
+  <div class="c-muted" id="tourStep"></div>
+  <h2 id="tourTitle"></h2>
+  <p id="tourText"></p>
+  <div class="c-card__actions">
+    <button type="button" class="a-btn a-btn--outline" id="tourBack">Back</button>
+    <button type="button" class="a-btn a-btn--primary" id="tourNext">Next</button>
+    <button type="button" class="a-btn a-btn--outline" id="tourSkip">Skip the tour</button>
+  </div>
+</div>
+<div class="w-modal" id="copyModal" hidden>
+  <form class="w-modal__box" id="copyForm" aria-labelledby="copyTitle">
+    <h2 id="copyTitle">Build shared copy</h2>
+    <p>The copy of Argus for other teams. Check here builds it in a temporary folder on this PC and runs the leak scan; nothing in your checkout changes. Build and open PR asks Devin Cloud to build it, show you the result and open the pull request after you type approved.</p>
+    <label class="w-label" for="copyVersion">Version</label>
+    <input id="copyVersion" class="a-input" placeholder="2.2.110126" autocomplete="off">
+    <div class="c-muted" id="copyNote"></div>
+    <pre class="a-pre" id="copyLog" hidden></pre>
+    <div class="c-card__actions">
+      <button class="a-btn a-btn--outline" type="button" id="copyCheck">Check here</button>
+      <button class="a-btn a-btn--primary" type="submit" id="copyPr">Build and open PR</button>
+      <button class="a-btn a-btn--outline" type="button" id="copyClose">Close</button>
+    </div>
+  </form>
+</div>
+<div class="w-tchat" id="teamChat" hidden>
+  <div class="w-tchat__log" id="tchatLog" hidden aria-live="polite"></div>
+  <div class="w-tchat__suggest" id="tchatSuggest" hidden></div>
+  <form class="w-tchat__row" id="tchatForm" autocomplete="off">
+    <input id="tchatText" maxlength="240" placeholder="@name or @everyone, then the message" aria-label="Team chat: @name or @everyone, then the message">
+    <button class="a-btn a-btn--primary" type="submit" id="tchatSend">Send</button>
+    <button class="a-btn a-btn--outline" type="button" id="tchatToggle" title="Show or hide today's messages">Chat</button>
+  </form>
+  <div class="c-err" id="tchatErr" hidden></div>
+</div>
+<div class="w-modal" id="exitModal" hidden>
+  <form class="w-modal__box w-exit__box" id="exitForm" role="dialog" aria-modal="true" aria-labelledby="exitTitle">
+    <h2 id="exitTitle">Exit Argus?</h2>
+    <p id="exitIntro">These Devin Cloud sessions are still open. Ticked ones are ended for good: an ended session can't be woken again, but its record stays in My sessions.</p>
+    <div id="exitList"></div>
+    <div id="exitErr" class="c-err" hidden></div>
+    <div class="c-card__actions">
+      <button class="a-btn a-btn--primary a-btn--danger" type="submit" id="exitEnd">End ticked sessions and exit</button>
+      <button class="a-btn a-btn--outline" type="button" id="exitKeep">Exit, keep sessions open</button>
+      <button class="a-btn a-btn--outline" type="button" id="exitCancel">Cancel</button>
+    </div>
+  </form>
+</div>
+<div class="w-modal" id="fbModal" hidden>
+  <form class="w-modal__box w-fb" id="fbForm" role="dialog" aria-modal="true" aria-labelledby="fbTitle">
+    <h2 id="fbTitle">Feedback</h2>
+    <p class="c-muted">Goes to the leads, on the Framework feedback tabs of their dashboard. Just say what happened; Argus adds the rest.</p>
+    <div class="w-fb__row">
+      <label class="w-drop__field">Kind <select id="fbKind" class="a-select"><option value="problem">Something went wrong</option><option value="idea">An idea</option><option value="worked">Something that worked well</option></select></label>
+      <label class="w-drop__field">About <select id="fbAbout" class="a-select"><option>Argus page</option><option>Dashboard</option><option>Gate brief</option><option>Skill</option><option>Other</option></select></label>
+    </div>
+    <label class="w-drop__field">What happened, or what you would like <textarea id="fbText" class="a-input" rows="5" maxlength="2000" placeholder="The run stopped after the design gate and Wake did nothing."></textarea></label>
+    <details class="w-fb__ctx" open><summary>Sent with your feedback</summary><div id="fbContext"></div></details>
+    <p class="c-muted" id="fbMsg" aria-live="polite"></p>
+    <div class="c-card__actions">
+      <button class="a-btn a-btn--primary" type="submit" id="fbSend">Send</button>
+      <button class="a-btn a-btn--outline" type="button" data-closemodal="fbModal">Close</button>
+    </div>
+  </form>
+</div>
+<div class="w-modal" id="askModal" hidden>
+  <form class="w-modal__box" id="askForm" role="alertdialog" aria-modal="true" aria-labelledby="askTitle" aria-describedby="askText">
+    <h2 id="askTitle">Are you sure?</h2>
+    <p id="askText"></p>
+    <div class="c-card__actions">
+      <button class="a-btn a-btn--primary" type="submit" id="askOk">OK</button>
+      <button class="a-btn a-btn--outline" type="button" id="askCancel">Cancel</button>
+    </div>
+  </form>
+</div>
+<script src="/static/console.js"></script>
+<script src="/static/console-run.js"></script>
+<script src="/static/console-pc.js"></script>
+<script src="/static/console-backlog.js"></script>
+<script src="/static/console-auto.js"></script>
+<script src="/static/console-main.js"></script>
+<script src="/static/console-feedback.js"></script>
+</body>
+</html>

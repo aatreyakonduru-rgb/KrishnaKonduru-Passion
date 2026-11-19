@@ -1,0 +1,18 @@
+{
+  "environment": "devin-cloud",
+  "session_state": {
+    "storage_strategy": "repository",
+    "retention_days": 90,
+    "archive_location": "./sdlc/framework/context/session/archive/",
+    "session_owner_scoped": true
+  },
+  "external_dependencies": {
+    "enabled": false,
+    "fallback_to_local": false
+  },
+  "git": {
+    "auto_commit": true,
+    "auto_push": true,
+    "shared_branch": "feature/devin-sdlc"
+  }
+}

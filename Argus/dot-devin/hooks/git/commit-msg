@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Git commit-msg hook: records the person who asked for the commit. Commits made by Devin or a
+# service ID carry that account as author, so the message gets one trailer naming the human:
+#   Requested-by: Resource 3 <resource3@acme.example>
+# The person is found the same way as the access check: SDLC_OWNER, then /identify-requester,
+# then the git author email, matched against .devin/rules/people.yaml. No match blocks the commit.
+# A Product Owner or BSA (may change the knowledge base, not code) must also have typed "approved"
+# for exactly the staged files (access_guard.py approve); their commit then gets a second trailer:
+#   Approved-by: Resource 17 (product_owner) <resource17@acme.example> 2026-10-13T20:40Z
+# Without it their commit is blocked. Others get Approved-by only when they ran approve.
+# Install once per checkout (the repo blueprint does this in Devin Cloud):
+#   cp .devin/hooks/git/commit-msg .git/hooks/commit-msg && chmod +x .git/hooks/commit-msg
+msg_file="$1"
+root="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 1
+. "$root/.devin/hooks/lib/python.sh"
+who="$(sdlc_python "$root/sdlc/framework/tools/access_guard.py" trailer 2>&1)"
+status=$?
+if [ "$status" -ne 0 ] || [ -z "$who" ]; then
+  printf 'COMMIT-BLOCK: cannot tell who asked for this commit (%s): run /identify-requester or set SDLC_OWNER\n' "$who" >&2
+  exit 1
+fi
+git interpret-trailers --in-place --if-exists addIfDifferent --trailer "Requested-by: $who" "$msg_file"
+approved="$(sdlc_python "$root/sdlc/framework/tools/access_guard.py" approval-trailer 2>&1)"
+status=$?
+case "$status" in
+  0) [ -z "$approved" ] || git interpret-trailers --in-place --if-exists addIfDifferent --trailer "Approved-by: $approved" "$msg_file" ;;
+  2) printf 'COMMIT-BLOCK: %s\n' "$approved" >&2; exit 1 ;;
+  *) printf 'COMMIT-BLOCK: approval check failed to run (exit %s). %s\n' "$status" "$approved" >&2; exit 1 ;;
+esac

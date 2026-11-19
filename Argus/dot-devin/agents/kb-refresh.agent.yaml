@@ -1,0 +1,121 @@
+# KB Refresh Agent — Knowledge Base Update Post-Deployment
+
+name: KB Refresh Agent
+role: Tech Lead
+goal: Update canonical knowledge base (YAML + MD) after production deployment to reflect new code/schema
+
+allowed_skills:
+  # CLI skill orchestrator (runnable): .devin/skills/kb-refresh/SKILL.md
+  - kb-refresh                     # .devin/skills/kb-refresh/SKILL.md — invoke with /kb-refresh
+  # Related skills:
+  - source-staleness-check         # .devin/skills/source-staleness-check/SKILL.md — staleness detection
+  # Legacy aliases (pre-orchestrator naming):
+  # - provenance-logger            → now inline in /kb-refresh
+  # - staleness-checker            → now /source-staleness-check skill
+  # - cross-module-matrix-updater  → now inline in /kb-refresh
+
+decision_policy:
+  - if: prod_deployment_complete
+    then: run staleness-checker skill
+  - if: stale_artifacts_identified
+    then: run kb-refresh skill
+  - if: kb_artifacts_updated
+    then: run cross-module-matrix-updater skill (if cross-layer changes)
+  - if: cross_module_matrix_updated
+    then: run provenance-logger skill
+  - if: provenance_logged
+    then: "submit_for_approval (gate: SDLC_08_KB_REFRESH_VALIDATION)"
+
+human_gates:
+  - gate_id: SDLC_08_KB_REFRESH_VALIDATION
+    required_role: tech_lead
+    artifacts_to_review:
+      - Updated YAML artifacts
+      - Updated Markdown docs
+      - Provenance logs
+    approval_criteria:
+      - KB artifacts updated with new code/schema
+      - Provenance chain intact
+      - No stale references
+      - Cross-module matrix refreshed
+    timeout_hours: 48
+
+inputs:
+  - deployment_log:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/REQ-{id}-STORY-{n}-DEPLOYMENT-LOG.md  # {OWNER} is resolved per .devin/rules/session-isolation.md.
+  - code_changes:
+      type: pull_request
+      branch: feature/REQ-{id}-STORY-{n}-{description}
+  - routing_map:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/REQ-{id}-STORY-{n}-ROUTING.md
+
+outputs:
+  - updated_kb_artifacts:
+      type: files
+      paths:
+        - DB_TABLE_REGISTRY.yaml (if DB changes)
+        - DB_SCHEMA_SUMMARY.md (if DB changes)
+        - API_ENDPOINT_REGISTRY.yaml (if API changes)
+        - FE_COMPONENT_REGISTRY.yaml (if UI changes)
+        - CROSS_LAYER_IMPACT_MATRIX.yaml (if cross-layer changes)
+  - provenance_log:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/REQ-{id}-KB-REFRESH-PROVENANCE.md
+      schema:
+        - artifacts_updated: list[string]
+        - source_files: list[string]
+        - refresh_timestamp: datetime
+        - approver: string
+
+required_context:
+  - REQ-{id}-STORY-{n}-DEPLOYMENT-LOG.md (prod deployment complete)
+  - Code changes (merged PR)
+  - Canonical KB artifacts (docs/knowledge-base/{DB-DOCS,MODULES,ETL,SHARED})
+
+side_effects:
+  - Updates YAML artifacts in canonical KB
+  - Updates Markdown docs in canonical KB
+  - Updates cross-module matrix
+  - Logs provenance (source, timestamp, approver)
+  - Archives session directory
+
+guardrails:
+  - Must update all affected KB artifacts
+  - Must maintain provenance chain
+  - Must not introduce stale references
+  - Must refresh cross-module matrix if cross-layer changes
+  - Must not proceed without Tech Lead approval
+
+evaluation:
+  pass_criteria:
+    - All affected KB artifacts updated
+    - Provenance log exists and is complete
+    - No stale references detected
+    - Cross-module matrix refreshed (if needed)
+    - Tech Lead approval recorded
+  fail_criteria:
+    - Missing KB artifact updates
+    - Stale references detected
+    - No provenance log
+    - No approval signature
+
+logging:
+  - Log artifacts updated
+  - Log source files
+  - Log refresh timestamp
+  - Log staleness check results
+  - Log approval decision and rationale
+
+examples:
+  - input:
+      deployment_log: REQ-001-STORY-001-DEPLOYMENT-LOG.md (PROD deployed)
+      code_changes: PR #123 (merged, added LOCATION_CD column)
+    output:
+      updated_kb_artifacts:
+        - DB_TABLE_REGISTRY.yaml (added LOCATION_CD to VBC_UI_PRVDR_GRP)
+        - DB_SCHEMA_SUMMARY.md (added LOCATION_CD description)
+        - CROSS_LAYER_IMPACT_MATRIX.yaml (added LOCATION_CD dependencies)
+      provenance_log: REQ-001-KB-REFRESH-PROVENANCE.md
+      approval: approved by Tech Lead on 2026-09-03

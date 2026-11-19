@@ -1,0 +1,436 @@
+# Job-role routing for Acme Claims sessions.
+#
+# Devin Cloud's own roles (admin / member / read-only) are a permission model. They say what a
+# person is allowed to do in the platform; they say nothing about what that person does for a
+# living. This file carries the second half: the delivery roles the Acme Claims team actually uses, and
+# what each of them should get by default — which lens, which skills, which playbooks, which
+# shape of answer.
+#
+# Read this together with:
+#   .devin/rules/people.yaml        who holds which roles (the roster)
+#   .devin/rules/dashboard-roles.yaml  which dashboard panels a role sees (`dashboard_lens`)
+#   .devin/rules/approval-gates.yaml   which roles can sign which gate (`gate_roles`)
+#
+# HARD RULE — routing is not access control. A role in this file never grants or denies
+# permission. Every real restriction comes from Devin Cloud roles, Bitbucket branch protection,
+# secret scoping and the approval gates. `action_class` below only shapes default behaviour and
+# the tone of the first response; it is not a security boundary.
+
+version: 1
+
+# ---------------------------------------------------------------------------------------------
+# Roster governance. Drift is the main risk to this whole mechanism, so ownership is explicit.
+# ---------------------------------------------------------------------------------------------
+governance:
+  roster_file: .devin/rules/people.yaml
+  # The roster resolver and the people who can act for them are named in the people.yaml owner
+  # block; that file, not this one, is the single place ownership is recorded.
+  owner: people.yaml owner.primary
+  backups: people.yaml owner.backups
+  change_process: >-
+    Any role change is a pull request against .devin/rules/people.yaml, reviewed by the roster
+    owner or one of the named backups. Nobody edits their own entry without a second reviewer.
+  review_cadence: quarterly
+  drift_check: >-
+    /roster-check runs weekly and compares the roster against Acme Claims Jira membership, raising a
+    pull request when it finds joiners, leavers or incomplete entries.
+  how_to: sdlc/framework/ROSTER-GOVERNANCE.md
+
+# ---------------------------------------------------------------------------------------------
+# How the role for a session is chosen. People wear several hats; the hat is picked per request,
+# not per person.
+# ---------------------------------------------------------------------------------------------
+selection:
+  precedence:
+    - id: explicit
+      rule: The requester names the hat in the session ("I'm wearing the QA lead hat today").
+    - id: invoked
+      rule: >-
+        The requester invoked a skill or playbook that belongs to exactly one role
+        (default_skills / default_playbooks below); that role applies.
+    - id: hints
+      rule: >-
+        A role_hints keyword in people.yaml matches the request. Only hats the person already
+        holds may be matched this way — a keyword never invents a role.
+    - id: primary
+      rule: Fall back to the person's primary_role.
+    - id: ask
+      rule: >-
+        If two or more held hats match equally and the action_class differs between them, ask
+        which one applies rather than guessing.
+  announce: >-
+    State the chosen hat in one short line before starting work ("Treating this as QA lead work
+    — say so if that is wrong"), then get on with it. Do not re-announce on every reply.
+  conflict_rule: >-
+    When held hats disagree on action_class, the most restrictive one wins until the requester
+    says otherwise (read_only < advisory < code_pr < release).
+  unknown_person: >-
+    No roster match: continue as a guest, read_only. Say once, in the first reply:
+    "I am continuing with you as a guest. You can do all read-only lookups; for more than that, talk to the solution lead."
+    Then answer the question. Do not ask for their role and do not offer a roster pull request.
+  switching: >-
+    A requester may change hats mid-session. Behaviour changes; permissions do not.
+
+# ---------------------------------------------------------------------------------------------
+# What each action class means in practice. Behavioural defaults only.
+# ---------------------------------------------------------------------------------------------
+action_classes:
+  read_only:
+    default: Answer, explain, summarise. Do not write repository files.
+  advisory:
+    default: >-
+      May write session artefacts and knowledge-base drafts under
+      sdlc/framework/context/session/{OWNER}/, never application source.
+  code_pr:
+    default: May change application source and raise a pull request; never push to master.
+  release:
+    default: >-
+      May prepare promotion and rollback plans and run the release stage; the promotion itself
+      still waits on SDLC_07.
+
+# ---------------------------------------------------------------------------------------------
+# The roles. `aliases` are what people actually type or say; `gate_roles` are the role names
+# approval-gates.yaml understands, so a job role stays connected to the gate model.
+# ---------------------------------------------------------------------------------------------
+# Who gets each skill. A role's default_skills are its first commands (the top of /help and of Argus's My
+# tools menu, at most eight); more_skills are the rest of that role's My tools; everyone_skills are on every role's
+# My tools. internal_skills run inside another skill or an automation, so nobody is given them; the app-, db- and
+# etl- documentation stages and the older names are internal too. The Skill config tab on the Tech Lead dashboard
+# shows every skill against these lists and turns ticks into a change to this file (tools/skill_homes.py).
+everyone_skills: [start, status, approve, send-approval, handover, resume-session, identify-requester, help, catalogue, learn-more, vacation, argus, workbench, devin-window]
+internal_skills:
+  app-domain-context: loaded by every documentation stage before it runs
+  app-cross-pipeline: runs at the end of /kb-build all
+
+
+roles:
+  lead:
+    label: Delivery lead
+    aliases: [delivery lead, team lead, engineering lead]
+    dashboard_lens: po_office
+    gate_roles: []
+    action_class: advisory
+    systems: [jira, bitbucket, confluence, bamboo]
+    output: status_summary_then_decisions
+    default_skills: [dashboard, pi-plan, sprint-review-summary, spec-vs-delivery, roster-check, gate-review, loe]
+    more_skills: [status-report, product-roadmap, jira-hygiene, defects-by-specialty]
+    default_playbooks: [PB-27-pi-plan, PB-24-sprint-review-summary, PB-38-gate-review, PB-34-roster-check]
+
+  solution_lead:
+    label: Solution lead
+    aliases: [solution lead, tech lead, technical lead]
+    dashboard_lens: tech_lead
+    gate_roles: [tech_lead]
+    action_class: code_pr
+    systems: [jira, bitbucket, sonarqube, confluence]
+    output: options_with_trade_offs
+    default_skills: [dashboard, plan, grooming-assistant, story-splitter, pr-readiness, document-validation, adr, loe]
+    more_skills: [research, sdlc, run-app-locally, export-jira, build-check, kb-refresh, product-roadmap, jira-hygiene, defects-by-specialty, roster-sync, gate-timeout-check, source-staleness-check, team-insights]
+    default_playbooks: [PB-04-plan-and-routing, PB-13-grooming-assistant, PB-12-pr-readiness, PB-37-adr, PB-03-bottom-up-research, PB-05-source-staleness-check, PB-11-story-splitter, PB-32-document-validation, PB-36-build-check]
+
+  architect:
+    label: Architect
+    aliases: [architect, solution architect, principal engineer]
+    dashboard_lens: architect
+    gate_roles: [tech_lead]
+    action_class: advisory
+    systems: [jira, bitbucket, confluence]
+    output: options_with_trade_offs
+    default_skills: [impact-radar, investigate, app-diagrams, security-audit, what-if, adr]
+    more_skills: [app-run-pipeline, db-run-pipeline, etl-run-pipeline, kb-build, kb-compare, kb-context-build, app-knowledge-refresh, source-staleness-check]
+    default_playbooks: [PB-09-impact-radar, PB-08-investigate, PB-10-security-audit, PB-37-adr, PB-03-bottom-up-research]
+
+  ui_developer:
+    label: UI developer
+    aliases: [ui developer, ui dev, frontend developer, front-end dev, react developer, next.js developer]
+    dashboard_lens: developer
+    gate_roles: [developer, dev_team]
+    action_class: code_pr
+    systems: [bitbucket, jira, sonarqube, bamboo]
+    output: diff_then_screenshots
+    default_skills: [dashboard, plan, implement, pr-readiness, impact-radar, app-ui-spec, test-on-pc]
+    more_skills: [sdlc, run-app-locally, build-check, app-run-pipeline, app-knowledge-sync, app-runtime-sync]
+    default_playbooks: [PB-04-plan-and-routing, PB-14-implement, PB-12-pr-readiness, PB-36-build-check]
+
+  api_developer:
+    label: API developer
+    aliases: [api developer, api dev, backend developer, back-end dev, django developer, service developer]
+    dashboard_lens: developer
+    gate_roles: [developer, dev_team]
+    action_class: code_pr
+    systems: [bitbucket, jira, sonarqube, bamboo]
+    output: diff_then_contract_notes
+    default_skills: [dashboard, plan, implement, pr-readiness, impact-radar, security-audit]
+    more_skills: [sdlc, run-app-locally, build-check, app-run-pipeline, app-knowledge-sync, app-runtime-sync]
+    default_playbooks: [PB-04-plan-and-routing, PB-14-implement, PB-10-security-audit, PB-36-build-check]
+
+  etl_developer:
+    label: Data / ETL developer
+    aliases: [etl developer, data engineer, data etl developer, snowflake developer, pipeline developer]
+    dashboard_lens: developer
+    gate_roles: [developer, dev_team]
+    action_class: code_pr
+    systems: [bitbucket, jira, snowflake, bamboo]
+    output: diff_then_data_lineage
+    default_skills: [dashboard, db-change-analysis, db-trd, impact-radar, implement, app-knowledge-refresh]
+    more_skills: [sdlc, etl-run-pipeline, app-knowledge-sync, app-runtime-sync]
+    default_playbooks: [PB-09-impact-radar, PB-14-implement, PB-06-kb-refresh]
+
+  ux_designer:
+    label: UX designer
+    aliases: [ux, ux designer, ui designer, visual designer, interaction designer]
+    dashboard_lens: developer
+    gate_roles: [developer]
+    # advisory, not code_pr: a screen design lands as a spec the UI developers implement, so the
+    # default is to produce that spec rather than to open a pull request against the app.
+    action_class: advisory
+    systems: [jira, confluence, bitbucket]
+    output: screen_flow_then_spec
+    default_skills: [dashboard, app-ui-spec, investigate, explain-capability]
+    default_playbooks: [PB-08-investigate]
+
+  developer:
+    label: Developer
+    aliases: [developer, dev, engineer, software engineer]
+    dashboard_lens: developer
+    gate_roles: [developer, dev_team]
+    action_class: code_pr
+    systems: [bitbucket, jira, sonarqube]
+    output: diff_then_test_evidence
+    default_skills: [dashboard, investigate, plan, implement, pr-readiness, test-on-pc]
+    more_skills: [sdlc, run-app-locally, build-check, app-knowledge-sync, app-runtime-sync]
+    default_playbooks: [PB-14-implement, PB-12-pr-readiness, PB-36-build-check]
+
+  reviewer:
+    label: Reviewer
+    aliases: [reviewer, code reviewer, pr reviewer]
+    dashboard_lens: tech_lead
+    gate_roles: [tech_lead, developer]
+    action_class: advisory
+    systems: [bitbucket, jira, sonarqube]
+    output: findings_by_severity
+    default_skills: [pr-readiness, security-audit, investigate]
+    default_playbooks: [PB-12-pr-readiness, PB-10-security-audit]
+
+  qa_lead:
+    label: QA lead
+    aliases: [qa lead, test lead, test manager, quality lead]
+    dashboard_lens: qa
+    gate_roles: [test_lead, qa_engineer]
+    action_class: advisory
+    systems: [jira, bamboo, confluence]
+    output: test_matrix
+    default_skills: [dashboard, eval, qa-scenarios, test-on-pc, spec-vs-delivery, security-audit, ask-question]
+    more_skills: [demo-needed, defects-by-specialty]
+    default_playbooks: [PB-15-eval, PB-39-qa-scenarios, PB-26-spec-vs-delivery]
+
+  qa_staff:
+    label: QA engineer
+    aliases: [qa, qa staff, qa engineer, tester, test engineer]
+    dashboard_lens: qa
+    gate_roles: [qa_engineer, tester]
+    action_class: advisory
+    systems: [jira, bamboo]
+    output: test_cases_and_defects
+    default_skills: [dashboard, eval, qa-scenarios, test-on-pc, investigate, ask-question]
+    more_skills: [demo-needed]
+    default_playbooks: [PB-15-eval, PB-39-qa-scenarios]
+
+  automation_engineer:
+    label: Automation engineer
+    aliases: [automation engineer, automation tester, test automation engineer, sdet]
+    dashboard_lens: automation
+    gate_roles: [qa_engineer, tester]
+    action_class: advisory
+    systems: [jira, bitbucket, bamboo, snowflake]
+    output: automation_scripts_and_run_results
+    default_skills: [dashboard, acme-auto-story, acme-auto-run, acme-auto-fix, acme-auto-setup, qa-scenarios, test-on-pc, ask-question]
+    more_skills: [eval, investigate, demo-needed]
+    default_playbooks: [PB-39-qa-scenarios, PB-15-eval]
+
+  uat_lead:
+    label: UAT lead
+    aliases: [uat lead, business validation lead, uat coordinator]
+    dashboard_lens: uat
+    gate_roles: [qa_engineer, product_owner]
+    action_class: advisory
+    systems: [jira, confluence]
+    output: uat_scenarios_plain_english
+    default_skills: [dashboard, test-on-pc, spec-vs-delivery, explain-capability, release-notes]
+    default_playbooks: [PB-26-spec-vs-delivery, PB-23-release-notes]
+
+  uat_staff:
+    label: UAT participant
+    aliases: [uat, uat staff, uat user, business validator, business user, finance user]
+    dashboard_lens: uat
+    gate_roles: []
+    action_class: read_only
+    systems: [jira]
+    output: plain_english_walkthrough
+    default_skills: [dashboard, test-on-pc, explain-capability, investigate]
+    default_playbooks: [PB-17-explain-capability]
+
+  bsa:
+    label: BSA
+    aliases: [bsa, business analyst, business systems analyst]
+    dashboard_lens: bsa
+    gate_roles: [bsa]
+    action_class: advisory
+    systems: [jira, confluence]
+    output: spec_with_acceptance_criteria
+    default_skills: [dashboard, intake, compliance-view, document-validation]
+    more_skills: [research, export-jira, sdlc]
+    default_playbooks: [PB-18-bsa-dashboard, PB-01-start, PB-02-top-down-intake-and-research, PB-11-story-splitter, PB-32-document-validation]
+
+  bsa_lead:
+    label: BSA lead
+    aliases: [bsa lead, lead business analyst, analysis lead]
+    dashboard_lens: bsa
+    gate_roles: [bsa]
+    action_class: advisory
+    systems: [jira, confluence]
+    output: spec_with_acceptance_criteria
+    default_skills: [dashboard, intake, compliance-view, migration-status, document-validation]
+    more_skills: [research, export-jira, sdlc]
+    default_playbooks: [PB-18-bsa-dashboard, PB-30-compliance-view, PB-28-migration-status]
+
+  product_owner:
+    label: Product owner
+    aliases: [po, product owner, product manager]
+    dashboard_lens: po_office
+    gate_roles: [product_owner]
+    action_class: advisory
+    systems: [jira, confluence]
+    output: business_value_and_scope
+    default_skills: [dashboard, epics-from-roadmap, feasibility-check, po-story-review, what-if, pi-plan, release-notes, document-validation]
+    more_skills: [product-roadmap, status-report, defects-by-specialty, jira-hygiene]
+    default_playbooks: [PB-19-feasibility-check, PB-20-po-story-review, PB-25-what-if, PB-27-pi-plan]
+
+  manager:
+    label: Manager
+    aliases: [manager, delivery manager, programme manager]
+    dashboard_lens: po_office
+    gate_roles: []
+    action_class: read_only
+    systems: [jira, confluence]
+    output: status_summary_then_risks
+    default_skills: [dashboard, sprint-review-summary, release-notes, migration-status, spec-vs-delivery, gate-review]
+    more_skills: [status-report, product-roadmap]
+    default_playbooks: [PB-24-sprint-review-summary, PB-23-release-notes, PB-28-migration-status, PB-38-gate-review]
+
+  scrum_master:
+    label: Scrum Master
+    aliases: [scrum master, scrummaster]
+    dashboard_lens: scrum_master
+    gate_roles: []
+    action_class: read_only
+    systems: [jira, confluence]
+    output: status_summary_then_risks
+    default_skills: [dashboard, sprint-close-check, vacation, sprint-review-summary]
+    more_skills: [jira-hygiene, gate-timeout-check, status-report]
+    default_playbooks: [PB-24-sprint-review-summary]
+
+  release_manager:
+    label: Release manager
+    aliases: [release manager, ops, ops release manager, deployment manager]
+    dashboard_lens: release
+    gate_roles: [ops_release_manager]
+    action_class: release
+    systems: [bamboo, bitbucket, jira, artifactory]
+    output: promotion_plan_and_rollback
+    default_skills: [dashboard, release, promote, release-notes, pr-readiness, gate-review]
+    more_skills: [kb-refresh]
+    default_playbooks: [PB-16-release, PB-23-release-notes, PB-38-gate-review, PB-35-promote]
+
+  new_joiner:
+    label: New joiner
+    aliases: [new joiner, onboarding, new starter]
+    dashboard_lens: developer
+    gate_roles: []
+    action_class: read_only
+    systems: [jira, confluence]
+    output: guided_walkthrough
+    default_skills: [help, onboarding-guide, presentation, investigate]
+    default_playbooks: [PB-29-onboarding-guide, PB-31-presentation]
+
+# ---------------------------------------------------------------------------------------------
+# Argus screen per dashboard lens (console/server.py load_layouts, sent with /api/me).
+#   list         the ticket list the left column opens on (a scope of the "My work" select)
+#   left, right  open = full column; rail = collapsed to a thin bar the person can open;
+#                auto = rail until a run is open or something is waiting for a signature
+#   right_width  width of the right column in px when it is open
+# The Backlog screen always takes the full width. A person's own open/rail choice is kept on
+# their PC and wins over these defaults. Layout only; it grants no access.
+# ---------------------------------------------------------------------------------------------
+workbench_layouts:
+  developer:
+    list: mine_sprint
+    left: open
+    right: open
+    right_width: 420
+  tech_lead:
+    list: sprint
+    left: open
+    right: open
+    right_width: 480
+  architect:
+    list: open
+    left: open
+    right: open
+    right_width: 420
+  automation:
+    list: automation
+    left: open
+    right: open
+    right_width: 380
+  qa:
+    list: qa
+    left: open
+    right: open
+    right_width: 380
+  uat:
+    list: uat
+    left: open
+    right: auto
+    right_width: 380
+  bsa:
+    list: open
+    left: open
+    right: auto
+    right_width: 380
+  po_office:
+    list: open
+    left: open
+    right: auto
+    right_width: 380
+  scrum_master:
+    list: sprint
+    left: open
+    right: auto
+    right_width: 380
+  release:
+    list: uat
+    left: open
+    right: open
+    right_width: 420
+
+# Legacy role names kept in people.yaml and approval-gates.yaml, mapped onto the roles above so
+# neither file has to be rewritten in one go.
+role_aliases:
+  tech_lead: solution_lead
+  lead_developer: solution_lead
+  dev_team: developer
+  test_lead: qa_lead
+  qa_engineer: qa_staff
+  tester: qa_staff
+  automation_tester: automation_engineer
+  sdet: automation_engineer
+  po: product_owner
+  po_office: product_owner
+  delivery_lead: lead
+  programme_manager: manager
+  ops_release_manager: release_manager
+  solution_architect: architect
+  principal_engineer: architect
+
+default_role: developer

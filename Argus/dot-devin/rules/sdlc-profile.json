@@ -1,0 +1,206 @@
+{
+  "_about": "Team settings for Argus (sdlc/framework/console). Every value that names our product, Jira, repo or Devin org lives here, so the code holds none. This file stays in the team repo and is never shipped; sdlc/kb/examples/acme/sdlc-profile.json shows the shape with made-up values.",
+  "product": {
+    "name": "ACME",
+    "brand": "Acme Claims",
+    "framework_name": "Argus",
+    "legacy_systems": [
+      "OldClaims",
+      "OldBilling",
+      "OldCare"
+    ]
+  },
+  "jira": {
+    "host": "https://jira.acme.example",
+    "project": "ACME",
+    "it_team": "Acme-Claims-Web",
+    "token_env": "ACME_JIRA_TOKEN",
+    "fields": {
+      "story_points": "customfield_10001",
+      "sprint": "customfield_10002",
+      "acceptance": "customfield_10003",
+      "it_team": "customfield_10004",
+      "epic_link": "customfield_10010"
+    },
+    "queries_note": "Ticket lists Argus reads. {user} is the person's Jira username. qa and uat must match the QA and UAT queues in .devin/rules/dashboard-roles.yaml; waiting finds the Approval and Question sub-tasks assigned to the person. automation (optional) must match automation_queue in dashboard-roles.yaml; automation_open (optional) is every open automation ticket.",
+    "queries": {
+      "sprint": "project = ACME AND \"IT Team\" = Acme-Claims-Web AND sprint in openSprints() AND issuetype in (Story, Bug, Task) ORDER BY rank ASC",
+      "open": "project = ACME AND \"IT Team\" = Acme-Claims-Web AND resolution = Unresolved AND issuetype in (Story, Bug, Task) ORDER BY updated DESC",
+      "mine": "project = ACME AND assignee = \"{user}\" AND resolution = Unresolved ORDER BY updated DESC",
+      "mine_sprint": "project = ACME AND assignee = \"{user}\" AND sprint in openSprints() ORDER BY rank ASC",
+      "qa": "project = ACME AND status in ({statuses.qa}) AND resolution = Unresolved ORDER BY status ASC, updated ASC",
+      "uat": "project = ACME AND status in ({statuses.uat}) AND resolution = Unresolved ORDER BY status ASC, updated ASC",
+      "waiting": "project = ACME AND labels in (Approval, Question) AND assignee = \"{user}\" AND resolution = Unresolved ORDER BY created ASC",
+      "automation": "project = ACME AND assignee = \"{user}\" AND summary ~ \"Automation\" AND resolution = Unresolved ORDER BY status DESC, updated DESC",
+      "automation_open": "project = ACME AND summary ~ \"Automation\" AND resolution = Unresolved ORDER BY updated DESC"
+    },
+    "statuses_note": "Jira statuses per queue. JQL in jira.queries and .devin/rules/dashboard-roles.yaml says {statuses.qa} and gets the list filled in, so a renamed status is one edit here.",
+    "statuses": {
+      "review": [
+        "In Review"
+      ],
+      "qa": [
+        "Test Ready",
+        "Testing",
+        "Integration Test Prep"
+      ],
+      "retest": [
+        "Resolved",
+        "Test Ready",
+        "Testing"
+      ],
+      "uat": [
+        "Ready for UAT",
+        "UAT",
+        "Staging"
+      ],
+      "uat_recheck": [
+        "Resolved",
+        "Ready for UAT",
+        "UAT",
+        "Production Validation"
+      ],
+      "business_approval": [
+        "Ready for Approval",
+        "Approved"
+      ],
+      "release": [
+        "Ready For Release",
+        "Staging"
+      ],
+      "prod_validation": [
+        "Production Validation"
+      ],
+      "demo_ready": [
+        "In Review",
+        "Ready For Release"
+      ]
+    },
+    "phases_note": "Phase suffix of a story summary (' - DEV') and prefix of a sub-task ('DEV- ...'), in delivery order.",
+    "phases": [
+      "DEV",
+      "SIT",
+      "UAT"
+    ]
+  },
+  "repo": {
+    "host": "git.acme.example",
+    "slug": "ACME/claims-web",
+    "kb_branch": "feature/devin-sdlc",
+    "deploy_slug": "ACME/claims-deploy",
+    "services": [
+      "web",
+      "api",
+      "web-admin",
+      "web-portal",
+      "api-portal"
+    ]
+  },
+  "workflow": {
+    "_note": "Environments in promotion order (in_order: false keeps one out of the order). app_branch and deploy_branch are the branches in the app and deploy repos, values the suffix of values-<env>.yaml / tekton-values-<env>.yaml, gate the approval needed before promoting into it, tag_branch where the pipeline writes the image tag when a person has to merge it, verified: false refuses the environment until the mapping is confirmed. Used by promote_check.py and /promote.",
+    "environments": [
+      {
+        "name": "dev",
+        "app_branch": "develop",
+        "deploy_branch": "develop",
+        "values": "dev"
+      },
+      {
+        "name": "sit",
+        "app_branch": "sit",
+        "deploy_branch": "sit",
+        "values": "sit"
+      },
+      {
+        "name": "uat",
+        "app_branch": "uat",
+        "deploy_branch": "uat",
+        "values": "uat",
+        "gate": "SDLC_07_ENV_PROMOTION_APPROVAL"
+      },
+      {
+        "name": "preprod",
+        "app_branch": "preprod",
+        "deploy_branch": "preprod",
+        "values": "preprod",
+        "verified": false,
+        "in_order": false
+      },
+      {
+        "name": "prod",
+        "app_branch": "master",
+        "deploy_branch": "master",
+        "values": "prod",
+        "gate": "SDLC_07_ENV_PROMOTION_APPROVAL",
+        "tag_branch": "release-tags/image-tag-update"
+      },
+      {
+        "name": "dr",
+        "app_branch": "dr",
+        "deploy_branch": "dr",
+        "values": "dr",
+        "verified": false,
+        "in_order": false
+      }
+    ]
+  },
+  "devin": {
+    "app": "https://acme.devinenterprise.com",
+    "org_id": "org-00000000000000000000000000000000"
+  },
+  "confluence": {
+    "host": "https://wiki.acme.example",
+    "space": "ACMEWIKI",
+    "token_env": "ACME_CONFLUENCE_TOKEN",
+    "pages": {
+      "user_manual": {
+        "id": "100001",
+        "title": "Argus User Manual"
+      },
+      "roster": {
+        "id": "100002",
+        "title": "Acme Claims Team Roster"
+      },
+      "team_home": {
+        "id": "100000",
+        "title": "Acme Claims"
+      },
+      "sprint_leave": {
+        "id": "2205802782",
+        "title": "Acme Claims Sprint Leave"
+      },
+      "demo_recordings": {
+        "id": "2205672557",
+        "title": "Acme Claims Demo Recordings"
+      }
+    }
+  },
+  "docs": {
+    "_note": "Repo-relative paths of the documents people are pointed at. Move a document, change its path here.",
+    "workbench_manual": "sdlc/framework/reference/HELP.html",
+    "presentation": "docs/knowledge-base/DOCUMENTATION/Presentations/beyond-the-ticket-exec.html",
+    "architecture": "sdlc/framework/ARCHITECTURE.html",
+    "framework_manual": "sdlc/framework/USER-MANUAL.md",
+    "roster_governance": "sdlc/framework/ROSTER-GOVERNANCE.md"
+  },
+  "paths": {
+    "kb": "docs/knowledge-base"
+  },
+  "act_as": {
+    "_note": "Jira usernames of the people who may switch Argus to someone else (Me > Who you are) and use \"su - <name>\" in a Devin session. Hidden from everyone else.",
+    "allowed": [
+      "resource3"
+    ]
+  },
+  "automation": {
+    "_note": "Automation engineer screen: the test automation repo and the base branches offered in Argus's base-branch list. personal_branch: {user} is the tester's Jira user.",
+    "repo": "ACME/claims-qa",
+    "base_branches": [
+      "Test_Bamboo",
+      "ACME_Automation_092025"
+    ],
+    "personal_branch": "ACME_Automation_{user}",
+    "smoke_tag": "@ACME_Parallel_Execution",
+    "max_processes": 4
+  }
+}

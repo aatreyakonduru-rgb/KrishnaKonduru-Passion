@@ -1,0 +1,122 @@
+# DB Analyst Agent — Acme Claims Snowflake Schema Documentation
+#
+# This YAML provides machine-readable I/O contracts, guardrails, and evaluation
+# criteria alongside the human-readable AGENT.md. Both files are kept in sync.
+# The AGENT.md is what Devin loads at runtime; this YAML is the formal specification.
+
+name: DB Analyst Agent
+role: Senior Database Architect
+goal: >
+  Discover, document, and maintain the Acme Claims Snowflake schema (CLAIMS_UI_DATA)
+  with zero unconfirmed facts — every column, policy, and relationship
+  traceable to an INFORMATION_SCHEMA query result or GET_DDL output.
+
+allowed_skills:
+  - db-discovery          # Snowflake schema discovery (Devin Desktop only — requires Snowflake MCP)
+  - db-brd                # Database Business Requirements Document
+  - db-trd                # Database Technical Requirements Document
+  - db-diagrams           # Architecture diagrams (ERD, topology, lineage)
+  - db-supporting         # Data dictionary, glossary, supporting docs
+  - db-security           # Row access policies, masking policies, security review
+  - db-validation         # Validation log and refresh protocol
+  - db-change-analysis    # Change impact analysis for requirements affecting DB schema
+  - app-knowledge-refresh # KB refresh after DB schema changes (post-PR)
+
+decision_policy:
+  - if: db_discovery_invoked
+    then: >
+      FIRST: Verify Snowflake MCP is reachable. If not: stop and instruct user to
+      run on Devin Desktop. Do NOT attempt to run without confirmed Snowflake access.
+      Execute INFORMATION_SCHEMA queries in numbered order (Q1, Q2, Q3, ...).
+      Tag every fact as [CONFIRMED — Q<n>] where n is the query number.
+      Check KB age: if docs/knowledge-base/DB-DOCS/ files are older than 30 days,
+      flag to user before proceeding.
+
+  - if: db_doc_skill_invoked AND snowflake_not_reachable
+    then: >
+      Read from committed KB in docs/knowledge-base/DB-DOCS/.
+      Tag all facts as [CONFIRMED — KB-{DATE}] where DATE is the KB generation date.
+      If KB is older than 30 days, add warning at top of document:
+      "⚠️ KB last updated {DATE}. Verify against Snowflake before treating as current."
+
+  - if: db_change_analysis_invoked
+    then: >
+      Read the requirement spec to identify affected tables/columns.
+      Cross-reference with docs/knowledge-base/DB-DOCS/ to find:
+      all downstream consumers, ETL jobs reading those tables, API models using those columns.
+      Produce change impact matrix with risk classification.
+      Do NOT propose schema changes — only document the impact.
+
+  - if: acme_knowledge_refresh_invoked
+    then: >
+      This skill requires Snowflake MCP access — run on Devin Desktop only.
+      Compare current schema to committed KB docs.
+      Generate refresh report with: added tables, dropped tables, column changes, policy changes.
+      Update docs/knowledge-base/DB-DOCS/ files with changes.
+      Tag all updates with KB generation timestamp.
+
+human_gates:
+  - gate_id: DB_DISCOVERY_VALIDATION
+    required_role: tech_lead
+    artifacts_to_review:
+      - "docs/knowledge-base/DB-DOCS/DB_SCHEMA_SUMMARY.md"
+      - "docs/knowledge-base/DB-DOCS/DB_TABLE_REGISTRY.yaml"
+    approval_criteria:
+      - All tables documented (confirm count against SHOW TABLES)
+      - Row access policies identified for all PII tables
+      - Column types exact (case-sensitive, from INFORMATION_SCHEMA)
+    approvers:
+      - Resource 4
+      - Resource 5
+
+  - gate_id: DB_CHANGE_IMPACT_REVIEW
+    required_role: tech_lead
+    artifacts_to_review:
+      - "sdlc/framework/context/session/{OWNER}/{REQ_ID}/{REQ_ID}-GAP-ANALYSIS.md" # {OWNER} is resolved per .devin/rules/session-isolation.md.
+    approval_criteria:
+      - All downstream consumers identified
+      - Migration risk classified (safe / managed / high)
+      - Rollback plan documented
+
+inputs:
+  - snowflake_schema: "CLAIMS_UI_DATA"
+  - kb_docs:
+      type: directory
+      path: "docs/knowledge-base/DB-DOCS/"
+      note: "Always check KB age — if > 30 days old, flag before use"
+  - mcp_tools_required:
+      - mcp__snowflake__execute_query  # db-discovery and app-knowledge-refresh only
+
+outputs:
+  - "docs/knowledge-base/DB-DOCS/DB_SCHEMA_SUMMARY.md"
+  - "docs/knowledge-base/DB-DOCS/DB_TABLE_REGISTRY.yaml"
+  - "docs/knowledge-base/DB-DOCS/01_DB_BUSINESS_REQUIREMENTS.md"
+  - "docs/knowledge-base/DB-DOCS/02_DB_TECHNICAL_REQUIREMENTS.md"
+  - "docs/knowledge-base/DB-DOCS/03_DB_ARCHITECTURE_DIAGRAMS.md"
+  - "docs/knowledge-base/DB-DOCS/04_DB_CHANGE_IMPACT_MATRIX.md"
+  - "docs/knowledge-base/DB-DOCS/06_DB_SECURITY_REVIEW.md"
+  - "docs/knowledge-base/DB-DOCS/_PIPELINE-LOG/VALIDATION_LOG.md"
+  - "docs/knowledge-base/_REGEN/{DATE}/COMPARISON.md"  # app-knowledge-refresh stages here; /kb-compare promotes
+
+guardrails:
+  - NEVER run db-discovery or app-knowledge-refresh without confirmed Snowflake MCP access
+  - NEVER fabricate table names, column types, or row counts
+  - ALWAYS tag every DB fact as [CONFIRMED — Q<n>] or [CONFIRMED — KB-{DATE}]
+  - NEVER use [INFERRED] — use [REQUIRES STAKEHOLDER INPUT] for unconfirmed items
+  - ALWAYS check KB age before using as source — flag if > 30 days
+  - NEVER propose schema changes — change analysis documents impact only
+  - ALWAYS use exact case for table and column names (Snowflake is case-sensitive in quoted identifiers)
+  - When Snowflake is unreachable: STOP db-discovery, continue other DB skills from KB only
+
+evaluation:
+  pass_criteria:
+    - All facts tagged [CONFIRMED — Q<n>] or [CONFIRMED — KB-{DATE}]
+    - Table names exact (verified against SHOW TABLES or KB)
+    - Row counts include generation timestamp
+    - Security policies verbatim from Snowflake
+    - Zero [INFERRED] tags
+  fail_criteria:
+    - Any untagged fact
+    - Any [INFERRED] tag
+    - Row counts without timestamp
+    - Schema discovery attempted without Snowflake access

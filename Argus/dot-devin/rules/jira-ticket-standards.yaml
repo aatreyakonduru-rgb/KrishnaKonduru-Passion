@@ -1,0 +1,478 @@
+# Acme Claims Jira Ticket Standards
+#
+# PURPOSE
+# ───────
+# What a Acme Claims ticket must contain for an agent to work from it unattended, and
+# where in Jira each piece lives. Two audiences:
+#
+#   * people writing tickets by hand  → read .devin/templates/jira-issue-templates.md
+#   * skills and automation           → read this file
+#
+# Everything here was checked against the live Acme Claims project (Jira DC,
+# jira.acme.example) on 2026-09-21 — the field IDs below are the real ones
+# on the Acme Claims screens, not guesses.
+#
+# STATUS: proposed. Not enforced until the Tech Lead and PO sign off. Applies to
+# newly created tickets only; we are not retro-fitting the backlog.
+
+schema_version: "1.0"
+last_updated: "2026-09-21"
+status: proposed
+maintained_by: Tech Lead
+applies_to: "Jira project Acme Claims, IT Team Acme-Claims-Web"
+
+# ─── FIELD MAP ───────────────────────────────────────────────────────────────
+# The custom field IDs any skill or script must use when reading or writing Acme Claims
+# issues. Acceptance criteria are NOT in the description — they have their own
+# field, and a skill that only reads `description` will wrongly conclude the
+# ticket has none.
+
+field_map:
+  summary:              summary
+  description:          description
+  acceptance_criteria:  customfield_10003   # "Acceptance Criteria" — rich text
+  story_points:         customfield_10001   # "Story Points"
+  sprint:               customfield_10002   # "Sprint"
+  epic_link:            customfield_10010   # "Epic Link"
+  epic_name:            customfield_10011   # "Epic Name" (on the Epic itself)
+  it_team:              customfield_10004   # "IT Team" — always Acme-Claims-Web
+  issue_priority:       customfield_10012   # "Issue Priority"
+  priority:             priority            # standard Jira priority
+  severity:             customfield_10013   # "Severity" — defects only
+  risk_level:           customfield_10014   # "Risk Level"
+  impediment_detail:    customfield_10015   # "Impediment Detail"
+  test_type:            customfield_10016   # "Test Type"
+  test_levels:          customfield_10017   # "Test Level(s)"
+  test_data:            customfield_10018   # "Test Data"
+  labels:               labels
+  components:           components
+  fix_versions:         fixVersions
+  original_estimate:    timeoriginalestimate
+  time_spent:           timespent
+
+issue_types_in_use:
+  - Epic
+  - Story
+  - Sub-task
+  - Defect
+  - Observation
+  - Test Case
+
+link_types_available:
+  # Confirmed present in this Jira instance.
+  [Blocks, "breaks down /rolls up", Cloners, Defect, Depend, Duplicate, Fix,
+   Implements, "Issue split", "Linked CNR", Relates, request, Tests]
+
+# ─── THE TICKET CONTRACT ─────────────────────────────────────────────────────
+# Per issue type: what has to be there before an agent can act on it, and which
+# skill breaks when it is missing. `required` blocks the definition of ready;
+# `expected` is a hygiene warning.
+
+epic:
+  required:
+    summary:
+      rule: "Capability or programme name. No phase suffix, no sprint, no date."
+      max_words: 8
+    epic_name:
+      rule: "Same as summary, trimmed to fit the board swimlane."
+    description:
+      rule: >
+        Two or three sentences of business objective — who benefits and what
+        changes for them — plus a link to the Confluence page or BRD that holds
+        the detail. Not a single phrase like "CHF work-UI".
+      must_not_be: ["a bare title", "a bare link with no sentence"]
+    acceptance_criteria:
+      rule: >
+        Between two and six measurable business outcomes. This is the epic's
+        definition of done, not a restatement of its name. /spec-vs-delivery and
+        /release-notes read this field to decide whether the epic delivered what
+        it promised.
+      must_not_be: ["Please Enter Acceptance Criteria", "a copy of the summary"]
+    it_team: "Acme-Claims-Web"
+    specialty:
+      rule: >
+        Which specialty the epic serves — one of the names in .devin/rules/defect-specialties.yaml
+        (EOC, Maternity, CHF, THL, ProgramA, ProgramB, ProgramC, PCMH) — or `Foundational` when it changes the
+        application itself and belongs to no specialty (`CORE` and `Platform` mean the same).
+        Carried as a label on the epic. Never guessed: when the roadmap row or the request does
+        not say, the PO is asked.
+  expected:
+    fix_versions: "Once the target release is known. Do not leave a stale one behind."
+    labels: "AI-Used or AI-NA — exact case."
+  consumed_by: [/product-roadmap, /release-notes, /spec-vs-delivery, /pi-plan, /dashboard]
+
+story:
+  # One story = one phase of one increment, sized to fit inside one sprint.
+  # Dev this sprint, SIT next, UAT after — that split is deliberate and stays.
+  required:
+    summary:
+      rule: "{Specialty} - {Capability} {change} - {PHASE}"
+      notes: >
+        Specialty first — one of the names in .devin/rules/defect-specialties.yaml (EOC,
+        Maternity, CHF, THL, ProgramA, ProgramB, ProgramC, PCMH) or `Platform` for cross-cutting work — so
+        defects-by-specialty, the roadmap and the release notes can file the ticket without
+        guessing from keywords. The same prefix goes on defects and tasks; epics name the
+        specialty in the title too but without the dash.
+        PHASE is one of `jira.phases` in .devin/rules/sdlc-profile.json (ours: DEV, SIT,
+        UAT), and Argus adds the first one when a summary has none.
+        The phase suffix is how everyone reads the board, so keep it, and keep it
+        uppercase and consistent — "- DEV", not "- Dev" or "-dev". Same capability
+        wording across the three siblings so a title match is not the only clue.
+    description:
+      rule: >
+        One user story — "As a {role}, I want {capability} so that {outcome}" —
+        followed by context: the Figma link, the Confluence page, the affected
+        screen or endpoint. Says why, not how.
+    acceptance_criteria:
+      field: customfield_10003
+      rule: >
+        Numbered criteria, each independently pass/fail, each written so a tester
+        or an agent can decide yes or no without asking anyone. Given/When/Then
+        where behaviour depends on state; a plain assertion where it does not.
+      forbidden_phrases:
+        - "Please Enter Acceptance Criteria"
+        - "as discussed"
+        - "as per design"
+        - "etc"
+        - "should work correctly"
+        - "user friendly"
+      min_criteria: 2
+      notes: >
+        Keep scope statements ("Development to be Covered: build the API") out of
+        this field — they belong in the description. A criterion says what will be
+        true when the work is done.
+    story_points:
+      rule: "Fibonacci 1/2/3/5/8/13, estimated per .devin/templates/complexity-matrix.yaml."
+    estimation_basis:
+      location: "Last block of the description, or a comment, per complexity-matrix.yaml"
+      rule: >
+        The dimension scores or the story-type rule that produced the points.
+        Without it nobody can tell a considered 8 from a default 8, and
+        /grooming-assistant has nothing to re-score.
+    epic_link: "Required. Must be the epic that owns the capability, not whatever the clone source pointed at."
+    issue_priority:
+      rule: "Must Have | Should Have | Could Have"
+      why: >
+        Empty on every story in 26.4.1 and 26.4.2 today. With no priority, an
+        agent asked to sequence or drop work has nothing to sequence on, and a
+        mid-sprint scope call becomes a meeting.
+    sprint: "The sprint this phase is worked in — one sprint, not three."
+    it_team: "Acme-Claims-Web"
+  required_links:
+    sibling_chain:
+      rule: >
+        Each phase ticket links to the one before it: SIT --Tests--> DEV, and
+        UAT --Relates--> SIT. Set it when the ticket is created, not at review time.
+      why: >
+        Nothing else in Jira says the three tickets are one feature. Today the
+        only clue is a matching title with a different suffix, which the roadmap,
+        the release notes and the sprint review each have to guess at — and none
+        of them can tell you how long a feature took from dev to UAT.
+    dependencies:
+      rule: "Blocks / Depend for real cross-story or cross-team sequencing. Not Relates."
+  expected:
+    components: "The module touched — Provider Grouping, Contract Template, Scorecard, and so on."
+    labels: "AI-Used or AI-NA, exact case."
+    fix_versions: "Only when the story genuinely targets that release. A cloned fix version is a lie an agent will repeat."
+  forbidden:
+    - "Cloning a ticket and leaving the source's epic link, fix version, sprint or AC in place."
+    - "Two phases of the same increment in one ticket."
+    - "Acceptance criteria that only exist in a Teams thread or a call."
+  consumed_by: [/intake, /eval, /pr-readiness, /po-story-review, /grooming-assistant, /story-splitter, /spec-vs-delivery, /release-notes, /dashboard]
+
+subtask:
+  # Sub-tasks are the work breakdown inside one story. They are for the people
+  # doing the work; agents read them for effort and progress, not for intent.
+  required:
+    summary:
+      rule: "{PHASE}- {task}, PHASE from jira.phases, e.g. 'DEV- Build contract template API' or 'SIT- Test Execution'"
+      notes: "Uppercase phase prefix, consistent across the sprint."
+    original_estimate:
+      rule: "Hours, set at grooming. The sub-task estimates under a story add up to the story's own original estimate."
+    ai_label:
+      rule: "AI-Used or AI-NA on every sub-task, exact case. The story carries AI-Used when any sub-task does."
+      why: "Sub-task level is the only level at which AI and non-AI work of the same kind can be compared."
+  expected:
+    assignee: "The person doing it, before the sprint starts."
+    time_spent: "Logged as the work happens, on the sub-task the work belonged to. Hours go on sub-tasks only — never on the story, or they double-count."
+    description: "One or two lines when the summary is not self-explanatory — unnecessary for 'SIT- Regression Testing', necessary for 'DEV- Backend changes'."
+  forbidden:
+    - "Leaving the default 'Please Enter Acceptance Criteria' in the Acceptance Criteria field. Either write something or clear it; placeholder text reads as real content to anything parsing the field."
+    - "Using a sub-task to hold a whole phase of work that belongs in its own story."
+    - "Reducing logged hours because the sub-task is tagged AI-Used. The estimate is what the work would take without AI; the logged hours are what it actually took. The gap is the measurement — adjusting either side removes it."
+  standard_sets:
+    # The 8-step pattern (Planning/Discovery, Design/Architecture, Development, Unit & Integration Testing,
+    # Performance Validation, Regression/QA, UAT/Demo, Deployment Readiness), mapped onto Acme Claims's three stories
+    # per increment so no sub-task holds a phase that has its own story:
+    #   DEV story: steps 1-5 and 8, plus code review and documentation
+    #   SIT story: step 6 — QA's seven sub-tasks, which already cover regression
+    #   UAT story: step 7
+    # Argus and /research create these sets (console/backlog.py keeps the same lists; a test checks they match).
+    sit:
+      - "SIT- Analysis and Test Case Preparation"
+      - "SIT- Review Test Cases and Attach to story"
+      - "SIT- Upload Testcases to qTest and Test Execution in qTest"
+      - "SIT- Test Execution"
+      - "SIT- Logging Defects and Link to user Story"
+      - "SIT- Regression Testing"
+      - "SIT- Sanity Testing"
+    dev:
+      - "DEV- Analysis of the story"
+      - "DEV- Design"
+      - "DEV- Backend implementation"
+      - "DEV- Frontend implementation"
+      - "DEV- Unit and integration testing"
+      - "DEV- Code review and PR"
+      - "DEV- Deployment readiness"
+      - "DEV- Documentation / KB update"
+    dev_when_performance_targets:
+      # Added after the testing step when the story or its AC names a performance target (response time, latency, load).
+      - "DEV- Performance validation"
+    uat:
+      - "UAT- Demo and sign-off"
+
+# ─── DEPENDENCIES AND ORDER ──────────────────────────────────────────────────
+# When the business needs A before B before C, the order is written on the tickets, not kept
+# in a chat or in someone's head: a `Blocks` link from A to B and from B to C, and one line
+# "Order: A → B → C — <why>" at the top of each description (Argus "Set order" button
+# and the `blocked_by` field on a new ticket write both). Argus refuses to put a story
+# into a sprint earlier than the sprint of anything that blocks it (HTTP 409), and the hygiene
+# page flags a story scheduled before its blocker (SCHEDULED_BEFORE_BLOCKER). Use Blocks only for
+# real sequencing; "nice to know" relationships stay Relates.
+
+dependencies:
+  link_type: Blocks
+  description_line: "Order: {A} → {B} → {C} — {why}"
+  rule: "A story may not sit in a sprint that starts before the sprint of any open story that blocks it; a blocker still in the backlog keeps the story in the backlog."
+
+# ─── DEFECTS, BUGS, ENHANCEMENTS, INCIDENTS ──────────────────────────────────
+# What goes where, so the counts the dashboards show mean one thing:
+#   defect       found in SIT / UAT / PROD against a story that has been delivered. Issue type Defect,
+#                `Defect` link back to the story whose AC it breaks, phase where it was found in the
+#                title suffix (- SIT / - UAT / - PROD), specialty prefix, Severity + Priority, Fix Version
+#                = the release the fix ships in, root-cause line in the closing comment.
+#   bug          found by the developer or in code review while the story is still in the sprint.
+#                Not a ticket: a `DEV- fix …` sub-task under the story; the story's AC are unchanged.
+#   enhancement  a change of scope or a new ask after the story is done, or that the AC never covered.
+#                A new story under the same epic (phase suffix, points, specialty), `Relates` to the
+#                story it extends. A closed story is never reopened for new scope.
+#   question / clarification   from QA, UAT or anyone: a Question sub-task under the story, assigned to
+#                who must answer, labels Question + asked-by-<user>; closed with the answer. Never a comment only.
+#   observation  something odd that is not yet a defect (QA/UAT): an Observation ticket, Relates to the story,
+#                triaged on the QA dashboard into a defect, an enhancement or "working as designed".
+#   incident     a production problem reported through ServiceNow. A Defect with `- PROD` suffix, the
+#                incident number in the description and in the `incident-INC…` label, Priority from the
+#                incident, Fix Version = the hotfix release. Linked to the story it came from if known.
+
+defect:
+  # TennCare SIT/UAT defects carry the programme-wide prefix asked for by the TennCare Scrum Masters
+  # (email to Scrum Masters and SIT testers, 8 Oct 2026) so they can be filtered on the shared Acme Claims
+  # dashboards: "<SIT|UAT>-TC-<PCMH|THL|EoC>: <title>", and for EoC "<Episode name> - <title>".
+  # Existing Open / In Progress SIT defects are to be retitled the same way. UAT defects start life on
+  # the UAT Defect Log (Smartsheet); the Scrum Master creates the UAT-TC-* Jira defect from it.
+  # Specialties outside TennCare keep the "{Specialty} - … - {PHASE}" shape.
+  tenncare_prefix:
+    specialties: {PCMH: PCMH, THL: THL, EOC: EoC}      # our specialty name -> token in the prefix
+    pattern: "^(SIT|UAT)-TC-(PCMH|THL|EoC): .+"
+    eoc_pattern: "^(SIT|UAT)-TC-EoC: [^-]+ - .+"      # <Episode> - <title>
+    examples:
+      - "SIT-TC-PCMH: Attribution grid loses filter on refresh"
+      - "UAT-TC-EoC: TJR - Threshold override saves twice"
+  required:
+    summary: "TennCare SIT/UAT: '{SIT|UAT}-TC-{PCMH|THL|EoC}: what is wrong, where' (EoC adds '<Episode> - '); otherwise '{Specialty} - what is wrong, where - {SIT|UAT|PROD}'. Not 'Issue in screen'."
+    description: "Steps to reproduce, expected, actual, environment."
+    severity: "customfield_10013"
+    links: "Defect link back to the story whose AC it violates."
+  expected:
+    test_data: "customfield_10018 — the data used to reproduce."
+
+# ─── LABELS ──────────────────────────────────────────────────────────────────
+
+labels:
+  ai_adoption:
+    allowed: [AI-Used, AI-NA]
+    rule: "Exactly one of the two on every story and every sub-task. Case matters — Jira treats AI-USED as a different label, and any other variant falls outside the count."
+    measurement: >
+      AI productivity is derived, not entered: compare original_estimate against
+      time_spent on AI-Used sub-tasks, with AI-NA sub-tasks of the same type as the
+      control group. Estimates are set at grooming, before it is known whether AI
+      will be used, which is what keeps the comparison honest.
+  other_in_use:
+    DEMO-NEEDED: "A stakeholder demo is owed before the story moves from DEV to SIT. Put it on at grooming; the PO office and tech lead dashboards list these under Demos; take it off once the demo is given, with a comment naming the date and audience. Once the story's PR is approved and before it merges, Devin records a captioned demo of every acceptance criterion (/demo-needed), saves one video per criterion under Acme Claims Demo Recordings > epic > story > <story>_AC<n>_demo in Confluence and adds one Jira comment with the link; after a linked defect (Blocks or Linked CNR) is fixed it records the next version beside it. Devin never adds or removes this label."
+    devin_created: "Every epic, story and sub-task Devin creates (Argus New flow, clone, roadmap epics) carries it, so Devin-made tickets can be counted and audited. Never removed."
+    devin_implemented: "Added by Devin to a story once it has implemented it (/implement)."
+  rule: "Do not invent labels for things that have a field. Priority, component and release are fields."
+
+# ─── DEFINITION OF READY / DONE ──────────────────────────────────────────────
+
+definition_of_ready:
+  # Checked at grooming, before the story enters a sprint.
+  - "Epic link points at the right epic."
+  - "Description carries the user story and the design/spec link."
+  - "Acceptance criteria are numbered, pass/fail, and free of the forbidden phrases."
+  - "Story points set, with the estimation basis recorded."
+  - "Issue Priority set."
+  - "Sibling phase tickets linked, or this is the first phase and the siblings do not exist yet."
+  - "Dependencies linked with Blocks/Depend."
+  - "Sub-tasks exist with estimates, the phase prefix is right, and the estimates sum to the story's original estimate."
+  - "AI-Used / AI-NA label present on the story and on every sub-task, correct case."
+  - "needs_grooming and needs_split both resolved — a story entering a sprint is neither."
+
+epic_definition_of_ready:
+  # Checked before an epic's stories are pulled into a sprint. Argus rule-book check flags the first three.
+  - "Description gives the business objective in two or three sentences: who benefits and what changes for them."
+  - "Description links the BRD or Confluence page that holds the detail (a 'Source BRD:' line when it came from a BRD)."
+  - "Acceptance criteria list two to six measurable business outcomes."
+  - "Specialty label set (or Foundational)."
+  - "Dependencies on other teams or systems named, with a contact."
+  - "Stories cover both what the user sees and the non-functional needs (performance, security, access)."
+  - "Open questions are answered or listed with who will answer them."
+
+definition_of_done:
+  - "Every acceptance criterion has a test that exercises it, and the test passes."
+  - "PR merged, /pr-readiness PASS."
+  - "Defects raised during the phase are closed or explicitly deferred with a decision recorded."
+  - "The next phase's ticket exists and is linked."
+  - "Hours logged on the sub-tasks, against the work they belonged to."
+  - "KB updated if schema, API or a documented behaviour changed."
+
+# ─── WHAT AUTOMATION CHECKS ──────────────────────────────────────────────────
+# The rules a hygiene run can decide on its own. Everything else is a human call.
+# Intended consumer: a weekly Jira conformance check that reports per-story
+# findings and mails the PO.
+
+conformance_checks:
+  - id: AC_PLACEHOLDER
+    severity: high
+    applies_to: [Story, Sub-task]
+    check: "acceptance_criteria matches /please enter acceptance criteria/i"
+  - id: AC_MISSING
+    severity: high
+    applies_to: [Story, Epic]
+    check: "acceptance_criteria empty, or fewer than min_criteria numbered items"
+  - id: AC_VAGUE
+    severity: medium
+    applies_to: [Story]
+    check: "acceptance_criteria contains any forbidden_phrases entry"
+  - id: PRIORITY_MISSING
+    severity: medium
+    applies_to: [Story]
+    check: "issue_priority empty"
+  - id: POINTS_MISSING
+    severity: high
+    applies_to: [Story]
+    check: "story_points empty and status is not Open/Backlog"
+  - id: SPECIALTY_MISSING
+    severity: medium
+    applies_to: [Story, Defect, Task]
+    check: "summary does not start with a specialty from defect-specialties.yaml or Platform, followed by ' - '"
+  - id: SCHEDULED_BEFORE_BLOCKER
+    severity: high
+    applies_to: [Story, Defect]
+    check: "an open 'is blocked by' issue sits in a later sprint, or in no sprint while this one is in a sprint"
+  - id: ORDER_LINE_MISSING
+    severity: low
+    applies_to: [Story]
+    check: "has a Blocks link but no 'Order:' line in the description"
+  - id: DEFECT_PHASE_MISSING
+    severity: medium
+    applies_to: [Defect]
+    check: "summary does not end with - SIT, - UAT or - PROD, and has no SIT-TC-/UAT-TC- prefix"
+  - id: DEFECT_TITLE_PREFIX
+    severity: medium
+    applies_to: [Defect]
+    check: "open SIT/UAT defect for PCMH, THL or EoC whose summary does not match defect.tenncare_prefix.pattern (EoC: eoc_pattern)"
+  - id: DEFECT_UNLINKED
+    severity: medium
+    applies_to: [Defect]
+    check: "no Defect link to a story"
+  - id: ESTIMATION_BASIS_MISSING
+    severity: low
+    applies_to: [Story]
+    check: "description has no estimation_basis block"
+  - id: SIBLING_LINK_MISSING
+    severity: high
+    applies_to: [Story]
+    check: "summary ends with a phase after the first in jira.phases (ours - SIT or - UAT) and no Tests/Relates link to the preceding phase"
+  - id: EPIC_LINK_MISSING
+    severity: high
+    applies_to: [Story]
+    check: "epic_link empty"
+  - id: CLONE_INHERITED_FIX_VERSION
+    severity: medium
+    applies_to: [Story]
+    check: "a Cloners link exists and fix_versions equals the clone source's fix_versions"
+  - id: LABEL_CASE
+    severity: low
+    applies_to: [Story, Sub-task, Epic]
+    check: "a label case-insensitively matches an allowed label but is not an exact match"
+  - id: SUBTASKS_MISSING
+    severity: medium
+    applies_to: [Story]
+    check: "story is in an active or next sprint and has no sub-tasks"
+  - id: ASSIGNEE_MISSING
+    severity: low
+    applies_to: [Story, Sub-task]
+    check: "sprint has started and assignee empty"
+  - id: ESTIMATE_ROLLUP_MISMATCH
+    severity: medium
+    applies_to: [Story]
+    check: "story original_estimate differs from the sum of its sub-task original_estimates by more than 30 minutes"
+  - id: STORY_TIME_LOGGED
+    severity: medium
+    applies_to: [Story]
+    check: "time_spent on the story itself is non-zero — hours belong on sub-tasks"
+  - id: WORKLOG_MISSING
+    severity: low
+    applies_to: [Sub-task]
+    check: "sub-task is Done, has an original_estimate and no time_spent"
+  - id: AI_LABEL_MISSING
+    severity: medium
+    applies_to: [Story, Sub-task]
+    check: "no label matching /^AI-/ — the sub-task drops out of both sides of the AI comparison"
+  - id: AI_LABEL_DISAGREEMENT
+    severity: low
+    applies_to: [Story]
+    check: "story is AI-NA while a sub-task is AI-Used, or the reverse"
+  - id: PHASE_SUFFIX_CASE
+    severity: low
+    applies_to: [Story]
+    check: "summary ends with a phase suffix that is not exactly one of jira.phases (ours - DEV, - SIT or - UAT)"
+
+# ─── DECISIONS STILL OPEN ────────────────────────────────────────────────────
+# Named here so they are not quietly settled by whoever writes the next ticket.
+
+open_decisions:
+  ticket_creation_path:
+    question: "Does the pipeline create Jira issues through the API, or keep exporting YAML for manual entry?"
+    today: "Manual. /export-jira writes REQ-{id}-JIRA-BACKLOG.yaml and someone retypes it."
+    cost_of_today: "Priority, dependencies and estimation basis are dropped in re-entry; the AC survive only because someone pastes them."
+    owner: "Tech Lead + PO"
+  ai_productivity_measurement:
+    question: >
+      Is the AI productivity figure derived from estimate-versus-actual on AI-Used
+      sub-tasks, with AI-NA sub-tasks as the control group?
+    why_it_matters: >
+      Hours logged lower because a ticket is tagged AI-Used make the number an input
+      rather than a measurement, and it does not survive the first question about how
+      it was produced. Derived the other way it does, and it splits by person and by
+      sub-task type.
+    owner: "Delivery Lead + Tech Lead"
+  time_logging:
+    question: "Are sub-task estimates set at grooming and hours logged as the work happens, on every sub-task?"
+    blocks: "Deriving the complexity-matrix hours table from actuals instead of from how we use points, and the AI comparison above."
+    owner: "Delivery Lead"
+  feature_key:
+    question: "Sibling links, or a shared feature key on all three phase tickets?"
+    note: "Links are cheaper to adopt; a key is easier to report on. Links are assumed above."
+    owner: "Tech Lead"
+  epic_ready_extras:
+    question: >
+      The enterprise BRD to Jira playbook adds these to an epic's definition of ready: business impact
+      (financial, regulatory, time saved), an initial due date, cost of delay, scope that fits one PI
+      (5 sprints), a t-shirt size, WSJF priority and a funded Work ID. Which of these does Acme Claims require?
+    today: "None of them is in epic_definition_of_ready until the PO and Scrum Master confirm."
+    owner: "PO + Scrum Master"
+  epic_ownership:
+    question: "Who owns an epic in Jira? 'Jira Epic Owner(s)' (customfield_10019) is empty on all 37 UI epics."
+    owner: "PO"

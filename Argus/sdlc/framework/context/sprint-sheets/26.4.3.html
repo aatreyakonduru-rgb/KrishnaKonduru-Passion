@@ -1,0 +1,2539 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="generator" content="Acme Claims artifact kit" />
+<title>Acme Claims Sprint 26.4.3 planning sheet</title>
+<style>
+
+/* Devin artifact kit — self-contained styles for standalone HTML artifacts.
+   Component structure comes from the Devin product design system; the light
+   tokens are the Acme Claims application palette (Figma file 0LlbLSi97a750W7pYtSstr
+   variables Acme/Primary-Purple #5009b5, Secondary-Pale Purple #ebe4ff,
+   color-text #5B6770, color-primary-50 #C2E8FF; the same values as
+   web/src/styles/_colors.scss). Light is the default; dark is applied
+   from `prefers-color-scheme` unless a host theme signal (`?theme=`,
+   `data-theme`, or a `devin:theme` message) says otherwise. */
+
+:root {
+  color-scheme: light;
+
+  --bg-page: 245 245 245;
+  --bg-wash: 250 249 253;
+  --bg-elevated: 255 255 255;
+  --tint-tertiary: 80 9 181 / 0.04;
+  --tint-secondary: 80 9 181 / 0.07;
+  --tint-primary: 80 9 181 / 0.11;
+  --text-primary: 35 30 51;
+  --text-secondary: 91 103 112;
+  --text-tertiary: 91 103 112 / 0.7;
+  --text-accent: 80 9 181;
+  --bg-accent: 80 9 181;
+  --border-secondary: 217 217 217;
+  --border-primary: 200 195 214;
+  --text-green: 0 150 140;
+  --text-orange: 196 140 20;
+  --text-red: 217 0 38;
+  --text-blue: 40 97 187;
+  --text-purple: 121 76 255;
+  --shadow-l1: 0 1px 2px rgb(35 30 51 / 0.08);
+  --shadow-l2: 0 4px 12px rgb(35 30 51 / 0.1);
+
+  --font-sans: "Open Sans", Lato, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "SF Mono", "Roboto Mono", ui-monospace, monospace;
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 10px;
+  --unit: 4px;
+  --max-width: 1120px;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg-page: 24 20 36;
+  --bg-wash: 30 26 44;
+  --bg-elevated: 38 33 54;
+  --tint-tertiary: 255 255 255 / 0.03;
+  --tint-secondary: 255 255 255 / 0.05;
+  --tint-primary: 255 255 255 / 0.08;
+  --text-primary: 255 255 255 / 0.9;
+  --text-secondary: 255 255 255 / 0.56;
+  --text-tertiary: 255 255 255 / 0.4;
+  --text-accent: 183 155 255;
+  --bg-accent: 121 76 255;
+  --border-secondary: 255 255 255 / 0.05;
+  --border-primary: 255 255 255 / 0.1;
+  --text-green: 102 214 214;
+  --text-orange: 243 194 70;
+  --text-red: 255 110 130;
+  --text-blue: 106 151 223;
+  --text-purple: 183 155 255;
+  --shadow-l1: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-l2: 0 4px 12px rgb(0 0 0 / 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+
+    --bg-page: 24 20 36;
+    --bg-wash: 30 26 44;
+    --bg-elevated: 38 33 54;
+    --tint-tertiary: 255 255 255 / 0.03;
+    --tint-secondary: 255 255 255 / 0.05;
+    --tint-primary: 255 255 255 / 0.08;
+    --text-primary: 255 255 255 / 0.9;
+    --text-secondary: 255 255 255 / 0.56;
+    --text-tertiary: 255 255 255 / 0.4;
+    --text-accent: 183 155 255;
+    --bg-accent: 121 76 255;
+    --border-secondary: 255 255 255 / 0.05;
+    --border-primary: 255 255 255 / 0.1;
+    --text-green: 102 214 214;
+    --text-orange: 243 194 70;
+    --text-red: 255 110 130;
+    --text-blue: 106 151 223;
+    --text-purple: 183 155 255;
+    --shadow-l1: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-l2: 0 4px 12px rgb(0 0 0 / 0.5);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: rgb(var(--bg-page));
+  color: rgb(var(--text-primary));
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+:where(button, a, input, select, summary, [tabindex]):focus-visible {
+  outline: 1px solid rgb(var(--bg-accent));
+  outline-offset: 1px;
+  border-radius: var(--radius-sm);
+}
+
+/* ---------- layout ---------- */
+
+.a-shell {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: calc(var(--unit) * 8) calc(var(--unit) * 6) calc(var(--unit) * 16);
+}
+
+.a-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: calc(var(--unit) * 3);
+  padding-bottom: calc(var(--unit) * 4);
+  border-bottom: 1px solid rgb(var(--border-primary));
+}
+
+.a-header__title {
+  margin: 0;
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.a-header__subtitle {
+  margin: calc(var(--unit) * 1) 0 0;
+  color: rgb(var(--text-secondary));
+  font-size: 13px;
+  line-height: 18px;
+  max-width: 68ch;
+}
+
+.a-section {
+  margin-top: calc(var(--unit) * 9);
+}
+
+.a-section__title {
+  margin: 0 0 calc(var(--unit) * 1);
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.a-section__note,
+.a-prose {
+  margin: 0 0 calc(var(--unit) * 4);
+  color: rgb(var(--text-secondary));
+  font-size: 13px;
+  line-height: 20px;
+  max-width: 72ch;
+}
+
+.a-grid {
+  display: grid;
+  gap: calc(var(--unit) * 3);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.a-grid--halves {
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+/* ---------- surfaces ---------- */
+
+.a-panel {
+  background: rgb(var(--bg-elevated));
+  border: 1px solid rgb(var(--border-secondary));
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-l1);
+  padding: calc(var(--unit) * 4);
+}
+
+.a-panel__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: calc(var(--unit) * 2);
+  margin-bottom: calc(var(--unit) * 3);
+}
+
+.a-panel__title {
+  margin: 0;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+}
+
+.a-label {
+  color: rgb(var(--text-tertiary));
+  font-size: 12px;
+  line-height: 16px;
+  text-transform: none;
+}
+
+/* ---------- metrics ---------- */
+
+.a-metric {
+  background: rgb(var(--tint-tertiary));
+  border: 1px solid rgb(var(--border-secondary));
+  border-radius: var(--radius);
+  padding: calc(var(--unit) * 3);
+}
+
+.a-metric__label {
+  color: rgb(var(--text-secondary));
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.a-metric__value {
+  margin-top: calc(var(--unit) * 1);
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.a-metric__delta {
+  margin-top: calc(var(--unit) * 1);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 16px;
+  color: rgb(var(--text-secondary));
+}
+
+.a-metric__delta[data-trend="up"] {
+  color: rgb(var(--text-green));
+}
+
+.a-metric__delta[data-trend="down"] {
+  color: rgb(var(--text-red));
+}
+
+/* ---------- status ---------- */
+
+.a-status {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--unit) * 1.5);
+  font-size: 12px;
+  line-height: 16px;
+  color: rgb(var(--text-secondary));
+  white-space: nowrap;
+}
+
+.a-status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+.a-status[data-state="done"] {
+  color: rgb(var(--text-green));
+}
+
+.a-status[data-state="active"] {
+  color: rgb(var(--text-blue));
+}
+
+.a-status[data-state="at-risk"] {
+  color: rgb(var(--text-orange));
+}
+
+.a-status[data-state="blocked"] {
+  color: rgb(var(--text-red));
+}
+
+.a-status[data-state="planned"] {
+  color: rgb(var(--text-tertiary));
+}
+
+/* ---------- tables ---------- */
+
+.a-table-scroll {
+  overflow-x: auto;
+  border: 1px solid rgb(var(--border-secondary));
+  border-radius: var(--radius);
+  background: rgb(var(--bg-elevated));
+}
+
+.a-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.a-table th,
+.a-table td {
+  text-align: left;
+  padding: calc(var(--unit) * 2) calc(var(--unit) * 3);
+  border-bottom: 1px solid rgb(var(--border-secondary));
+  vertical-align: top;
+}
+
+.a-table thead th {
+  position: sticky;
+  top: 0;
+  background: rgb(var(--bg-wash));
+  color: rgb(var(--text-secondary));
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  z-index: 1;
+}
+
+.a-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.a-table tbody tr:hover td {
+  background: rgb(var(--tint-tertiary));
+}
+
+.a-table td[data-numeric],
+.a-table th[data-numeric] {
+  text-align: right;
+  font-family: var(--font-mono);
+}
+
+/* ---------- charts (inline SVG + CSS bars) ---------- */
+
+.a-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.a-chart__grid line {
+  stroke: rgb(var(--border-primary));
+  stroke-dasharray: 2 3;
+}
+
+.a-chart__axis text {
+  fill: rgb(var(--text-tertiary));
+  font-size: 10px;
+  font-family: var(--font-mono);
+}
+
+.a-chart__series {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.a-chart__point {
+  stroke: rgb(var(--bg-elevated));
+  stroke-width: 1.5;
+}
+
+.a-bars {
+  display: grid;
+  gap: calc(var(--unit) * 2);
+  margin: 0;
+}
+
+.a-bars__row {
+  display: grid;
+  grid-template-columns: minmax(88px, 22%) 1fr auto;
+  align-items: center;
+  gap: calc(var(--unit) * 2);
+  font-size: 13px;
+}
+
+.a-bars__track {
+  height: 8px;
+  border-radius: 999px;
+  background: rgb(var(--tint-secondary));
+  overflow: hidden;
+}
+
+.a-bars__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: rgb(var(--bg-accent));
+}
+
+.a-bars__value {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: rgb(var(--text-secondary));
+}
+
+.a-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--unit) * 3);
+  margin: calc(var(--unit) * 3) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  color: rgb(var(--text-secondary));
+}
+
+.a-legend li {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--unit) * 1.5);
+}
+
+.a-legend__swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex: none;
+}
+
+/* Series colors stay stable across themes so legends keep meaning. */
+.a-series-1 {
+  --series: 49 124 255;
+}
+.a-series-2 {
+  --series: 0 165 88;
+}
+.a-series-3 {
+  --series: 149 108 222;
+}
+.a-series-4 {
+  --series: 245 142 58;
+}
+
+.a-chart__series.a-series-1,
+.a-chart__series.a-series-2,
+.a-chart__series.a-series-3,
+.a-chart__series.a-series-4 {
+  stroke: rgb(var(--series));
+}
+
+.a-chart__point.a-series-1,
+.a-chart__point.a-series-2,
+.a-chart__point.a-series-3,
+.a-chart__point.a-series-4 {
+  fill: rgb(var(--series));
+}
+
+.a-series-1 .a-legend__swatch,
+.a-series-2 .a-legend__swatch,
+.a-series-3 .a-legend__swatch,
+.a-series-4 .a-legend__swatch {
+  background: rgb(var(--series));
+}
+
+.a-chart__bar.a-series-1,
+.a-chart__bar.a-series-2,
+.a-chart__bar.a-series-3,
+.a-chart__bar.a-series-4 {
+  fill: rgb(var(--series));
+}
+
+/* Dimming the rest of the plot reads as "this is the value you asked for"
+   without moving anything, which keeps the highlight legible under
+   reduced motion. */
+.a-chart__bar,
+.a-chart__point,
+.a-chart__series {
+  transition: opacity 120ms ease;
+}
+
+.a-chart__plot:has([data-a-active]) .a-chart__bar:not([data-a-active]) {
+  opacity: 0.45;
+}
+
+.a-chart__point[data-a-active] {
+  r: 4.25;
+}
+
+.a-chart__crosshair {
+  stroke: rgb(var(--border-primary));
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+.a-chart__band {
+  fill: transparent;
+  /* Vertical scrolling must still work when a finger lands on the plot. */
+  touch-action: pan-y;
+}
+
+.a-chart__band[data-a-active] {
+  fill: rgb(var(--tint-secondary));
+}
+
+.a-chart__band:focus-visible {
+  outline: 1px solid rgb(var(--bg-accent));
+  outline-offset: -2px;
+}
+
+.a-chart {
+  touch-action: pan-y;
+}
+
+/* Shown in place of the plot when a filter leaves the source table empty. */
+.a-chart__empty {
+  margin: 0 0 calc(var(--unit) * 3);
+  padding: calc(var(--unit) * 6) 0;
+  border: 1px dashed rgb(var(--border-secondary));
+  border-radius: var(--radius);
+  color: rgb(var(--text-secondary));
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ---------- tooltip ---------- */
+
+.a-tip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 40;
+  min-width: 120px;
+  max-width: 260px;
+  padding: calc(var(--unit) * 2) calc(var(--unit) * 2.5);
+  border: 1px solid rgb(var(--border-secondary));
+  border-radius: var(--radius);
+  background: rgb(var(--bg-elevated));
+  box-shadow: var(--shadow-l2);
+  color: rgb(var(--text-primary));
+  font-size: 12px;
+  line-height: 16px;
+  pointer-events: none;
+}
+
+.a-tip__title {
+  margin-bottom: var(--unit);
+  font-weight: 600;
+  color: rgb(var(--text-primary));
+}
+
+.a-tip__text {
+  color: rgb(var(--text-secondary));
+}
+
+.a-tip__row {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--unit) * 1.5);
+  white-space: nowrap;
+}
+
+.a-tip__swatch {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 2px;
+  background: rgb(var(--series, var(--bg-accent)));
+}
+
+.a-tip__name {
+  color: rgb(var(--text-secondary));
+}
+
+.a-tip__value {
+  margin-left: auto;
+  padding-left: calc(var(--unit) * 2);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- controls: tabs, filters, toggles ---------- */
+
+.a-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--unit) * 2);
+  margin-bottom: calc(var(--unit) * 4);
+}
+
+.a-tabs {
+  display: flex;
+  gap: calc(var(--unit) * 1);
+  padding: 2px;
+  background: rgb(var(--tint-tertiary));
+  border: 1px solid rgb(var(--border-secondary));
+  border-radius: var(--radius);
+}
+
+.a-btn {
+  appearance: none;
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgb(var(--text-secondary));
+  font: inherit;
+  font-size: 13px;
+  padding: calc(var(--unit) * 1) calc(var(--unit) * 2.5);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.a-btn:hover {
+  background: rgb(var(--tint-secondary));
+  color: rgb(var(--text-primary));
+}
+
+.a-btn[aria-selected="true"],
+.a-btn[aria-pressed="true"] {
+  background: rgb(var(--bg-elevated));
+  border-color: rgb(var(--border-primary));
+  color: rgb(var(--text-primary));
+  box-shadow: var(--shadow-l1);
+}
+
+.a-btn--outline {
+  border-color: rgb(var(--border-primary));
+  background: rgb(var(--bg-elevated));
+}
+
+.a-btn--icon {
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  place-items: center;
+}
+
+.a-theme-icon {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.a-theme-icon--moon {
+  display: none;
+}
+
+:root[data-theme="dark"] .a-theme-icon--sun {
+  display: none;
+}
+
+:root[data-theme="dark"] .a-theme-icon--moon {
+  display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .a-theme-icon--sun {
+    display: none;
+  }
+
+  :root:not([data-theme]) .a-theme-icon--moon {
+    display: block;
+  }
+}
+
+.a-select {
+  appearance: none;
+  font: inherit;
+  font-size: 13px;
+  color: rgb(var(--text-primary));
+  background: rgb(var(--bg-elevated));
+  border: 1px solid rgb(var(--border-primary));
+  border-radius: var(--radius-sm);
+  padding: calc(var(--unit) * 1) calc(var(--unit) * 2);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ---------- diagram ---------- */
+
+.a-diagram {
+  position: relative;
+  background: rgb(var(--bg-wash));
+  border: 1px solid rgb(var(--border-secondary));
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.a-diagram__canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: none;
+  cursor: grab;
+}
+
+.a-diagram__canvas:active {
+  cursor: grabbing;
+}
+
+.a-group rect {
+  fill: rgb(var(--tint-tertiary));
+  stroke: rgb(var(--border-primary));
+  stroke-dasharray: 4 4;
+  rx: 10;
+}
+
+.a-group text {
+  fill: rgb(var(--text-tertiary));
+  font-size: 10px;
+  font-family: var(--font-mono);
+}
+
+.a-node rect {
+  fill: rgb(var(--bg-elevated));
+  stroke: rgb(var(--border-primary));
+  rx: 8;
+}
+
+.a-node__title {
+  fill: rgb(var(--text-primary));
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.a-node__sub {
+  fill: rgb(var(--text-secondary));
+  font-size: 10px;
+  font-family: var(--font-mono);
+}
+
+.a-node {
+  cursor: pointer;
+}
+
+.a-node:hover rect,
+.a-node:focus-visible rect {
+  stroke: rgb(var(--bg-accent));
+}
+
+.a-node[aria-current="true"] rect {
+  stroke: rgb(var(--bg-accent));
+  stroke-width: 2;
+}
+
+.a-edge {
+  fill: none;
+  stroke: rgb(var(--text-tertiary));
+  stroke-width: 1.25;
+}
+
+.a-edge--dim {
+  stroke: rgb(var(--border-primary));
+}
+
+.a-edge__label {
+  fill: rgb(var(--text-tertiary));
+  font-size: 10px;
+  font-family: var(--font-mono);
+}
+
+.a-inspector {
+  border-top: 1px solid rgb(var(--border-secondary));
+  background: rgb(var(--bg-elevated));
+  padding: calc(var(--unit) * 3) calc(var(--unit) * 4);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.a-inspector__title {
+  margin: 0 0 calc(var(--unit) * 1);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ---------- plan / process ---------- */
+
+.a-phase {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: calc(var(--unit) * 3);
+  padding: calc(var(--unit) * 4) 0;
+  border-bottom: 1px solid rgb(var(--border-secondary));
+}
+
+.a-phase:last-child {
+  border-bottom: none;
+}
+
+.a-phase__index {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: rgb(var(--text-tertiary));
+  padding-top: 2px;
+}
+
+.a-phase__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: calc(var(--unit) * 2);
+  justify-content: space-between;
+}
+
+.a-phase__title {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.a-meta-list {
+  display: grid;
+  gap: calc(var(--unit) * 1);
+  margin: calc(var(--unit) * 2) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+  color: rgb(var(--text-secondary));
+}
+
+.a-meta-list li,
+.a-meta-list > div {
+  display: grid;
+  grid-template-columns: minmax(96px, 15%) 1fr;
+  gap: calc(var(--unit) * 2);
+}
+
+.a-meta-list dt,
+.a-meta-list .a-meta-list__key {
+  color: rgb(var(--text-tertiary));
+  font-size: 12px;
+}
+
+.a-meta-list dd {
+  margin: 0;
+}
+
+.a-timeline {
+  display: grid;
+  gap: calc(var(--unit) * 1);
+  margin: 0;
+  font-size: 12px;
+}
+
+.a-timeline__row {
+  display: grid;
+  grid-template-columns: minmax(120px, 20%) 1fr;
+  align-items: center;
+  gap: calc(var(--unit) * 2);
+}
+
+.a-timeline__track {
+  position: relative;
+  height: 10px;
+  background: rgb(var(--tint-tertiary));
+  border-radius: var(--radius-sm);
+}
+
+.a-timeline__span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: var(--radius-sm);
+  background: rgb(var(--bg-accent) / 0.75);
+}
+
+.a-timeline__span[data-state="at-risk"] {
+  background: rgb(var(--text-orange) / 0.75);
+}
+
+.a-timeline__span[data-state="done"] {
+  background: rgb(var(--text-green) / 0.7);
+}
+
+.a-timeline__scale {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  color: rgb(var(--text-tertiary));
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.a-callout {
+  border: 1px solid rgb(var(--border-secondary));
+  border-left: 2px solid rgb(var(--text-orange));
+  border-radius: var(--radius-sm);
+  background: rgb(var(--tint-tertiary));
+  padding: calc(var(--unit) * 3);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.a-callout--decision {
+  border-left-color: rgb(var(--bg-accent));
+}
+
+.a-callout--risk {
+  border-left-color: rgb(var(--text-red));
+}
+
+.a-callout__title {
+  margin: 0 0 calc(var(--unit) * 1);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+details.a-disclosure {
+  border-top: 1px solid rgb(var(--border-secondary));
+  padding: calc(var(--unit) * 2) 0;
+}
+
+details.a-disclosure > summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: rgb(var(--text-secondary));
+  list-style: none;
+}
+
+details.a-disclosure > summary::marker,
+details.a-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+details.a-disclosure > summary::before {
+  content: "+ ";
+  font-family: var(--font-mono);
+}
+
+details.a-disclosure[open] > summary::before {
+  content: "− ";
+}
+
+/* ---------- empty and error states ---------- */
+
+.a-empty,
+.a-error {
+  border: 1px dashed rgb(var(--border-primary));
+  border-radius: var(--radius);
+  padding: calc(var(--unit) * 6);
+  text-align: center;
+  color: rgb(var(--text-secondary));
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.a-error {
+  border-style: solid;
+  border-color: rgb(var(--text-red) / 0.4);
+  color: rgb(var(--text-primary));
+  text-align: left;
+}
+
+.a-error__title {
+  margin: 0 0 calc(var(--unit) * 1);
+  font-size: 13px;
+  font-weight: 600;
+  color: rgb(var(--text-red));
+}
+
+.a-footnote {
+  margin-top: calc(var(--unit) * 10);
+  padding-top: calc(var(--unit) * 4);
+  border-top: 1px solid rgb(var(--border-secondary));
+  color: rgb(var(--text-tertiary));
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.a-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 640px) {
+  .a-shell {
+    padding: calc(var(--unit) * 5) calc(var(--unit) * 4)
+      calc(var(--unit) * 12);
+  }
+
+  .a-header__title {
+    font-size: 18px;
+    line-height: 24px;
+  }
+
+  .a-bars__row,
+  .a-timeline__row,
+  .a-meta-list li,
+  .a-meta-list > div {
+    grid-template-columns: 1fr;
+    gap: calc(var(--unit) * 1);
+  }
+
+  .a-phase {
+    grid-template-columns: 1fr;
+  }
+
+  .a-phase__index {
+    padding-top: 0;
+  }
+
+  .a-toolbar {
+    align-items: stretch;
+  }
+
+  .a-tabs {
+    overflow-x: auto;
+  }
+}
+
+/* ---------- motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- print / export ---------- */
+
+@media print {
+  :root[data-theme],
+  :root:not([data-theme]) {
+    color-scheme: light only;
+    --bg-page: 252 252 252;
+    --bg-wash: 248 248 248;
+    --bg-elevated: 255 255 255;
+    --tint-tertiary: 0 0 0 / 0.04;
+    --tint-secondary: 0 0 0 / 0.06;
+    --tint-primary: 0 0 0 / 0.08;
+    --text-primary: 25 25 25;
+    --text-secondary: 25 25 25 / 0.64;
+    --text-tertiary: 25 25 25 / 0.4;
+    --text-accent: 49 124 255;
+    --bg-accent: 49 124 255;
+    --border-secondary: 0 0 0 / 0.08;
+    --border-primary: 0 0 0 / 0.1;
+    --text-green: 0 165 88;
+    --text-orange: 245 142 58;
+    --text-red: 245 59 58;
+    --text-blue: 51 125 244;
+    --text-purple: 149 108 222;
+    --shadow-l1: none;
+    --shadow-l2: none;
+  }
+
+  body {
+    background: #fff;
+    color: #111;
+  }
+
+  .a-no-print,
+  .a-toolbar,
+  .a-diagram__hint {
+    display: none !important;
+  }
+
+  .a-panel,
+  .a-table-scroll,
+  .a-diagram {
+    box-shadow: none;
+    break-inside: avoid;
+  }
+
+  .a-section {
+    break-inside: avoid;
+    margin-top: 24px;
+  }
+
+  [hidden].a-print-reveal {
+    display: revert !important;
+  }
+}
+    
+/* Acme Claims theme on top of the artifact kit: the Acme Claims application look from the Figma Acme Claims file and
+   web/src/styles/_colors.scss — Acme purple header band (#5009b5 → #794cff) with a sky
+   rule (#C2E8FF), purple section bars, pale-purple table headers (#ebe4ff) with dark text, purple
+   selected tab, teal (#00bbaa) callouts, status colours #53b1a3 / #f3c246 / #d90026. The palette
+   lives in the tokens below; the rest of this file only uses tokens so light, dark and print
+   stay consistent. The old token names (--brand-navy*, --brand-gold) are kept as aliases so pages
+   written against them still render. */
+
+:root {
+  --brand-purple: 80 9 181;
+  --brand-purple-mid: 100 40 220;
+  --brand-purple-light: 121 76 255;
+  --brand-pale: 235 228 255;
+  --brand-sky: 194 232 255;
+  --brand-teal: 0 187 170;
+  --brand-slate: 91 103 112;
+  --brand-wash: 235 228 255;
+  --brand-wash-soft: 245 242 255;
+  --brand-line: 217 217 217;
+  --brand-heading: 35 30 51;
+  --brand-success: 83 177 163;
+  --brand-warning: 243 194 70;
+  --brand-error: 217 0 38;
+
+  --brand-navy: var(--brand-purple);
+  --brand-navy-mid: var(--brand-purple-mid);
+  --brand-navy-light: var(--brand-purple-light);
+  --brand-gold: var(--brand-sky);
+}
+
+:root:not([data-theme="dark"]) {
+  --bg-page: 245 245 245;
+  --bg-elevated: 255 255 255;
+  --text-accent: 80 9 181;
+  --bg-accent: 80 9 181;
+  --border-primary: 200 195 214;
+  --border-secondary: 217 217 217;
+}
+
+:root[data-theme="dark"] {
+  --brand-wash: 255 255 255 / 0.08;
+  --brand-wash-soft: 255 255 255 / 0.04;
+  --brand-line: 255 255 255 / 0.12;
+  --brand-heading: 255 255 255 / 0.9;
+  --text-accent: 183 155 255;
+  --bg-accent: 121 76 255;
+}
+
+/* Acme Claims pages use the whole window; text runs the full width of the page. */
+.a-shell { --max-width: none; }
+.a-prose, .a-section__note, .a-header__subtitle { max-width: none; }
+
+/* The page header is one slim purple strip, like Argus bar: title and the details line on the
+   left (cut short with an ellipsis, the full text is the tooltip), chips and the theme switch on the right. */
+.a-shell { padding-top: calc(var(--unit) * 3); }
+.a-header {
+  background: linear-gradient(135deg, rgb(var(--brand-purple)) 0%, rgb(var(--brand-purple-mid)) 60%,
+    rgb(var(--brand-purple-light)) 100%);
+  color: #fff;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: calc(var(--unit) * 4);
+  min-height: 44px;
+  padding: 6px 16px;
+  border-radius: var(--radius);
+  margin-bottom: calc(var(--unit) * 3);
+  border-bottom: 3px solid rgb(var(--brand-sky));
+}
+.a-header > div:first-child {
+  display: flex;
+  align-items: baseline;
+  gap: calc(var(--unit) * 3);
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+.a-header .a-header__title { font-size: 16px; line-height: 22px; white-space: nowrap; flex: none; }
+.a-header .a-header__subtitle {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 0 1 auto;
+}
+.a-header .a-header__aside { flex: none; flex-wrap: nowrap; gap: calc(var(--unit) * 1.5); }
+.a-header .a-chip { padding: 1px calc(var(--unit) * 2); font-size: 11px; }
+@media (max-width: 760px) {
+  .a-header { flex-wrap: wrap; }
+  .a-header > div:first-child { flex-basis: 100%; }
+  .a-header .a-header__aside { flex-wrap: wrap; }
+}
+@media print { .a-header { min-height: 0; padding: 4px 0; } }
+
+.a-header__title { color: #fff; letter-spacing: 0.2px; }
+.a-header__subtitle { color: rgb(255 255 255 / 0.82); }
+.a-header .a-btn { color: #fff; }
+.a-header .a-btn:hover { background: rgb(255 255 255 / 0.12); }
+.a-header .a-chip {
+  background: rgb(255 255 255 / 0.12);
+  border-color: rgb(255 255 255 / 0.3);
+  color: #fff;
+}
+
+.a-section__title {
+  color: rgb(var(--brand-heading));
+  border-left: 5px solid rgb(var(--brand-purple));
+  padding-left: 12px;
+}
+
+h3, h4 { color: rgb(var(--brand-heading)); }
+
+.a-tabs {
+  background: rgb(var(--brand-wash));
+  border: 1px solid rgb(var(--brand-line));
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.a-tabs .a-btn { color: rgb(var(--brand-heading)); }
+
+.a-tabs .a-btn[aria-selected="true"] {
+  background: rgb(var(--brand-purple));
+  color: #fff;
+  box-shadow: 0 1px 3px rgb(var(--brand-purple) / 0.3);
+}
+
+.a-metric {
+  background: rgb(var(--bg-elevated));
+  border: 1px solid rgb(var(--brand-line));
+  border-top: 4px solid rgb(var(--brand-purple));
+  border-radius: 8px;
+}
+
+.a-metric:nth-child(2) { border-top-color: rgb(var(--brand-teal)); }
+.a-metric:nth-child(3) { border-top-color: rgb(var(--brand-purple-light)); }
+.a-metric:nth-child(4) { border-top-color: rgb(var(--brand-warning)); }
+.a-metric__value { color: rgb(var(--brand-heading)); }
+
+.a-table thead th {
+  background: rgb(var(--brand-wash));
+  color: rgb(var(--brand-heading));
+  font-weight: 600;
+  border-bottom: 2px solid rgb(var(--brand-purple));
+}
+
+.a-table tbody tr:nth-child(even) { background: rgb(var(--brand-wash-soft)); }
+.a-table tbody tr:hover { background: rgb(var(--brand-wash)); }
+.a-table tbody th { color: rgb(var(--brand-heading)); }
+
+.a-callout {
+  background: rgb(var(--brand-wash-soft));
+  border-left: 5px solid rgb(var(--brand-teal));
+  border-radius: var(--radius);
+}
+
+.a-callout__title { color: rgb(var(--brand-heading)); }
+.a-panel { border: 1px solid rgb(var(--brand-line)); border-radius: 8px; }
+.a-disclosure summary { color: rgb(var(--brand-heading)); font-weight: 500; }
+.a-chart { --a-series-1: var(--brand-purple); --a-series-2: var(--brand-teal); --a-series-3: var(--brand-warning); }
+
+td, th { text-align: left; }
+td[data-numeric], th[data-numeric] { text-align: right; }
+
+.a-header__aside {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: calc(var(--unit) * 2);
+}
+
+/* ---------- attention levels (dashboard tabs, chips, rows) ---------- */
+
+[data-attention="hot"] { --attention: var(--text-red); }
+[data-attention="watch"] { --attention: var(--text-orange); }
+[data-attention="info"] { --attention: var(--text-blue); }
+[data-attention="action"] { --attention: var(--text-purple); }
+[data-attention="clear"] { --attention: var(--text-green); }
+
+.a-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--unit) * 1.5);
+  padding: 2px calc(var(--unit) * 2.5);
+  border: 1px solid rgb(var(--border-secondary));
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgb(var(--attention, var(--text-secondary)));
+  background: rgb(var(--bg-elevated));
+}
+
+.a-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgb(var(--attention, var(--text-tertiary)));
+  flex: none;
+}
+
+/* ---------- wrapping tab strip with badges ---------- */
+
+.a-tabs--wrap {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  margin-top: calc(var(--unit) * 2);
+}
+
+.a-tabs--wrap .a-btn {
+  flex: none;
+  padding: 3px calc(var(--unit) * 2.5);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--unit) * 1.5);
+}
+
+.a-tabs--wrap .a-btn[aria-selected="true"] {
+  box-shadow: inset 3px 0 0 rgb(var(--attention, var(--bg-accent))), var(--shadow-l1);
+}
+
+.a-badge {
+  padding: 0 calc(var(--unit) * 1.5);
+  border-radius: 999px;
+  background: rgb(var(--tint-primary));
+  font-size: 11px;
+  font-weight: 600;
+  color: rgb(var(--text-primary));
+}
+
+/* ---------- form controls ---------- */
+
+.a-field {
+  display: block;
+  margin-top: calc(var(--unit) * 2);
+  font-size: 13px;
+  color: rgb(var(--text-secondary));
+}
+
+.a-input,
+.a-field input,
+.a-field select,
+.a-field textarea,
+.a-table input,
+.a-table select,
+.a-table textarea {
+  width: 100%;
+  margin-top: calc(var(--unit) * 1);
+  padding: calc(var(--unit) * 1.5) calc(var(--unit) * 2);
+  border: 1px solid rgb(var(--border-primary));
+  border-radius: var(--radius-sm);
+  background: rgb(var(--bg-elevated));
+  color: rgb(var(--text-primary));
+  font: inherit;
+  font-size: 13px;
+}
+
+.a-table input,
+.a-table select {
+  min-width: 170px;
+}
+
+textarea.a-input,
+.a-field textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.a-btn--primary {
+  background: rgb(var(--bg-accent));
+  border-color: rgb(var(--bg-accent));
+  color: #fff;
+  font-weight: 600;
+}
+
+.a-btn--primary:hover {
+  background: rgb(var(--bg-accent) / 0.88);
+  color: #fff;
+}
+
+.a-fieldset {
+  border: 1px solid rgb(var(--border-secondary));
+  border-radius: var(--radius);
+  margin: calc(var(--unit) * 3) 0;
+  padding: calc(var(--unit) * 1) calc(var(--unit) * 3) calc(var(--unit) * 3);
+}
+
+.a-fieldset legend {
+  color: rgb(var(--text-secondary));
+  font-size: 12px;
+  padding: 0 calc(var(--unit) * 1);
+}
+
+/* ---------- row emphasis ---------- */
+
+.a-table tr[data-attention] td:first-child {
+  box-shadow: inset 3px 0 0 rgb(var(--attention));
+}
+
+.a-table tr[data-attention="hot"] td { background: rgb(var(--text-red) / 0.07); }
+.a-table tr[data-attention="watch"] td { background: rgb(var(--text-orange) / 0.09); }
+.a-table tr[data-attention="clear"] td { background: rgb(var(--text-green) / 0.07); }
+
+.a-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.a-pre {
+  white-space: pre-wrap;
+  margin: 0;
+  padding: calc(var(--unit) * 2);
+  border-radius: var(--radius-sm);
+  background: rgb(var(--tint-tertiary));
+  font: inherit;
+}
+
+.a-mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+/* end acme.css */
+
+
+.ss{border-collapse:collapse;font-size:12px}
+.ss th,.ss td{border:1px solid var(--a-border,#d0d5dd);padding:0;white-space:nowrap}
+.ss thead th,.ss tbody th{background:var(--a-surface-2,#f2f4f7);padding:2px 6px;font-weight:600;position:sticky;top:0}
+.ss tbody th{position:sticky;left:0;z-index:1;width:3.5ch;min-width:3.5ch;font-weight:400;font-size:10px;color:var(--a-muted,#667085)}
+.ss thead th{white-space:normal;max-width:16ch;vertical-align:bottom;z-index:2}
+.ss thead th:first-child{left:0;z-index:3}
+.ss .ss-who{position:sticky;left:calc(3.5ch + 12px);z-index:1;background:var(--a-surface,#fff);box-shadow:2px 0 0 var(--a-border,#d0d5dd)}
+.ss thead th.ss-who{z-index:3;background:var(--a-surface-2,#f2f4f7)}
+.ss td{padding:2px 6px}
+.ss td:has(input){padding:0}
+.ss input{border:0;background:transparent;font:inherit;padding:2px 4px;width:7ch;color:inherit}
+.ss input:focus{outline:2px solid #1b6ef3;background:#fff;color:#111}
+.ss .ss-f{background:rgba(27,110,243,.06)}
+.ss .ss-off{background:#f8d7da}
+.ss .ss-half{background:#fff3cd}
+.ss .ss-hol{background:#d1e7dd}
+.ss .ss-wkend{background:var(--a-surface-2,#f2f4f7);color:#98a2b3}
+.ss .ss-err{color:#b42318}
+.ss .ss-hide{display:none}
+.ss-sum{display:flex;gap:1.5rem;flex-wrap:wrap;margin:.5rem 0}
+.ss-sum b{font-size:1.2em}
+
+</style>
+</head>
+<body class="">
+<main class="a-shell">
+<header class="a-header"><div><h1 class="a-header__title">Acme Claims Sprint 26.4.3 planning sheet</h1><p class="a-header__subtitle" title="Capacity, carry forward and AI savings, with the sheet&#x27;s formulas. Kept in the repo; days off also go to the Acme Claims Sprint Leave page.">Capacity, carry forward and AI savings, with the sheet's formulas. Kept in the repo; days off also go to the Acme Claims Sprint Leave page.</p></div>
+<div class="a-header__aside"><button type="button" class="a-btn a-btn--icon a-no-print" data-a-theme-toggle aria-label="Switch to dark mode" title="Switch to dark mode"><svg class="a-theme-icon a-theme-icon--moon" aria-hidden="true" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z" /></svg><svg class="a-theme-icon a-theme-icon--sun" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg></button></div></header>
+<section class="a-section a-error" data-a-error role="alert" aria-live="polite" hidden><p class="a-error__title">Something in this page failed to run</p><p>The content below is still readable, but an interactive control may not respond. <span data-a-error-detail></span></p></section>
+<div class="ss-sum"><span>Team hours <b data-total="AD23">1620</b></span><span>Story points <b data-total="AD24">202.5</b></span><span>Story points with AI <b data-total="AD26">263.25</b></span><span>2026-10-28 to 2026-11-17</span></div><p class="a-section__note">Day cells: <b>1</b> in, <b>0</b> off, <b>0.5</b> half day, <b>H</b> holiday. Available hours = sum of the day cells × productive hours × % on project; points = team hours ÷ 8; with AI = points × the AI factor. Shaded cells are formulas.</p><div data-a-tabs role="tablist"><button type="button" class="a-btn" role="tab" aria-controls="ss-tab-0" aria-selected="true">Capacity</button><button type="button" class="a-btn" role="tab" aria-controls="ss-tab-1">Carry forward</button><button type="button" class="a-btn" role="tab" aria-controls="ss-tab-2">Previous sprint AI savings</button></div><section role="tabpanel" id="ss-tab-0"><div class="a-table-scroll"><table class="ss" data-days='["I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC"]' data-tab="Capacity"><thead><tr><th></th><th title="Column A">Productive Hours =6</th><th title="Column B">B</th><th class="ss-who" title="Column C">Team  Member</th><th class="ss-hide" title="Column D">PTO Plan</th><th title="Column E">E</th><th title="Column F">Office Location</th><th title="Column G">%age of time on Project</th><th title="Column H">H</th><th title="Column I">28 W</th><th title="Column J">29 T</th><th title="Column K">30 F</th><th title="Column L">31 S</th><th title="Column M">1 S</th><th title="Column N">2 M</th><th title="Column O">3 T</th><th title="Column P">4 W</th><th title="Column Q">5 T</th><th title="Column R">6 F</th><th title="Column S">7 S</th><th title="Column T">8 S</th><th title="Column U">9 M</th><th title="Column V">10 T</th><th title="Column W">11 W</th><th title="Column X">12 T</th><th title="Column Y">13 F</th><th title="Column Z">14 S</th><th title="Column AA">15 S</th><th title="Column AB">16 M</th><th title="Column AC">17 T</th><th title="Column AD">Available hours</th><th title="Column AE">Calc.</th></tr></thead><tbody><tr><th>1</th><td><input data-ref="A1" aria-label="Productive Hours =6, Productive Hours =6 (A1)" data-raw="Productive Hours =6" value="Productive Hours =6" style="width:15ch"></td><td><input data-ref="B1" aria-label="Productive Hours =6, B (B1)" data-raw="6" value="6" style="width:6ch"></td><td class="ss-who"><input data-ref="C1" aria-label="Productive Hours =6, Team  Member (C1)" data-raw="Sprint Days = 15" value="Sprint Days = 15" style="width:27ch"></td><td class="ss-hide"><input data-ref="D1" aria-label="Productive Hours =6, PTO Plan (D1)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E1" aria-label="Productive Hours =6, E (E1)" data-raw="" value="" style="width:14ch"></td><td><input data-ref="F1" aria-label="Productive Hours =6, Office Location (F1)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="G1" aria-label="Productive Hours =6, %age of time on Project (G1)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="H1" aria-label="Productive Hours =6, H (H1)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I1" aria-label="Productive Hours =6, 28 W (I1)" data-raw="28" value="28" style="width:9ch"></td><td><input data-ref="J1" aria-label="Productive Hours =6, 29 T (J1)" data-raw="29" value="29" style="width:9ch"></td><td><input data-ref="K1" aria-label="Productive Hours =6, 30 F (K1)" data-raw="30" value="30" style="width:9ch"></td><td><input data-ref="L1" aria-label="Productive Hours =6, 31 S (L1)" data-raw="31" value="31" style="width:9ch"></td><td><input data-ref="M1" aria-label="Productive Hours =6, 1 S (M1)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="N1" aria-label="Productive Hours =6, 2 M (N1)" data-raw="2" value="2" style="width:9ch"></td><td><input data-ref="O1" aria-label="Productive Hours =6, 3 T (O1)" data-raw="3" value="3" style="width:9ch"></td><td><input data-ref="P1" aria-label="Productive Hours =6, 4 W (P1)" data-raw="4" value="4" style="width:9ch"></td><td><input data-ref="Q1" aria-label="Productive Hours =6, 5 T (Q1)" data-raw="5" value="5" style="width:9ch"></td><td><input data-ref="R1" aria-label="Productive Hours =6, 6 F (R1)" data-raw="6" value="6" style="width:9ch"></td><td><input data-ref="S1" aria-label="Productive Hours =6, 7 S (S1)" data-raw="7" value="7" style="width:9ch"></td><td><input data-ref="T1" aria-label="Productive Hours =6, 8 S (T1)" data-raw="8" value="8" style="width:9ch"></td><td><input data-ref="U1" aria-label="Productive Hours =6, 9 M (U1)" data-raw="9" value="9" style="width:9ch"></td><td><input data-ref="V1" aria-label="Productive Hours =6, 10 T (V1)" data-raw="10" value="10" style="width:9ch"></td><td><input data-ref="W1" aria-label="Productive Hours =6, 11 W (W1)" data-raw="11" value="11" style="width:9ch"></td><td><input data-ref="X1" aria-label="Productive Hours =6, 12 T (X1)" data-raw="12" value="12" style="width:9ch"></td><td><input data-ref="Y1" aria-label="Productive Hours =6, 13 F (Y1)" data-raw="13" value="13" style="width:9ch"></td><td><input data-ref="Z1" aria-label="Productive Hours =6, 14 S (Z1)" data-raw="14" value="14" style="width:9ch"></td><td><input data-ref="AA1" aria-label="Productive Hours =6, 15 S (AA1)" data-raw="15" value="15" style="width:9ch"></td><td><input data-ref="AB1" aria-label="Productive Hours =6, 16 M (AB1)" data-raw="16" value="16" style="width:9ch"></td><td><input data-ref="AC1" aria-label="Productive Hours =6, 17 T (AC1)" data-raw="17" value="17" style="width:9ch"></td><td><input data-ref="AD1" aria-label="Productive Hours =6, Available hours (AD1)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="AE1" aria-label="Productive Hours =6, Calc. (AE1)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>2</th><td><input data-ref="A2" aria-label="Team  Member, Productive Hours =6 (A2)" data-raw="" value="" style="width:15ch"></td><td><input data-ref="B2" aria-label="Team  Member, B (B2)" data-raw="" value="" style="width:6ch"></td><td class="ss-who"><input data-ref="C2" aria-label="Team  Member, Team  Member (C2)" data-raw="Team  Member" value="Team  Member" style="width:27ch"></td><td class="ss-hide"><input data-ref="D2" aria-label="Team  Member, PTO Plan (D2)" data-raw="PTO Plan" value="PTO Plan" style="width:28ch"></td><td><input data-ref="E2" aria-label="Team  Member, E (E2)" data-raw="" value="" style="width:14ch"></td><td><input data-ref="F2" aria-label="Team  Member, Office Location (F2)" data-raw="Office Location" value="Office Location" style="width:9ch"></td><td><input data-ref="G2" aria-label="Team  Member, %age of time on Project (G2)" data-raw="%age of time on Project" value="%age of time on Project" style="width:9ch"></td><td><input data-ref="H2" aria-label="Team  Member, H (H2)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I2" aria-label="Team  Member, 28 W (I2)" data-raw="W" value="W" style="width:9ch"></td><td><input data-ref="J2" aria-label="Team  Member, 29 T (J2)" data-raw="T" value="T" style="width:9ch"></td><td><input data-ref="K2" aria-label="Team  Member, 30 F (K2)" data-raw="F" value="F" style="width:9ch"></td><td><input data-ref="L2" aria-label="Team  Member, 31 S (L2)" data-raw="S" value="S" style="width:9ch"></td><td><input data-ref="M2" aria-label="Team  Member, 1 S (M2)" data-raw="S" value="S" style="width:9ch"></td><td><input data-ref="N2" aria-label="Team  Member, 2 M (N2)" data-raw="M" value="M" style="width:9ch"></td><td><input data-ref="O2" aria-label="Team  Member, 3 T (O2)" data-raw="T" value="T" style="width:9ch"></td><td><input data-ref="P2" aria-label="Team  Member, 4 W (P2)" data-raw="W" value="W" style="width:9ch"></td><td><input data-ref="Q2" aria-label="Team  Member, 5 T (Q2)" data-raw="T" value="T" style="width:9ch"></td><td><input data-ref="R2" aria-label="Team  Member, 6 F (R2)" data-raw="F" value="F" style="width:9ch"></td><td><input data-ref="S2" aria-label="Team  Member, 7 S (S2)" data-raw="S" value="S" style="width:9ch"></td><td><input data-ref="T2" aria-label="Team  Member, 8 S (T2)" data-raw="S" value="S" style="width:9ch"></td><td><input data-ref="U2" aria-label="Team  Member, 9 M (U2)" data-raw="M" value="M" style="width:9ch"></td><td><input data-ref="V2" aria-label="Team  Member, 10 T (V2)" data-raw="T" value="T" style="width:9ch"></td><td><input data-ref="W2" aria-label="Team  Member, 11 W (W2)" data-raw="W" value="W" style="width:9ch"></td><td><input data-ref="X2" aria-label="Team  Member, 12 T (X2)" data-raw="T" value="T" style="width:9ch"></td><td><input data-ref="Y2" aria-label="Team  Member, 13 F (Y2)" data-raw="F" value="F" style="width:9ch"></td><td><input data-ref="Z2" aria-label="Team  Member, 14 S (Z2)" data-raw="S" value="S" style="width:9ch"></td><td><input data-ref="AA2" aria-label="Team  Member, 15 S (AA2)" data-raw="S" value="S" style="width:9ch"></td><td><input data-ref="AB2" aria-label="Team  Member, 16 M (AB2)" data-raw="M" value="M" style="width:9ch"></td><td><input data-ref="AC2" aria-label="Team  Member, 17 T (AC2)" data-raw="T" value="T" style="width:9ch"></td><td><input data-ref="AD2" aria-label="Team  Member, Available hours (AD2)" data-raw="Available hours" value="Available hours" style="width:9ch"></td><td><input data-ref="AE2" aria-label="Team  Member, Calc. (AE2)" data-raw="Calc." value="Calc." style="width:9ch"></td></tr><tr><th>3</th><td class="ss-f"><input data-ref="A3" aria-label="Resource 11, Productive Hours =6 (A3)" data-raw="=G3/100" value="0.01" style="width:15ch" title="=G3/100"></td><td class="ss-f"><input data-ref="B3" aria-label="Resource 11, B (B3)" data-raw="=G3/1" value="1" style="width:6ch" title="=G3/1"></td><td class="ss-who"><input data-ref="C3" aria-label="Resource 11, Team  Member (C3)" data-raw="Resource 11" value="Resource 11" style="width:27ch"></td><td class="ss-hide"><input data-ref="D3" aria-label="Resource 11, PTO Plan (D3)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E3" aria-label="Resource 11, E (E3)" data-raw="Dev" value="Dev" style="width:14ch"></td><td><input data-ref="F3" aria-label="Resource 11, Office Location (F3)" data-raw="OffShore" value="OffShore" style="width:9ch"></td><td><input data-ref="G3" aria-label="Resource 11, %age of time on Project (G3)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="H3" aria-label="Resource 11, H (H3)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I3" aria-label="Resource 11, 28 W (I3)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="J3" aria-label="Resource 11, 29 T (J3)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="K3" aria-label="Resource 11, 30 F (K3)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L3" aria-label="Resource 11, 31 S (L3)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M3" aria-label="Resource 11, 1 S (M3)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="N3" aria-label="Resource 11, 2 M (N3)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="O3" aria-label="Resource 11, 3 T (O3)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="P3" aria-label="Resource 11, 4 W (P3)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Q3" aria-label="Resource 11, 5 T (Q3)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="R3" aria-label="Resource 11, 6 F (R3)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S3" aria-label="Resource 11, 7 S (S3)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T3" aria-label="Resource 11, 8 S (T3)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="U3" aria-label="Resource 11, 9 M (U3)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="V3" aria-label="Resource 11, 10 T (V3)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="W3" aria-label="Resource 11, 11 W (W3)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="X3" aria-label="Resource 11, 12 T (X3)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Y3" aria-label="Resource 11, 13 F (Y3)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z3" aria-label="Resource 11, 14 S (Z3)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA3" aria-label="Resource 11, 15 S (AA3)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="AB3" aria-label="Resource 11, 16 M (AB3)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="AC3" aria-label="Resource 11, 17 T (AC3)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-f"><input data-ref="AD3" aria-label="Resource 11, Available hours (AD3)" data-raw="=IF(C3=&quot;unassigned&quot;,0,(SUM(I3:AC3)*$B$1)*G3)" value="90" style="width:9ch" title="=IF(C3=&quot;unassigned&quot;,0,(SUM(I3:AC3)*$B$1)*G3)"></td><td><input data-ref="AE3" aria-label="Resource 11, Calc. (AE3)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>4</th><td class="ss-f"><input data-ref="A4" aria-label="Resource 12, Productive Hours =6 (A4)" data-raw="=G4/100" value="0.01" style="width:15ch" title="=G4/100"></td><td class="ss-f"><input data-ref="B4" aria-label="Resource 12, B (B4)" data-raw="=G4/1" value="1" style="width:6ch" title="=G4/1"></td><td class="ss-who"><input data-ref="C4" aria-label="Resource 12, Team  Member (C4)" data-raw="Resource 12" value="Resource 12" style="width:27ch"></td><td class="ss-hide"><input data-ref="D4" aria-label="Resource 12, PTO Plan (D4)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E4" aria-label="Resource 12, E (E4)" data-raw="Dev" value="Dev" style="width:14ch"></td><td><input data-ref="F4" aria-label="Resource 12, Office Location (F4)" data-raw="OffShore" value="OffShore" style="width:9ch"></td><td><input data-ref="G4" aria-label="Resource 12, %age of time on Project (G4)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="H4" aria-label="Resource 12, H (H4)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I4" aria-label="Resource 12, 28 W (I4)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="J4" aria-label="Resource 12, 29 T (J4)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="K4" aria-label="Resource 12, 30 F (K4)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L4" aria-label="Resource 12, 31 S (L4)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M4" aria-label="Resource 12, 1 S (M4)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="N4" aria-label="Resource 12, 2 M (N4)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="O4" aria-label="Resource 12, 3 T (O4)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="P4" aria-label="Resource 12, 4 W (P4)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Q4" aria-label="Resource 12, 5 T (Q4)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="R4" aria-label="Resource 12, 6 F (R4)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S4" aria-label="Resource 12, 7 S (S4)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T4" aria-label="Resource 12, 8 S (T4)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="U4" aria-label="Resource 12, 9 M (U4)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="V4" aria-label="Resource 12, 10 T (V4)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="W4" aria-label="Resource 12, 11 W (W4)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="X4" aria-label="Resource 12, 12 T (X4)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Y4" aria-label="Resource 12, 13 F (Y4)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z4" aria-label="Resource 12, 14 S (Z4)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA4" aria-label="Resource 12, 15 S (AA4)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="AB4" aria-label="Resource 12, 16 M (AB4)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="AC4" aria-label="Resource 12, 17 T (AC4)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-f"><input data-ref="AD4" aria-label="Resource 12, Available hours (AD4)" data-raw="=IF(C4=&quot;unassigned&quot;,0,(SUM(I4:AC4)*$B$1)*G4)" value="90" style="width:9ch" title="=IF(C4=&quot;unassigned&quot;,0,(SUM(I4:AC4)*$B$1)*G4)"></td><td><input data-ref="AE4" aria-label="Resource 12, Calc. (AE4)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>5</th><td class="ss-f"><input data-ref="A5" aria-label="Resource 6, Productive Hours =6 (A5)" data-raw="=G5/100" value="0.01" style="width:15ch" title="=G5/100"></td><td class="ss-f"><input data-ref="B5" aria-label="Resource 6, B (B5)" data-raw="=G5/1" value="1" style="width:6ch" title="=G5/1"></td><td class="ss-who"><input data-ref="C5" aria-label="Resource 6, Team  Member (C5)" data-raw="Resource 6" value="Resource 6" style="width:27ch"></td><td class="ss-hide"><input data-ref="D5" aria-label="Resource 6, PTO Plan (D5)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E5" aria-label="Resource 6, E (E5)" data-raw="Dev" value="Dev" style="width:14ch"></td><td><input data-ref="F5" aria-label="Resource 6, Office Location (F5)" data-raw="Offshore" value="Offshore" style="width:9ch"></td><td><input data-ref="G5" aria-label="Resource 6, %age of time on Project (G5)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="H5" aria-label="Resource 6, H (H5)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I5" aria-label="Resource 6, 28 W (I5)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="J5" aria-label="Resource 6, 29 T (J5)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="K5" aria-label="Resource 6, 30 F (K5)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L5" aria-label="Resource 6, 31 S (L5)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M5" aria-label="Resource 6, 1 S (M5)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="N5" aria-label="Resource 6, 2 M (N5)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="O5" aria-label="Resource 6, 3 T (O5)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="P5" aria-label="Resource 6, 4 W (P5)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Q5" aria-label="Resource 6, 5 T (Q5)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="R5" aria-label="Resource 6, 6 F (R5)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S5" aria-label="Resource 6, 7 S (S5)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T5" aria-label="Resource 6, 8 S (T5)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="U5" aria-label="Resource 6, 9 M (U5)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="V5" aria-label="Resource 6, 10 T (V5)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="W5" aria-label="Resource 6, 11 W (W5)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="X5" aria-label="Resource 6, 12 T (X5)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Y5" aria-label="Resource 6, 13 F (Y5)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z5" aria-label="Resource 6, 14 S (Z5)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA5" aria-label="Resource 6, 15 S (AA5)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="AB5" aria-label="Resource 6, 16 M (AB5)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="AC5" aria-label="Resource 6, 17 T (AC5)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-f"><input data-ref="AD5" aria-label="Resource 6, Available hours (AD5)" data-raw="=IF(C5=&quot;unassigned&quot;,0,(SUM(I5:AC5)*$B$1)*G5)" value="90" style="width:9ch" title="=IF(C5=&quot;unassigned&quot;,0,(SUM(I5:AC5)*$B$1)*G5)"></td><td><input data-ref="AE5" aria-label="Resource 6, Calc. (AE5)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>6</th><td class="ss-f"><input data-ref="A6" aria-label="Resource 15, Productive Hours =6 (A6)" data-raw="=G6/100" value="0.01" style="width:15ch" title="=G6/100"></td><td class="ss-f"><input data-ref="B6" aria-label="Resource 15, B (B6)" data-raw="=G6/1" value="1" style="width:6ch" title="=G6/1"></td><td class="ss-who"><input data-ref="C6" aria-label="Resource 15, Team  Member (C6)" data-raw="Resource 15" value="Resource 15" style="width:27ch"></td><td class="ss-hide"><input data-ref="D6" aria-label="Resource 15, PTO Plan (D6)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E6" aria-label="Resource 15, E (E6)" data-raw="Dev" value="Dev" style="width:14ch"></td><td><input data-ref="F6" aria-label="Resource 15, Office Location (F6)" data-raw="Offshore" value="Offshore" style="width:9ch"></td><td><input data-ref="G6" aria-label="Resource 15, %age of time on Project (G6)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="H6" aria-label="Resource 15, H (H6)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I6" aria-label="Resource 15, 28 W (I6)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="J6" aria-label="Resource 15, 29 T (J6)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="K6" aria-label="Resource 15, 30 F (K6)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L6" aria-label="Resource 15, 31 S (L6)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M6" aria-label="Resource 15, 1 S (M6)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="N6" aria-label="Resource 15, 2 M (N6)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="O6" aria-label="Resource 15, 3 T (O6)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="P6" aria-label="Resource 15, 4 W (P6)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Q6" aria-label="Resource 15, 5 T (Q6)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="R6" aria-label="Resource 15, 6 F (R6)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S6" aria-label="Resource 15, 7 S (S6)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T6" aria-label="Resource 15, 8 S (T6)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="U6" aria-label="Resource 15, 9 M (U6)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="V6" aria-label="Resource 15, 10 T (V6)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="W6" aria-label="Resource 15, 11 W (W6)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="X6" aria-label="Resource 15, 12 T (X6)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Y6" aria-label="Resource 15, 13 F (Y6)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z6" aria-label="Resource 15, 14 S (Z6)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA6" aria-label="Resource 15, 15 S (AA6)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="AB6" aria-label="Resource 15, 16 M (AB6)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="AC6" aria-label="Resource 15, 17 T (AC6)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-f"><input data-ref="AD6" aria-label="Resource 15, Available hours (AD6)" data-raw="=IF(C6=&quot;unassigned&quot;,0,(SUM(I6:AC6)*$B$1)*G6)" value="90" style="width:9ch" title="=IF(C6=&quot;unassigned&quot;,0,(SUM(I6:AC6)*$B$1)*G6)"></td><td><input data-ref="AE6" aria-label="Resource 15, Calc. (AE6)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>7</th><td class="ss-f"><input data-ref="A7" aria-label="Resource 5, Productive Hours =6 (A7)" data-raw="=G7/100" value="0.01" style="width:15ch" title="=G7/100"></td><td class="ss-f"><input data-ref="B7" aria-label="Resource 5, B (B7)" data-raw="=G7/1" value="1" style="width:6ch" title="=G7/1"></td><td class="ss-who"><input data-ref="C7" aria-label="Resource 5, Team  Member (C7)" data-raw="Resource 5" value="Resource 5" style="width:27ch"></td><td class="ss-hide"><input data-ref="D7" aria-label="Resource 5, PTO Plan (D7)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E7" aria-label="Resource 5, E (E7)" data-raw="Dev" value="Dev" style="width:14ch"></td><td><input data-ref="F7" aria-label="Resource 5, Office Location (F7)" data-raw="Offshore" value="Offshore" style="width:9ch"></td><td><input data-ref="G7" aria-label="Resource 5, %age of time on Project (G7)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="H7" aria-label="Resource 5, H (H7)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I7" aria-label="Resource 5, 28 W (I7)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="J7" aria-label="Resource 5, 29 T (J7)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="K7" aria-label="Resource 5, 30 F (K7)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L7" aria-label="Resource 5, 31 S (L7)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M7" aria-label="Resource 5, 1 S (M7)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="N7" aria-label="Resource 5, 2 M (N7)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="O7" aria-label="Resource 5, 3 T (O7)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="P7" aria-label="Resource 5, 4 W (P7)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Q7" aria-label="Resource 5, 5 T (Q7)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="R7" aria-label="Resource 5, 6 F (R7)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S7" aria-label="Resource 5, 7 S (S7)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T7" aria-label="Resource 5, 8 S (T7)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="U7" aria-label="Resource 5, 9 M (U7)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="V7" aria-label="Resource 5, 10 T (V7)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="W7" aria-label="Resource 5, 11 W (W7)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="X7" aria-label="Resource 5, 12 T (X7)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Y7" aria-label="Resource 5, 13 F (Y7)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z7" aria-label="Resource 5, 14 S (Z7)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA7" aria-label="Resource 5, 15 S (AA7)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="AB7" aria-label="Resource 5, 16 M (AB7)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="AC7" aria-label="Resource 5, 17 T (AC7)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-f"><input data-ref="AD7" aria-label="Resource 5, Available hours (AD7)" data-raw="=IF(C7=&quot;unassigned&quot;,0,(SUM(I7:AC7)*$B$1)*G7)" value="90" style="width:9ch" title="=IF(C7=&quot;unassigned&quot;,0,(SUM(I7:AC7)*$B$1)*G7)"></td><td><input data-ref="AE7" aria-label="Resource 5, Calc. (AE7)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>8</th><td class="ss-f"><input data-ref="A8" aria-label="Resource 13, Productive Hours =6 (A8)" data-raw="=G8/100" value="0.01" style="width:15ch" title="=G8/100"></td><td class="ss-f"><input data-ref="B8" aria-label="Resource 13, B (B8)" data-raw="=G8/1" value="1" style="width:6ch" title="=G8/1"></td><td class="ss-who"><input data-ref="C8" aria-label="Resource 13, Team  Member (C8)" data-raw="Resource 13" value="Resource 13" style="width:27ch"></td><td class="ss-hide"><input data-ref="D8" aria-label="Resource 13, PTO Plan (D8)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E8" aria-label="Resource 13, E (E8)" data-raw="Dev" value="Dev" style="width:14ch"></td><td><input data-ref="F8" aria-label="Resource 13, Office Location (F8)" data-raw="Offshore" value="Offshore" style="width:9ch"></td><td><input data-ref="G8" aria-label="Resource 13, %age of time on Project (G8)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="H8" aria-label="Resource 13, H (H8)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I8" aria-label="Resource 13, 28 W (I8)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="J8" aria-label="Resource 13, 29 T (J8)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="K8" aria-label="Resource 13, 30 F (K8)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L8" aria-label="Resource 13, 31 S (L8)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M8" aria-label="Resource 13, 1 S (M8)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="N8" aria-label="Resource 13, 2 M (N8)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="O8" aria-label="Resource 13, 3 T (O8)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="P8" aria-label="Resource 13, 4 W (P8)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Q8" aria-label="Resource 13, 5 T (Q8)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="R8" aria-label="Resource 13, 6 F (R8)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S8" aria-label="Resource 13, 7 S (S8)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T8" aria-label="Resource 13, 8 S (T8)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="U8" aria-label="Resource 13, 9 M (U8)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="V8" aria-label="Resource 13, 10 T (V8)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="W8" aria-label="Resource 13, 11 W (W8)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="X8" aria-label="Resource 13, 12 T (X8)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Y8" aria-label="Resource 13, 13 F (Y8)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z8" aria-label="Resource 13, 14 S (Z8)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA8" aria-label="Resource 13, 15 S (AA8)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="AB8" aria-label="Resource 13, 16 M (AB8)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="AC8" aria-label="Resource 13, 17 T (AC8)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-f"><input data-ref="AD8" aria-label="Resource 13, Available hours (AD8)" data-raw="=IF(C8=&quot;unassigned&quot;,0,(SUM(I8:AC8)*$B$1)*G8)" value="90" style="width:9ch" title="=IF(C8=&quot;unassigned&quot;,0,(SUM(I8:AC8)*$B$1)*G8)"></td><td><input data-ref="AE8" aria-label="Resource 13, Calc. (AE8)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>9</th><td class="ss-f"><input data-ref="A9" aria-label="Resource 8, Productive Hours =6 (A9)" data-raw="=G9/100" value="0.01" style="width:15ch" title="=G9/100"></td><td class="ss-f"><input data-ref="B9" aria-label="Resource 8, B (B9)" data-raw="=G9/1" value="1" style="width:6ch" title="=G9/1"></td><td class="ss-who"><input data-ref="C9" aria-label="Resource 8, Team  Member (C9)" data-raw="Resource 8" value="Resource 8" style="width:27ch"></td><td class="ss-hide"><input data-ref="D9" aria-label="Resource 8, PTO Plan (D9)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E9" aria-label="Resource 8, E (E9)" data-raw="Dev" value="Dev" style="width:14ch"></td><td><input data-ref="F9" aria-label="Resource 8, Office Location (F9)" data-raw="Offshore" value="Offshore" style="width:9ch"></td><td><input data-ref="G9" aria-label="Resource 8, %age of time on Project (G9)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="H9" aria-label="Resource 8, H (H9)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I9" aria-label="Resource 8, 28 W (I9)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="J9" aria-label="Resource 8, 29 T (J9)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="K9" aria-label="Resource 8, 30 F (K9)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L9" aria-label="Resource 8, 31 S (L9)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M9" aria-label="Resource 8, 1 S (M9)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="N9" aria-label="Resource 8, 2 M (N9)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="O9" aria-label="Resource 8, 3 T (O9)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="P9" aria-label="Resource 8, 4 W (P9)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Q9" aria-label="Resource 8, 5 T (Q9)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="R9" aria-label="Resource 8, 6 F (R9)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S9" aria-label="Resource 8, 7 S (S9)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T9" aria-label="Resource 8, 8 S (T9)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="U9" aria-label="Resource 8, 9 M (U9)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="V9" aria-label="Resource 8, 10 T (V9)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="W9" aria-label="Resource 8, 11 W (W9)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="X9" aria-label="Resource 8, 12 T (X9)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Y9" aria-label="Resource 8, 13 F (Y9)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z9" aria-label="Resource 8, 14 S (Z9)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA9" aria-label="Resource 8, 15 S (AA9)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="AB9" aria-label="Resource 8, 16 M (AB9)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="AC9" aria-label="Resource 8, 17 T (AC9)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-f"><input data-ref="AD9" aria-label="Resource 8, Available hours (AD9)" data-raw="=IF(C9=&quot;unassigned&quot;,0,(SUM(I9:AC9)*$B$1)*G9)" value="90" style="width:9ch" title="=IF(C9=&quot;unassigned&quot;,0,(SUM(I9:AC9)*$B$1)*G9)"></td><td><input data-ref="AE9" aria-label="Resource 8, Calc. (AE9)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>10</th><td class="ss-f"><input data-ref="A10" aria-label="Resource 14, Productive Hours =6 (A10)" data-raw="=G10/100" value="0.01" style="width:15ch" title="=G10/100"></td><td class="ss-f"><input data-ref="B10" aria-label="Resource 14, B (B10)" data-raw="=G10/1" value="1" style="width:6ch" title="=G10/1"></td><td class="ss-who"><input data-ref="C10" aria-label="Resource 14, Team  Member (C10)" data-raw="Resource 14" value="Resource 14" style="width:27ch"></td><td class="ss-hide"><input data-ref="D10" aria-label="Resource 14, PTO Plan (D10)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E10" aria-label="Resource 14, E (E10)" data-raw="Dev" value="Dev" style="width:14ch"></td><td><input data-ref="F10" aria-label="Resource 14, Office Location (F10)" data-raw="Offshore" value="Offshore" style="width:9ch"></td><td><input data-ref="G10" aria-label="Resource 14, %age of time on Project (G10)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="H10" aria-label="Resource 14, H (H10)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I10" aria-label="Resource 14, 28 W (I10)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="J10" aria-label="Resource 14, 29 T (J10)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="K10" aria-label="Resource 14, 30 F (K10)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L10" aria-label="Resource 14, 31 S (L10)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M10" aria-label="Resource 14, 1 S (M10)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="N10" aria-label="Resource 14, 2 M (N10)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="O10" aria-label="Resource 14, 3 T (O10)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="P10" aria-label="Resource 14, 4 W (P10)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Q10" aria-label="Resource 14, 5 T (Q10)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="R10" aria-label="Resource 14, 6 F (R10)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S10" aria-label="Resource 14, 7 S (S10)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T10" aria-label="Resource 14, 8 S (T10)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="U10" aria-label="Resource 14, 9 M (U10)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="V10" aria-label="Resource 14, 10 T (V10)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="W10" aria-label="Resource 14, 11 W (W10)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="X10" aria-label="Resource 14, 12 T (X10)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Y10" aria-label="Resource 14, 13 F (Y10)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z10" aria-label="Resource 14, 14 S (Z10)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA10" aria-label="Resource 14, 15 S (AA10)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="AB10" aria-label="Resource 14, 16 M (AB10)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="AC10" aria-label="Resource 14, 17 T (AC10)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-f"><input data-ref="AD10" aria-label="Resource 14, Available hours (AD10)" data-raw="=IF(C10=&quot;unassigned&quot;,0,(SUM(I10:AC10)*$B$1)*G10)" value="90" style="width:9ch" title="=IF(C10=&quot;unassigned&quot;,0,(SUM(I10:AC10)*$B$1)*G10)"></td><td><input data-ref="AE10" aria-label="Resource 14, Calc. (AE10)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>11</th><td class="ss-f"><input data-ref="A11" aria-label="Resource 9, Productive Hours =6 (A11)" data-raw="=G11/100" value="0.01" style="width:15ch" title="=G11/100"></td><td class="ss-f"><input data-ref="B11" aria-label="Resource 9, B (B11)" data-raw="=G11/1" value="1" style="width:6ch" title="=G11/1"></td><td class="ss-who"><input data-ref="C11" aria-label="Resource 9, Team  Member (C11)" data-raw="Resource 9" value="Resource 9" style="width:27ch"></td><td class="ss-hide"><input data-ref="D11" aria-label="Resource 9, PTO Plan (D11)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E11" aria-label="Resource 9, E (E11)" data-raw="Dev" value="Dev" style="width:14ch"></td><td><input data-ref="F11" aria-label="Resource 9, Office Location (F11)" data-raw="Offshore" value="Offshore" style="width:9ch"></td><td><input data-ref="G11" aria-label="Resource 9, %age of time on Project (G11)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="H11" aria-label="Resource 9, H (H11)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I11" aria-label="Resource 9, 28 W (I11)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="J11" aria-label="Resource 9, 29 T (J11)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="K11" aria-label="Resource 9, 30 F (K11)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L11" aria-label="Resource 9, 31 S (L11)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M11" aria-label="Resource 9, 1 S (M11)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="N11" aria-label="Resource 9, 2 M (N11)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="O11" aria-label="Resource 9, 3 T (O11)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="P11" aria-label="Resource 9, 4 W (P11)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Q11" aria-label="Resource 9, 5 T (Q11)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="R11" aria-label="Resource 9, 6 F (R11)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S11" aria-label="Resource 9, 7 S (S11)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T11" aria-label="Resource 9, 8 S (T11)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="U11" aria-label="Resource 9, 9 M (U11)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="V11" aria-label="Resource 9, 10 T (V11)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="W11" aria-label="Resource 9, 11 W (W11)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="X11" aria-label="Resource 9, 12 T (X11)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Y11" aria-label="Resource 9, 13 F (Y11)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z11" aria-label="Resource 9, 14 S (Z11)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA11" aria-label="Resource 9, 15 S (AA11)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="AB11" aria-label="Resource 9, 16 M (AB11)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="AC11" aria-label="Resource 9, 17 T (AC11)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-f"><input data-ref="AD11" aria-label="Resource 9, Available hours (AD11)" data-raw="=IF(C11=&quot;unassigned&quot;,0,(SUM(I11:AC11)*$B$1)*G11)" value="90" style="width:9ch" title="=IF(C11=&quot;unassigned&quot;,0,(SUM(I11:AC11)*$B$1)*G11)"></td><td><input data-ref="AE11" aria-label="Resource 9, Calc. (AE11)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>12</th><td class="ss-f"><input data-ref="A12" aria-label="Resource 4, Productive Hours =6 (A12)" data-raw="=G12/100" value="0.01" style="width:15ch" title="=G12/100"></td><td class="ss-f"><input data-ref="B12" aria-label="Resource 4, B (B12)" data-raw="=G12/1" value="1" style="width:6ch" title="=G12/1"></td><td class="ss-who"><input data-ref="C12" aria-label="Resource 4, Team  Member (C12)" data-raw="Resource 4" value="Resource 4" style="width:27ch"></td><td class="ss-hide"><input data-ref="D12" aria-label="Resource 4, PTO Plan (D12)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E12" aria-label="Resource 4, E (E12)" data-raw="Dev" value="Dev" style="width:14ch"></td><td><input data-ref="F12" aria-label="Resource 4, Office Location (F12)" data-raw="Offshore" value="Offshore" style="width:9ch"></td><td><input data-ref="G12" aria-label="Resource 4, %age of time on Project (G12)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="H12" aria-label="Resource 4, H (H12)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I12" aria-label="Resource 4, 28 W (I12)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="J12" aria-label="Resource 4, 29 T (J12)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="K12" aria-label="Resource 4, 30 F (K12)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L12" aria-label="Resource 4, 31 S (L12)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M12" aria-label="Resource 4, 1 S (M12)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="N12" aria-label="Resource 4, 2 M (N12)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="O12" aria-label="Resource 4, 3 T (O12)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="P12" aria-label="Resource 4, 4 W (P12)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Q12" aria-label="Resource 4, 5 T (Q12)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="R12" aria-label="Resource 4, 6 F (R12)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S12" aria-label="Resource 4, 7 S (S12)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T12" aria-label="Resource 4, 8 S (T12)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="U12" aria-label="Resource 4, 9 M (U12)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="V12" aria-label="Resource 4, 10 T (V12)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="W12" aria-label="Resource 4, 11 W (W12)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="X12" aria-label="Resource 4, 12 T (X12)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Y12" aria-label="Resource 4, 13 F (Y12)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z12" aria-label="Resource 4, 14 S (Z12)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA12" aria-label="Resource 4, 15 S (AA12)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="AB12" aria-label="Resource 4, 16 M (AB12)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="AC12" aria-label="Resource 4, 17 T (AC12)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-f"><input data-ref="AD12" aria-label="Resource 4, Available hours (AD12)" data-raw="=IF(C12=&quot;unassigned&quot;,0,(SUM(I12:AC12)*$B$1)*G12)" value="90" style="width:9ch" title="=IF(C12=&quot;unassigned&quot;,0,(SUM(I12:AC12)*$B$1)*G12)"></td><td><input data-ref="AE12" aria-label="Resource 4, Calc. (AE12)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>13</th><td class="ss-f"><input data-ref="A13" aria-label="Resource 7, Productive Hours =6 (A13)" data-raw="=G13/100" value="0.01" style="width:15ch" title="=G13/100"></td><td class="ss-f"><input data-ref="B13" aria-label="Resource 7, B (B13)" data-raw="=G13/1" value="1" style="width:6ch" title="=G13/1"></td><td class="ss-who"><input data-ref="C13" aria-label="Resource 7, Team  Member (C13)" data-raw="Resource 7" value="Resource 7" style="width:27ch"></td><td class="ss-hide"><input data-ref="D13" aria-label="Resource 7, PTO Plan (D13)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E13" aria-label="Resource 7, E (E13)" data-raw="Dev" value="Dev" style="width:14ch"></td><td><input data-ref="F13" aria-label="Resource 7, Office Location (F13)" data-raw="Offshore" value="Offshore" style="width:9ch"></td><td><input data-ref="G13" aria-label="Resource 7, %age of time on Project (G13)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="H13" aria-label="Resource 7, H (H13)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I13" aria-label="Resource 7, 28 W (I13)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="J13" aria-label="Resource 7, 29 T (J13)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="K13" aria-label="Resource 7, 30 F (K13)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L13" aria-label="Resource 7, 31 S (L13)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M13" aria-label="Resource 7, 1 S (M13)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="N13" aria-label="Resource 7, 2 M (N13)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="O13" aria-label="Resource 7, 3 T (O13)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="P13" aria-label="Resource 7, 4 W (P13)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Q13" aria-label="Resource 7, 5 T (Q13)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="R13" aria-label="Resource 7, 6 F (R13)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S13" aria-label="Resource 7, 7 S (S13)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T13" aria-label="Resource 7, 8 S (T13)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="U13" aria-label="Resource 7, 9 M (U13)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="V13" aria-label="Resource 7, 10 T (V13)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="W13" aria-label="Resource 7, 11 W (W13)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="X13" aria-label="Resource 7, 12 T (X13)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Y13" aria-label="Resource 7, 13 F (Y13)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z13" aria-label="Resource 7, 14 S (Z13)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA13" aria-label="Resource 7, 15 S (AA13)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="AB13" aria-label="Resource 7, 16 M (AB13)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="AC13" aria-label="Resource 7, 17 T (AC13)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-f"><input data-ref="AD13" aria-label="Resource 7, Available hours (AD13)" data-raw="=IF(C13=&quot;unassigned&quot;,0,(SUM(I13:AC13)*$B$1)*G13)" value="90" style="width:9ch" title="=IF(C13=&quot;unassigned&quot;,0,(SUM(I13:AC13)*$B$1)*G13)"></td><td><input data-ref="AE13" aria-label="Resource 7, Calc. (AE13)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>14</th><td class="ss-f"><input data-ref="A14" aria-label="Resource 10, Productive Hours =6 (A14)" data-raw="=G14/100" value="0.01" style="width:15ch" title="=G14/100"></td><td class="ss-f"><input data-ref="B14" aria-label="Resource 10, B (B14)" data-raw="=G14/1" value="1" style="width:6ch" title="=G14/1"></td><td class="ss-who"><input data-ref="C14" aria-label="Resource 10, Team  Member (C14)" data-raw="Resource 10" value="Resource 10" style="width:27ch"></td><td class="ss-hide"><input data-ref="D14" aria-label="Resource 10, PTO Plan (D14)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E14" aria-label="Resource 10, E (E14)" data-raw="Dev" value="Dev" style="width:14ch"></td><td><input data-ref="F14" aria-label="Resource 10, Office Location (F14)" data-raw="Offshore" value="Offshore" style="width:9ch"></td><td><input data-ref="G14" aria-label="Resource 10, %age of time on Project (G14)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="H14" aria-label="Resource 10, H (H14)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I14" aria-label="Resource 10, 28 W (I14)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="J14" aria-label="Resource 10, 29 T (J14)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="K14" aria-label="Resource 10, 30 F (K14)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L14" aria-label="Resource 10, 31 S (L14)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M14" aria-label="Resource 10, 1 S (M14)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="N14" aria-label="Resource 10, 2 M (N14)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="O14" aria-label="Resource 10, 3 T (O14)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="P14" aria-label="Resource 10, 4 W (P14)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Q14" aria-label="Resource 10, 5 T (Q14)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="R14" aria-label="Resource 10, 6 F (R14)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S14" aria-label="Resource 10, 7 S (S14)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T14" aria-label="Resource 10, 8 S (T14)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="U14" aria-label="Resource 10, 9 M (U14)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="V14" aria-label="Resource 10, 10 T (V14)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="W14" aria-label="Resource 10, 11 W (W14)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="X14" aria-label="Resource 10, 12 T (X14)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Y14" aria-label="Resource 10, 13 F (Y14)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z14" aria-label="Resource 10, 14 S (Z14)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA14" aria-label="Resource 10, 15 S (AA14)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="AB14" aria-label="Resource 10, 16 M (AB14)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="AC14" aria-label="Resource 10, 17 T (AC14)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-f"><input data-ref="AD14" aria-label="Resource 10, Available hours (AD14)" data-raw="=IF(C14=&quot;unassigned&quot;,0,(SUM(I14:AC14)*$B$1)*G14)" value="90" style="width:9ch" title="=IF(C14=&quot;unassigned&quot;,0,(SUM(I14:AC14)*$B$1)*G14)"></td><td><input data-ref="AE14" aria-label="Resource 10, Calc. (AE14)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>15</th><td class="ss-f"><input data-ref="A15" aria-label="Resource 18, Productive Hours =6 (A15)" data-raw="=G15/100" value="0.01" style="width:15ch" title="=G15/100"></td><td class="ss-f"><input data-ref="B15" aria-label="Resource 18, B (B15)" data-raw="=G15/1" value="1" style="width:6ch" title="=G15/1"></td><td class="ss-who"><input data-ref="C15" aria-label="Resource 18, Team  Member (C15)" data-raw="Resource 18" value="Resource 18" style="width:27ch"></td><td class="ss-hide"><input data-ref="D15" aria-label="Resource 18, PTO Plan (D15)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E15" aria-label="Resource 18, E (E15)" data-raw="BSA" value="BSA" style="width:14ch"></td><td><input data-ref="F15" aria-label="Resource 18, Office Location (F15)" data-raw="Offshore" value="Offshore" style="width:9ch"></td><td><input data-ref="G15" aria-label="Resource 18, %age of time on Project (G15)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="H15" aria-label="Resource 18, H (H15)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I15" aria-label="Resource 18, 28 W (I15)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="J15" aria-label="Resource 18, 29 T (J15)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="K15" aria-label="Resource 18, 30 F (K15)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L15" aria-label="Resource 18, 31 S (L15)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M15" aria-label="Resource 18, 1 S (M15)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="N15" aria-label="Resource 18, 2 M (N15)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="O15" aria-label="Resource 18, 3 T (O15)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="P15" aria-label="Resource 18, 4 W (P15)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Q15" aria-label="Resource 18, 5 T (Q15)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="R15" aria-label="Resource 18, 6 F (R15)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S15" aria-label="Resource 18, 7 S (S15)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T15" aria-label="Resource 18, 8 S (T15)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="U15" aria-label="Resource 18, 9 M (U15)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="V15" aria-label="Resource 18, 10 T (V15)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="W15" aria-label="Resource 18, 11 W (W15)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="X15" aria-label="Resource 18, 12 T (X15)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Y15" aria-label="Resource 18, 13 F (Y15)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z15" aria-label="Resource 18, 14 S (Z15)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA15" aria-label="Resource 18, 15 S (AA15)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="AB15" aria-label="Resource 18, 16 M (AB15)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="AC15" aria-label="Resource 18, 17 T (AC15)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-f"><input data-ref="AD15" aria-label="Resource 18, Available hours (AD15)" data-raw="=IF(C15=&quot;unassigned&quot;,0,(SUM(I15:AC15)*$B$1)*G15)" value="90" style="width:9ch" title="=IF(C15=&quot;unassigned&quot;,0,(SUM(I15:AC15)*$B$1)*G15)"></td><td><input data-ref="AE15" aria-label="Resource 18, Calc. (AE15)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>16</th><td class="ss-f"><input data-ref="A16" aria-label="Resource 20, Productive Hours =6 (A16)" data-raw="=G16/100" value="0.01" style="width:15ch" title="=G16/100"></td><td class="ss-f"><input data-ref="B16" aria-label="Resource 20, B (B16)" data-raw="=G16/1" value="1" style="width:6ch" title="=G16/1"></td><td class="ss-who"><input data-ref="C16" aria-label="Resource 20, Team  Member (C16)" data-raw="Resource 20" value="Resource 20" style="width:27ch"></td><td class="ss-hide"><input data-ref="D16" aria-label="Resource 20, PTO Plan (D16)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E16" aria-label="Resource 20, E (E16)" data-raw="BSA" value="BSA" style="width:14ch"></td><td><input data-ref="F16" aria-label="Resource 20, Office Location (F16)" data-raw="Offshore" value="Offshore" style="width:9ch"></td><td><input data-ref="G16" aria-label="Resource 20, %age of time on Project (G16)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="H16" aria-label="Resource 20, H (H16)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I16" aria-label="Resource 20, 28 W (I16)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="J16" aria-label="Resource 20, 29 T (J16)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="K16" aria-label="Resource 20, 30 F (K16)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L16" aria-label="Resource 20, 31 S (L16)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M16" aria-label="Resource 20, 1 S (M16)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="N16" aria-label="Resource 20, 2 M (N16)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="O16" aria-label="Resource 20, 3 T (O16)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="P16" aria-label="Resource 20, 4 W (P16)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Q16" aria-label="Resource 20, 5 T (Q16)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="R16" aria-label="Resource 20, 6 F (R16)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S16" aria-label="Resource 20, 7 S (S16)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T16" aria-label="Resource 20, 8 S (T16)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="U16" aria-label="Resource 20, 9 M (U16)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="V16" aria-label="Resource 20, 10 T (V16)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="W16" aria-label="Resource 20, 11 W (W16)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="X16" aria-label="Resource 20, 12 T (X16)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Y16" aria-label="Resource 20, 13 F (Y16)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z16" aria-label="Resource 20, 14 S (Z16)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA16" aria-label="Resource 20, 15 S (AA16)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="AB16" aria-label="Resource 20, 16 M (AB16)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="AC16" aria-label="Resource 20, 17 T (AC16)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-f"><input data-ref="AD16" aria-label="Resource 20, Available hours (AD16)" data-raw="=IF(C16=&quot;unassigned&quot;,0,(SUM(I16:AC16)*$B$1)*G16)" value="90" style="width:9ch" title="=IF(C16=&quot;unassigned&quot;,0,(SUM(I16:AC16)*$B$1)*G16)"></td><td><input data-ref="AE16" aria-label="Resource 20, Calc. (AE16)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>17</th><td class="ss-f"><input data-ref="A17" aria-label="Resource 22, Productive Hours =6 (A17)" data-raw="=G17/100" value="0.01" style="width:15ch" title="=G17/100"></td><td class="ss-f"><input data-ref="B17" aria-label="Resource 22, B (B17)" data-raw="=G17/1" value="1" style="width:6ch" title="=G17/1"></td><td class="ss-who"><input data-ref="C17" aria-label="Resource 22, Team  Member (C17)" data-raw="Resource 22" value="Resource 22" style="width:27ch"></td><td class="ss-hide"><input data-ref="D17" aria-label="Resource 22, PTO Plan (D17)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E17" aria-label="Resource 22, E (E17)" data-raw="SIT Automation" value="SIT Automation" style="width:14ch"></td><td><input data-ref="F17" aria-label="Resource 22, Office Location (F17)" data-raw="Offshore" value="Offshore" style="width:9ch"></td><td><input data-ref="G17" aria-label="Resource 22, %age of time on Project (G17)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="H17" aria-label="Resource 22, H (H17)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I17" aria-label="Resource 22, 28 W (I17)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="J17" aria-label="Resource 22, 29 T (J17)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="K17" aria-label="Resource 22, 30 F (K17)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L17" aria-label="Resource 22, 31 S (L17)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M17" aria-label="Resource 22, 1 S (M17)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="N17" aria-label="Resource 22, 2 M (N17)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="O17" aria-label="Resource 22, 3 T (O17)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="P17" aria-label="Resource 22, 4 W (P17)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Q17" aria-label="Resource 22, 5 T (Q17)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="R17" aria-label="Resource 22, 6 F (R17)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S17" aria-label="Resource 22, 7 S (S17)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T17" aria-label="Resource 22, 8 S (T17)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="U17" aria-label="Resource 22, 9 M (U17)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="V17" aria-label="Resource 22, 10 T (V17)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="W17" aria-label="Resource 22, 11 W (W17)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="X17" aria-label="Resource 22, 12 T (X17)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Y17" aria-label="Resource 22, 13 F (Y17)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z17" aria-label="Resource 22, 14 S (Z17)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA17" aria-label="Resource 22, 15 S (AA17)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="AB17" aria-label="Resource 22, 16 M (AB17)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="AC17" aria-label="Resource 22, 17 T (AC17)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-f"><input data-ref="AD17" aria-label="Resource 22, Available hours (AD17)" data-raw="=IF(C17=&quot;unassigned&quot;,0,(SUM(I17:AC17)*$B$1)*G17)" value="90" style="width:9ch" title="=IF(C17=&quot;unassigned&quot;,0,(SUM(I17:AC17)*$B$1)*G17)"></td><td><input data-ref="AE17" aria-label="Resource 22, Calc. (AE17)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>18</th><td class="ss-f"><input data-ref="A18" aria-label="Resource 21, Productive Hours =6 (A18)" data-raw="=G18/100" value="0.01" style="width:15ch" title="=G18/100"></td><td class="ss-f"><input data-ref="B18" aria-label="Resource 21, B (B18)" data-raw="=G18/1" value="1" style="width:6ch" title="=G18/1"></td><td class="ss-who"><input data-ref="C18" aria-label="Resource 21, Team  Member (C18)" data-raw="Resource 21" value="Resource 21" style="width:27ch"></td><td class="ss-hide"><input data-ref="D18" aria-label="Resource 21, PTO Plan (D18)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E18" aria-label="Resource 21, E (E18)" data-raw="SIT - Automation" value="SIT - Automation" style="width:14ch"></td><td><input data-ref="F18" aria-label="Resource 21, Office Location (F18)" data-raw="Offshore" value="Offshore" style="width:9ch"></td><td><input data-ref="G18" aria-label="Resource 21, %age of time on Project (G18)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="H18" aria-label="Resource 21, H (H18)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I18" aria-label="Resource 21, 28 W (I18)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="J18" aria-label="Resource 21, 29 T (J18)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="K18" aria-label="Resource 21, 30 F (K18)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L18" aria-label="Resource 21, 31 S (L18)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M18" aria-label="Resource 21, 1 S (M18)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="N18" aria-label="Resource 21, 2 M (N18)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="O18" aria-label="Resource 21, 3 T (O18)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="P18" aria-label="Resource 21, 4 W (P18)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Q18" aria-label="Resource 21, 5 T (Q18)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="R18" aria-label="Resource 21, 6 F (R18)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S18" aria-label="Resource 21, 7 S (S18)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T18" aria-label="Resource 21, 8 S (T18)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="U18" aria-label="Resource 21, 9 M (U18)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="V18" aria-label="Resource 21, 10 T (V18)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="W18" aria-label="Resource 21, 11 W (W18)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="X18" aria-label="Resource 21, 12 T (X18)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Y18" aria-label="Resource 21, 13 F (Y18)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z18" aria-label="Resource 21, 14 S (Z18)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA18" aria-label="Resource 21, 15 S (AA18)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="AB18" aria-label="Resource 21, 16 M (AB18)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="AC18" aria-label="Resource 21, 17 T (AC18)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-f"><input data-ref="AD18" aria-label="Resource 21, Available hours (AD18)" data-raw="=IF(C18=&quot;unassigned&quot;,0,(SUM(I18:AC18)*$B$1)*G18)" value="90" style="width:9ch" title="=IF(C18=&quot;unassigned&quot;,0,(SUM(I18:AC18)*$B$1)*G18)"></td><td><input data-ref="AE18" aria-label="Resource 21, Calc. (AE18)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>19</th><td class="ss-f"><input data-ref="A19" aria-label="Resource 19, Productive Hours =6 (A19)" data-raw="=G19/100" value="0.01" style="width:15ch" title="=G19/100"></td><td class="ss-f"><input data-ref="B19" aria-label="Resource 19, B (B19)" data-raw="=G19/1" value="1" style="width:6ch" title="=G19/1"></td><td class="ss-who"><input data-ref="C19" aria-label="Resource 19, Team  Member (C19)" data-raw="Resource 19" value="Resource 19" style="width:27ch"></td><td class="ss-hide"><input data-ref="D19" aria-label="Resource 19, PTO Plan (D19)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E19" aria-label="Resource 19, E (E19)" data-raw="SIT - Manual" value="SIT - Manual" style="width:14ch"></td><td><input data-ref="F19" aria-label="Resource 19, Office Location (F19)" data-raw="Off Shore" value="Off Shore" style="width:9ch"></td><td><input data-ref="G19" aria-label="Resource 19, %age of time on Project (G19)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="H19" aria-label="Resource 19, H (H19)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I19" aria-label="Resource 19, 28 W (I19)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="J19" aria-label="Resource 19, 29 T (J19)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="K19" aria-label="Resource 19, 30 F (K19)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L19" aria-label="Resource 19, 31 S (L19)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M19" aria-label="Resource 19, 1 S (M19)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="N19" aria-label="Resource 19, 2 M (N19)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="O19" aria-label="Resource 19, 3 T (O19)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="P19" aria-label="Resource 19, 4 W (P19)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Q19" aria-label="Resource 19, 5 T (Q19)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="R19" aria-label="Resource 19, 6 F (R19)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S19" aria-label="Resource 19, 7 S (S19)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T19" aria-label="Resource 19, 8 S (T19)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="U19" aria-label="Resource 19, 9 M (U19)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="V19" aria-label="Resource 19, 10 T (V19)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="W19" aria-label="Resource 19, 11 W (W19)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="X19" aria-label="Resource 19, 12 T (X19)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Y19" aria-label="Resource 19, 13 F (Y19)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z19" aria-label="Resource 19, 14 S (Z19)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA19" aria-label="Resource 19, 15 S (AA19)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="AB19" aria-label="Resource 19, 16 M (AB19)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="AC19" aria-label="Resource 19, 17 T (AC19)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-f"><input data-ref="AD19" aria-label="Resource 19, Available hours (AD19)" data-raw="=IF(C19=&quot;unassigned&quot;,0,(SUM(I19:AC19)*$B$1)*G19)" value="90" style="width:9ch" title="=IF(C19=&quot;unassigned&quot;,0,(SUM(I19:AC19)*$B$1)*G19)"></td><td><input data-ref="AE19" aria-label="Resource 19, Calc. (AE19)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>20</th><td class="ss-f"><input data-ref="A20" aria-label="Resource 16, Productive Hours =6 (A20)" data-raw="=G20/100" value="0.005" style="width:15ch" title="=G20/100"></td><td><input data-ref="B20" aria-label="Resource 16, B (B20)" data-raw="0.5" value="0.5" style="width:6ch"></td><td class="ss-who"><input data-ref="C20" aria-label="Resource 16, Team  Member (C20)" data-raw="Resource 16" value="Resource 16" style="width:27ch"></td><td class="ss-hide"><input data-ref="D20" aria-label="Resource 16, PTO Plan (D20)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E20" aria-label="Resource 16, E (E20)" data-raw="UAT" value="UAT" style="width:14ch"></td><td><input data-ref="F20" aria-label="Resource 16, Office Location (F20)" data-raw="Onshore" value="Onshore" style="width:9ch"></td><td><input data-ref="G20" aria-label="Resource 16, %age of time on Project (G20)" data-raw="0.5" value="0.5" style="width:9ch"></td><td><input data-ref="H20" aria-label="Resource 16, H (H20)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I20" aria-label="Resource 16, 28 W (I20)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="J20" aria-label="Resource 16, 29 T (J20)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="K20" aria-label="Resource 16, 30 F (K20)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L20" aria-label="Resource 16, 31 S (L20)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M20" aria-label="Resource 16, 1 S (M20)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="N20" aria-label="Resource 16, 2 M (N20)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="O20" aria-label="Resource 16, 3 T (O20)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="P20" aria-label="Resource 16, 4 W (P20)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Q20" aria-label="Resource 16, 5 T (Q20)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="R20" aria-label="Resource 16, 6 F (R20)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S20" aria-label="Resource 16, 7 S (S20)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T20" aria-label="Resource 16, 8 S (T20)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="U20" aria-label="Resource 16, 9 M (U20)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="V20" aria-label="Resource 16, 10 T (V20)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="W20" aria-label="Resource 16, 11 W (W20)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="X20" aria-label="Resource 16, 12 T (X20)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Y20" aria-label="Resource 16, 13 F (Y20)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z20" aria-label="Resource 16, 14 S (Z20)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA20" aria-label="Resource 16, 15 S (AA20)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="AB20" aria-label="Resource 16, 16 M (AB20)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="AC20" aria-label="Resource 16, 17 T (AC20)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-f"><input data-ref="AD20" aria-label="Resource 16, Available hours (AD20)" data-raw="=IF(C20=&quot;unassigned&quot;,0,(SUM(I20:AC20)*$B$1)*G20)" value="45" style="width:9ch" title="=IF(C20=&quot;unassigned&quot;,0,(SUM(I20:AC20)*$B$1)*G20)"></td><td><input data-ref="AE20" aria-label="Resource 16, Calc. (AE20)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>21</th><td class="ss-f"><input data-ref="A21" aria-label="Resource 3, Productive Hours =6 (A21)" data-raw="=G21/100" value="0.005" style="width:15ch" title="=G21/100"></td><td><input data-ref="B21" aria-label="Resource 3, B (B21)" data-raw="1" value="1" style="width:6ch"></td><td class="ss-who"><input data-ref="C21" aria-label="Resource 3, Team  Member (C21)" data-raw="Resource 3" value="Resource 3" style="width:27ch"></td><td class="ss-hide"><input data-ref="D21" aria-label="Resource 3, PTO Plan (D21)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E21" aria-label="Resource 3, E (E21)" data-raw="Dev" value="Dev" style="width:14ch"></td><td><input data-ref="F21" aria-label="Resource 3, Office Location (F21)" data-raw="Onshore" value="Onshore" style="width:9ch"></td><td><input data-ref="G21" aria-label="Resource 3, %age of time on Project (G21)" data-raw="0.5" value="0.5" style="width:9ch"></td><td><input data-ref="H21" aria-label="Resource 3, H (H21)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I21" aria-label="Resource 3, 28 W (I21)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="J21" aria-label="Resource 3, 29 T (J21)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="K21" aria-label="Resource 3, 30 F (K21)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L21" aria-label="Resource 3, 31 S (L21)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M21" aria-label="Resource 3, 1 S (M21)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="N21" aria-label="Resource 3, 2 M (N21)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="O21" aria-label="Resource 3, 3 T (O21)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="P21" aria-label="Resource 3, 4 W (P21)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Q21" aria-label="Resource 3, 5 T (Q21)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="R21" aria-label="Resource 3, 6 F (R21)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S21" aria-label="Resource 3, 7 S (S21)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T21" aria-label="Resource 3, 8 S (T21)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="U21" aria-label="Resource 3, 9 M (U21)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="V21" aria-label="Resource 3, 10 T (V21)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="W21" aria-label="Resource 3, 11 W (W21)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="X21" aria-label="Resource 3, 12 T (X21)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Y21" aria-label="Resource 3, 13 F (Y21)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z21" aria-label="Resource 3, 14 S (Z21)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA21" aria-label="Resource 3, 15 S (AA21)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="AB21" aria-label="Resource 3, 16 M (AB21)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="AC21" aria-label="Resource 3, 17 T (AC21)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-f"><input data-ref="AD21" aria-label="Resource 3, Available hours (AD21)" data-raw="=IF(C21=&quot;unassigned&quot;,0,(SUM(I21:AC21)*$B$1)*G21)" value="45" style="width:9ch" title="=IF(C21=&quot;unassigned&quot;,0,(SUM(I21:AC21)*$B$1)*G21)"></td><td><input data-ref="AE21" aria-label="Resource 3, Calc. (AE21)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>22</th><td class="ss-f"><input data-ref="A22" aria-label="Resource 28, Productive Hours =6 (A22)" data-raw="=G22/100" value="0" style="width:15ch" title="=G22/100"></td><td><input data-ref="B22" aria-label="Resource 28, B (B22)" data-raw="" value="" style="width:6ch"></td><td class="ss-who"><input data-ref="C22" aria-label="Resource 28, Team  Member (C22)" data-raw="Resource 28" value="Resource 28" style="width:27ch"></td><td class="ss-hide"><input data-ref="D22" aria-label="Resource 28, PTO Plan (D22)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E22" aria-label="Resource 28, E (E22)" data-raw="Automation Lead" value="Automation Lead" style="width:14ch"></td><td><input data-ref="F22" aria-label="Resource 28, Office Location (F22)" data-raw="Onshore" value="Onshore" style="width:9ch"></td><td><input data-ref="G22" aria-label="Resource 28, %age of time on Project (G22)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="H22" aria-label="Resource 28, H (H22)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I22" aria-label="Resource 28, 28 W (I22)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="J22" aria-label="Resource 28, 29 T (J22)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="K22" aria-label="Resource 28, 30 F (K22)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L22" aria-label="Resource 28, 31 S (L22)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M22" aria-label="Resource 28, 1 S (M22)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="N22" aria-label="Resource 28, 2 M (N22)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="O22" aria-label="Resource 28, 3 T (O22)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="P22" aria-label="Resource 28, 4 W (P22)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Q22" aria-label="Resource 28, 5 T (Q22)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="R22" aria-label="Resource 28, 6 F (R22)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S22" aria-label="Resource 28, 7 S (S22)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T22" aria-label="Resource 28, 8 S (T22)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="U22" aria-label="Resource 28, 9 M (U22)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="V22" aria-label="Resource 28, 10 T (V22)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="W22" aria-label="Resource 28, 11 W (W22)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="X22" aria-label="Resource 28, 12 T (X22)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="Y22" aria-label="Resource 28, 13 F (Y22)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z22" aria-label="Resource 28, 14 S (Z22)" data-raw="0" value="0" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA22" aria-label="Resource 28, 15 S (AA22)" data-raw="0" value="0" style="width:9ch"></td><td><input data-ref="AB22" aria-label="Resource 28, 16 M (AB22)" data-raw="1" value="1" style="width:9ch"></td><td><input data-ref="AC22" aria-label="Resource 28, 17 T (AC22)" data-raw="1" value="1" style="width:9ch"></td><td class="ss-f"><input data-ref="AD22" aria-label="Resource 28, Available hours (AD22)" data-raw="=IF(C22=&quot;unassigned&quot;,0,(SUM(I22:AC22)*$B$1)*G22)" value="0" style="width:9ch" title="=IF(C22=&quot;unassigned&quot;,0,(SUM(I22:AC22)*$B$1)*G22)"></td><td><input data-ref="AE22" aria-label="Resource 28, Calc. (AE22)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>23</th><td><input data-ref="A23" aria-label="Row 23, Productive Hours =6 (A23)" data-raw="" value="" style="width:15ch"></td><td><input data-ref="B23" aria-label="Row 23, B (B23)" data-raw="" value="" style="width:6ch"></td><td class="ss-who"><input data-ref="C23" aria-label="Row 23, Team  Member (C23)" data-raw="" value="" style="width:27ch"></td><td class="ss-hide"><input data-ref="D23" aria-label="Row 23, PTO Plan (D23)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E23" aria-label="Row 23, E (E23)" data-raw="" value="" style="width:14ch"></td><td><input data-ref="F23" aria-label="Row 23, Office Location (F23)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="G23" aria-label="Row 23, %age of time on Project (G23)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="H23" aria-label="Row 23, H (H23)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I23" aria-label="Row 23, 28 W (I23)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="J23" aria-label="Row 23, 29 T (J23)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="K23" aria-label="Row 23, 30 F (K23)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L23" aria-label="Row 23, 31 S (L23)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M23" aria-label="Row 23, 1 S (M23)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="N23" aria-label="Row 23, 2 M (N23)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="O23" aria-label="Row 23, 3 T (O23)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="P23" aria-label="Row 23, 4 W (P23)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="Q23" aria-label="Row 23, 5 T (Q23)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="R23" aria-label="Row 23, 6 F (R23)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S23" aria-label="Row 23, 7 S (S23)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T23" aria-label="Row 23, 8 S (T23)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="U23" aria-label="Row 23, 9 M (U23)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="V23" aria-label="Row 23, 10 T (V23)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="W23" aria-label="Row 23, 11 W (W23)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="X23" aria-label="Row 23, 12 T (X23)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="Y23" aria-label="Row 23, 13 F (Y23)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z23" aria-label="Row 23, 14 S (Z23)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA23" aria-label="Row 23, 15 S (AA23)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="AB23" aria-label="Row 23, 16 M (AB23)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="AC23" aria-label="Row 23, 17 T (AC23)" data-raw="" value="" style="width:9ch"></td><td class="ss-f"><input data-ref="AD23" aria-label="Row 23, Available hours (AD23)" data-raw="=SUM(AD3:AD22)" value="1620" style="width:9ch" title="=SUM(AD3:AD22)"></td><td><input data-ref="AE23" aria-label="Row 23, Calc. (AE23)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>24</th><td><input data-ref="A24" aria-label="Row 24, Productive Hours =6 (A24)" data-raw="" value="" style="width:15ch"></td><td><input data-ref="B24" aria-label="Row 24, B (B24)" data-raw="" value="" style="width:6ch"></td><td class="ss-who"><input data-ref="C24" aria-label="Row 24, Team  Member (C24)" data-raw="" value="" style="width:27ch"></td><td class="ss-hide"><input data-ref="D24" aria-label="Row 24, PTO Plan (D24)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E24" aria-label="Row 24, E (E24)" data-raw="" value="" style="width:14ch"></td><td><input data-ref="F24" aria-label="Row 24, Office Location (F24)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="G24" aria-label="Row 24, %age of time on Project (G24)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="H24" aria-label="Row 24, H (H24)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I24" aria-label="Row 24, 28 W (I24)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="J24" aria-label="Row 24, 29 T (J24)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="K24" aria-label="Row 24, 30 F (K24)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L24" aria-label="Row 24, 31 S (L24)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M24" aria-label="Row 24, 1 S (M24)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="N24" aria-label="Row 24, 2 M (N24)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="O24" aria-label="Row 24, 3 T (O24)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="P24" aria-label="Row 24, 4 W (P24)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="Q24" aria-label="Row 24, 5 T (Q24)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="R24" aria-label="Row 24, 6 F (R24)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S24" aria-label="Row 24, 7 S (S24)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T24" aria-label="Row 24, 8 S (T24)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="U24" aria-label="Row 24, 9 M (U24)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="V24" aria-label="Row 24, 10 T (V24)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="W24" aria-label="Row 24, 11 W (W24)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="X24" aria-label="Row 24, 12 T (X24)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="Y24" aria-label="Row 24, 13 F (Y24)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z24" aria-label="Row 24, 14 S (Z24)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA24" aria-label="Row 24, 15 S (AA24)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="AB24" aria-label="Row 24, 16 M (AB24)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="AC24" aria-label="Row 24, 17 T (AC24)" data-raw="" value="" style="width:9ch"></td><td class="ss-f"><input data-ref="AD24" aria-label="Row 24, Available hours (AD24)" data-raw="=AD23/8" value="202.5" style="width:9ch" title="=AD23/8"></td><td><input data-ref="AE24" aria-label="Row 24, Calc. (AE24)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>25</th><td><input data-ref="A25" aria-label="Row 25, Productive Hours =6 (A25)" data-raw="" value="" style="width:15ch"></td><td><input data-ref="B25" aria-label="Row 25, B (B25)" data-raw="" value="" style="width:6ch"></td><td class="ss-who"><input data-ref="C25" aria-label="Row 25, Team  Member (C25)" data-raw="" value="" style="width:27ch"></td><td class="ss-hide"><input data-ref="D25" aria-label="Row 25, PTO Plan (D25)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E25" aria-label="Row 25, E (E25)" data-raw="" value="" style="width:14ch"></td><td><input data-ref="F25" aria-label="Row 25, Office Location (F25)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="G25" aria-label="Row 25, %age of time on Project (G25)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="H25" aria-label="Row 25, H (H25)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I25" aria-label="Row 25, 28 W (I25)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="J25" aria-label="Row 25, 29 T (J25)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="K25" aria-label="Row 25, 30 F (K25)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L25" aria-label="Row 25, 31 S (L25)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M25" aria-label="Row 25, 1 S (M25)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="N25" aria-label="Row 25, 2 M (N25)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="O25" aria-label="Row 25, 3 T (O25)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="P25" aria-label="Row 25, 4 W (P25)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="Q25" aria-label="Row 25, 5 T (Q25)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="R25" aria-label="Row 25, 6 F (R25)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S25" aria-label="Row 25, 7 S (S25)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T25" aria-label="Row 25, 8 S (T25)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="U25" aria-label="Row 25, 9 M (U25)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="V25" aria-label="Row 25, 10 T (V25)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="W25" aria-label="Row 25, 11 W (W25)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="X25" aria-label="Row 25, 12 T (X25)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="Y25" aria-label="Row 25, 13 F (Y25)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z25" aria-label="Row 25, 14 S (Z25)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA25" aria-label="Row 25, 15 S (AA25)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="AB25" aria-label="Row 25, 16 M (AB25)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="AC25" aria-label="Row 25, 17 T (AC25)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="AD25" aria-label="Row 25, Available hours (AD25)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="AE25" aria-label="Row 25, Calc. (AE25)" data-raw="" value="" style="width:9ch"></td></tr><tr><th>26</th><td><input data-ref="A26" aria-label="Row 26, Productive Hours =6 (A26)" data-raw="" value="" style="width:15ch"></td><td><input data-ref="B26" aria-label="Row 26, B (B26)" data-raw="" value="" style="width:6ch"></td><td class="ss-who"><input data-ref="C26" aria-label="Row 26, Team  Member (C26)" data-raw="" value="" style="width:27ch"></td><td class="ss-hide"><input data-ref="D26" aria-label="Row 26, PTO Plan (D26)" data-raw="" value="" style="width:28ch"></td><td><input data-ref="E26" aria-label="Row 26, E (E26)" data-raw="" value="" style="width:14ch"></td><td><input data-ref="F26" aria-label="Row 26, Office Location (F26)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="G26" aria-label="Row 26, %age of time on Project (G26)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="H26" aria-label="Row 26, H (H26)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="I26" aria-label="Row 26, 28 W (I26)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="J26" aria-label="Row 26, 29 T (J26)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="K26" aria-label="Row 26, 30 F (K26)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="L26" aria-label="Row 26, 31 S (L26)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="M26" aria-label="Row 26, 1 S (M26)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="N26" aria-label="Row 26, 2 M (N26)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="O26" aria-label="Row 26, 3 T (O26)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="P26" aria-label="Row 26, 4 W (P26)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="Q26" aria-label="Row 26, 5 T (Q26)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="R26" aria-label="Row 26, 6 F (R26)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="S26" aria-label="Row 26, 7 S (S26)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="T26" aria-label="Row 26, 8 S (T26)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="U26" aria-label="Row 26, 9 M (U26)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="V26" aria-label="Row 26, 10 T (V26)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="W26" aria-label="Row 26, 11 W (W26)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="X26" aria-label="Row 26, 12 T (X26)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="Y26" aria-label="Row 26, 13 F (Y26)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="Z26" aria-label="Row 26, 14 S (Z26)" data-raw="" value="" style="width:9ch"></td><td class="ss-wkend"><input data-ref="AA26" aria-label="Row 26, 15 S (AA26)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="AB26" aria-label="Row 26, 16 M (AB26)" data-raw="" value="" style="width:9ch"></td><td><input data-ref="AC26" aria-label="Row 26, 17 T (AC26)" data-raw="" value="" style="width:9ch"></td><td class="ss-f"><input data-ref="AD26" aria-label="Row 26, Available hours (AD26)" data-raw="=AD24*1.3" value="263.25" style="width:9ch" title="=AD24*1.3"></td><td><input data-ref="AE26" aria-label="Row 26, Calc. (AE26)" data-raw="" value="" style="width:9ch"></td></tr></tbody></table></div></section><section role="tabpanel" id="ss-tab-1" hidden><div class="a-table-scroll"><table class="ss" data-days='[]' data-tab="Carry forward"><thead><tr><th></th><th title="Column A">A</th><th title="Column B">B</th><th title="Column C">C</th><th title="Column D">D</th><th title="Column E">E</th></tr></thead><tbody><tr><th>1</th><td><input data-ref="A1" aria-label="Row 1, A (A1)" data-raw="" value="" style="width:16ch"></td><td><input data-ref="B1" aria-label="Row 1, B (B1)" data-raw="" value="" style="width:49ch"></td><td><input data-ref="C1" aria-label="Row 1, C (C1)" data-raw="" value="" style="width:37ch"></td><td><input data-ref="D1" aria-label="Row 1, D (D1)" data-raw="" value=""></td><td><input data-ref="E1" aria-label="Row 1, E (E1)" data-raw="" value=""></td></tr><tr><th>2</th><td><input data-ref="A2" aria-label="Row 2, A (A2)" data-raw="" value="" style="width:16ch"></td><td><input data-ref="B2" aria-label="Row 2, B (B2)" data-raw="" value="" style="width:49ch"></td><td><input data-ref="C2" aria-label="Row 2, C (C2)" data-raw="" value="" style="width:37ch"></td><td><input data-ref="D2" aria-label="Row 2, D (D2)" data-raw="" value=""></td><td><input data-ref="E2" aria-label="Row 2, E (E2)" data-raw="" value=""></td></tr><tr><th>3</th><td><input data-ref="A3" aria-label="Row 3, A (A3)" data-raw="" value="" style="width:16ch"></td><td><input data-ref="B3" aria-label="Row 3, B (B3)" data-raw="" value="" style="width:49ch"></td><td><input data-ref="C3" aria-label="Row 3, C (C3)" data-raw="" value="" style="width:37ch"></td><td><input data-ref="D3" aria-label="Row 3, D (D3)" data-raw="" value=""></td><td><input data-ref="E3" aria-label="Row 3, E (E3)" data-raw="" value=""></td></tr><tr><th>4</th><td><input data-ref="A4" aria-label="Row 4, A (A4)" data-raw="" value="" style="width:16ch"></td><td><input data-ref="B4" aria-label="Row 4, B (B4)" data-raw="" value="" style="width:49ch"></td><td><input data-ref="C4" aria-label="Row 4, C (C4)" data-raw="" value="" style="width:37ch"></td><td><input data-ref="D4" aria-label="Row 4, D (D4)" data-raw="" value=""></td><td><input data-ref="E4" aria-label="Row 4, E (E4)" data-raw="" value=""></td></tr><tr><th>5</th><td><input data-ref="A5" aria-label="Row 5, A (A5)" data-raw="" value="" style="width:16ch"></td><td><input data-ref="B5" aria-label="Row 5, B (B5)" data-raw="" value="" style="width:49ch"></td><td><input data-ref="C5" aria-label="Row 5, C (C5)" data-raw="" value="" style="width:37ch"></td><td><input data-ref="D5" aria-label="Row 5, D (D5)" data-raw="" value=""></td><td><input data-ref="E5" aria-label="Row 5, E (E5)" data-raw="" value=""></td></tr><tr><th>6</th><td><input data-ref="A6" aria-label="Row 6, A (A6)" data-raw="" value="" style="width:16ch"></td><td><input data-ref="B6" aria-label="Row 6, B (B6)" data-raw="" value="" style="width:49ch"></td><td><input data-ref="C6" aria-label="Row 6, C (C6)" data-raw="" value="" style="width:37ch"></td><td><input data-ref="D6" aria-label="Row 6, D (D6)" data-raw="" value=""></td><td><input data-ref="E6" aria-label="Row 6, E (E6)" data-raw="" value=""></td></tr><tr><th>7</th><td><input data-ref="A7" aria-label="Row 7, A (A7)" data-raw="" value="" style="width:16ch"></td><td><input data-ref="B7" aria-label="Row 7, B (B7)" data-raw="" value="" style="width:49ch"></td><td><input data-ref="C7" aria-label="Row 7, C (C7)" data-raw="" value="" style="width:37ch"></td><td class="ss-f"><input data-ref="D7" aria-label="Row 7, D (D7)" data-raw="=SUM(D1:D6)" value="0" title="=SUM(D1:D6)"></td><td class="ss-f"><input data-ref="E7" aria-label="Row 7, E (E7)" data-raw="=SUM(E1:E6)" value="0" title="=SUM(E1:E6)"></td></tr></tbody></table></div></section><section role="tabpanel" id="ss-tab-2" hidden><div class="a-table-scroll"><table class="ss" data-days='[]' data-tab="Previous sprint AI savings"><thead><tr><th></th><th title="Column A">Key</th><th title="Column B">Summary</th><th title="Column C">Story Points</th><th title="Column D">Windsurf</th><th title="Column E">E</th></tr></thead><tbody><tr><th>1</th><td><input data-ref="A1" aria-label="Key, Key (A1)" data-raw="Key" value="Key" style="width:12ch"></td><td><input data-ref="B1" aria-label="Key, Summary (B1)" data-raw="Summary" value="Summary" style="width:42ch"></td><td><input data-ref="C1" aria-label="Key, Story Points (C1)" data-raw="Story Points" value="Story Points"></td><td><input data-ref="D1" aria-label="Key, Windsurf (D1)" data-raw="Windsurf" value="Windsurf"></td><td><input data-ref="E1" aria-label="Key, E (E1)" data-raw="" value=""></td></tr><tr><th>2</th><td><input data-ref="A2" aria-label="Row 2, Key (A2)" data-raw="" value="" style="width:12ch"></td><td><input data-ref="B2" aria-label="Row 2, Summary (B2)" data-raw="" value="" style="width:42ch"></td><td><input data-ref="C2" aria-label="Row 2, Story Points (C2)" data-raw="" value=""></td><td><input data-ref="D2" aria-label="Row 2, Windsurf (D2)" data-raw="" value=""></td><td><input data-ref="E2" aria-label="Row 2, E (E2)" data-raw="" value=""></td></tr><tr><th>3</th><td><input data-ref="A3" aria-label="Row 3, Key (A3)" data-raw="" value="" style="width:12ch"></td><td><input data-ref="B3" aria-label="Row 3, Summary (B3)" data-raw="" value="" style="width:42ch"></td><td><input data-ref="C3" aria-label="Row 3, Story Points (C3)" data-raw="" value=""></td><td><input data-ref="D3" aria-label="Row 3, Windsurf (D3)" data-raw="" value=""></td><td><input data-ref="E3" aria-label="Row 3, E (E3)" data-raw="" value=""></td></tr><tr><th>4</th><td><input data-ref="A4" aria-label="Row 4, Key (A4)" data-raw="" value="" style="width:12ch"></td><td><input data-ref="B4" aria-label="Row 4, Summary (B4)" data-raw="" value="" style="width:42ch"></td><td><input data-ref="C4" aria-label="Row 4, Story Points (C4)" data-raw="" value=""></td><td><input data-ref="D4" aria-label="Row 4, Windsurf (D4)" data-raw="" value=""></td><td><input data-ref="E4" aria-label="Row 4, E (E4)" data-raw="" value=""></td></tr><tr><th>5</th><td><input data-ref="A5" aria-label="Row 5, Key (A5)" data-raw="" value="" style="width:12ch"></td><td><input data-ref="B5" aria-label="Row 5, Summary (B5)" data-raw="" value="" style="width:42ch"></td><td><input data-ref="C5" aria-label="Row 5, Story Points (C5)" data-raw="" value=""></td><td><input data-ref="D5" aria-label="Row 5, Windsurf (D5)" data-raw="" value=""></td><td><input data-ref="E5" aria-label="Row 5, E (E5)" data-raw="" value=""></td></tr><tr><th>6</th><td><input data-ref="A6" aria-label="Row 6, Key (A6)" data-raw="" value="" style="width:12ch"></td><td><input data-ref="B6" aria-label="Row 6, Summary (B6)" data-raw="" value="" style="width:42ch"></td><td><input data-ref="C6" aria-label="Row 6, Story Points (C6)" data-raw="" value=""></td><td><input data-ref="D6" aria-label="Row 6, Windsurf (D6)" data-raw="" value=""></td><td><input data-ref="E6" aria-label="Row 6, E (E6)" data-raw="" value=""></td></tr><tr><th>7</th><td><input data-ref="A7" aria-label="Row 7, Key (A7)" data-raw="" value="" style="width:12ch"></td><td><input data-ref="B7" aria-label="Row 7, Summary (B7)" data-raw="" value="" style="width:42ch"></td><td><input data-ref="C7" aria-label="Row 7, Story Points (C7)" data-raw="" value=""></td><td><input data-ref="D7" aria-label="Row 7, Windsurf (D7)" data-raw="" value=""></td><td><input data-ref="E7" aria-label="Row 7, E (E7)" data-raw="" value=""></td></tr><tr><th>8</th><td><input data-ref="A8" aria-label="Row 8, Key (A8)" data-raw="" value="" style="width:12ch"></td><td><input data-ref="B8" aria-label="Row 8, Summary (B8)" data-raw="" value="" style="width:42ch"></td><td><input data-ref="C8" aria-label="Row 8, Story Points (C8)" data-raw="" value=""></td><td><input data-ref="D8" aria-label="Row 8, Windsurf (D8)" data-raw="" value=""></td><td><input data-ref="E8" aria-label="Row 8, E (E8)" data-raw="" value=""></td></tr><tr><th>9</th><td><input data-ref="A9" aria-label="Row 9, Key (A9)" data-raw="" value="" style="width:12ch"></td><td><input data-ref="B9" aria-label="Row 9, Summary (B9)" data-raw="" value="" style="width:42ch"></td><td><input data-ref="C9" aria-label="Row 9, Story Points (C9)" data-raw="" value=""></td><td><input data-ref="D9" aria-label="Row 9, Windsurf (D9)" data-raw="" value=""></td><td><input data-ref="E9" aria-label="Row 9, E (E9)" data-raw="" value=""></td></tr><tr><th>10</th><td><input data-ref="A10" aria-label="Row 10, Key (A10)" data-raw="" value="" style="width:12ch"></td><td><input data-ref="B10" aria-label="Row 10, Summary (B10)" data-raw="" value="" style="width:42ch"></td><td><input data-ref="C10" aria-label="Row 10, Story Points (C10)" data-raw="" value=""></td><td><input data-ref="D10" aria-label="Row 10, Windsurf (D10)" data-raw="" value=""></td><td><input data-ref="E10" aria-label="Row 10, E (E10)" data-raw="" value=""></td></tr><tr><th>11</th><td><input data-ref="A11" aria-label="Row 11, Key (A11)" data-raw="" value="" style="width:12ch"></td><td><input data-ref="B11" aria-label="Row 11, Summary (B11)" data-raw="" value="" style="width:42ch"></td><td><input data-ref="C11" aria-label="Row 11, Story Points (C11)" data-raw="" value=""></td><td><input data-ref="D11" aria-label="Row 11, Windsurf (D11)" data-raw="" value=""></td><td><input data-ref="E11" aria-label="Row 11, E (E11)" data-raw="" value=""></td></tr><tr><th>12</th><td><input data-ref="A12" aria-label="Row 12, Key (A12)" data-raw="" value="" style="width:12ch"></td><td><input data-ref="B12" aria-label="Row 12, Summary (B12)" data-raw="" value="" style="width:42ch"></td><td class="ss-f"><input data-ref="C12" aria-label="Row 12, Story Points (C12)" data-raw="=SUM(C2:C11)" value="0" title="=SUM(C2:C11)"></td><td class="ss-f"><input data-ref="D12" aria-label="Row 12, Windsurf (D12)" data-raw="=SUM(D2:D11)" value="0" title="=SUM(D2:D11)"></td><td class="ss-f"><input data-ref="E12" aria-label="Row 12, E (E12)" data-raw="=C12-D12" value="0" title="=C12-D12"></td></tr></tbody></table></div></section><div class="ss-save"><label>Your name <input id="ss-by" class="a-input" placeholder="as on the roster"></label> <button type="button" class="a-btn" id="ss-save">Save</button> <button type="button" class="a-btn" id="ss-approve" hidden>Approved, save</button> <span id="ss-count" class="c-muted"></span> <span id="ss-msg"></span><textarea id="ss-edits" rows="6" style="width:100%" readonly hidden></textarea></div><script type="application/json" id="ss-data">{"sprint": "26.4.3", "start": "2026-10-28", "end": "2026-11-17", "source": "copied from sprint 26.4.2", "tabs": [{"name": "Capacity", "cells": {"A1": "Productive Hours =6", "B1": "6", "C1": "Sprint Days = 15", "I1": 28, "J1": 29, "K1": 30, "L1": 31, "M1": 1, "N1": 2, "O1": 3, "P1": 4, "Q1": 5, "R1": 6, "S1": 7, "T1": 8, "U1": 9, "V1": 10, "W1": 11, "X1": 12, "Y1": 13, "Z1": 14, "AA1": 15, "AB1": 16, "AC1": 17, "C2": "Team  Member", "D2": "PTO Plan", "F2": "Office Location", "G2": "%age of time on Project", "I2": "W", "J2": "T", "K2": "F", "L2": "S", "M2": "S", "N2": "M", "O2": "T", "P2": "W", "Q2": "T", "R2": "F", "S2": "S", "T2": "S", "U2": "M", "V2": "T", "W2": "W", "X2": "T", "Y2": "F", "Z2": "S", "AA2": "S", "AB2": "M", "AC2": "T", "AD2": "Available hours", "AE2": "Calc.", "A3": "=G3/100", "B3": "=G3/1", "C3": "Resource 11", "E3": "Dev", "F3": "OffShore", "G3": 1, "I3": 1, "J3": 1, "K3": 1, "L3": 0, "M3": 0, "N3": 1, "O3": 1, "P3": 1, "Q3": 1, "R3": 1, "S3": 0, "T3": 0, "U3": 1, "V3": 1, "W3": 1, "X3": 1, "Y3": 1, "Z3": 0, "AA3": 0, "AB3": 1, "AC3": 1, "AD3": "=IF(C3=\"unassigned\",0,(SUM(I3:AC3)*$B$1)*G3)", "A4": "=G4/100", "B4": "=G4/1", "C4": "Resource 12", "E4": "Dev", "F4": "OffShore", "G4": 1, "I4": 1, "J4": 1, "K4": 1, "L4": 0, "M4": 0, "N4": 1, "O4": 1, "P4": 1, "Q4": 1, "R4": 1, "S4": 0, "T4": 0, "U4": 1, "V4": 1, "W4": 1, "X4": 1, "Y4": 1, "Z4": 0, "AA4": 0, "AB4": 1, "AC4": 1, "AD4": "=IF(C4=\"unassigned\",0,(SUM(I4:AC4)*$B$1)*G4)", "A5": "=G5/100", "B5": "=G5/1", "C5": "Resource 6", "E5": "Dev", "F5": "Offshore", "G5": 1, "I5": 1, "J5": 1, "K5": 1, "L5": 0, "M5": 0, "N5": 1, "O5": 1, "P5": 1, "Q5": 1, "R5": 1, "S5": 0, "T5": 0, "U5": 1, "V5": 1, "W5": 1, "X5": 1, "Y5": 1, "Z5": 0, "AA5": 0, "AB5": 1, "AC5": 1, "AD5": "=IF(C5=\"unassigned\",0,(SUM(I5:AC5)*$B$1)*G5)", "A6": "=G6/100", "B6": "=G6/1", "C6": "Resource 15", "E6": "Dev", "F6": "Offshore", "G6": 1, "I6": 1, "J6": 1, "K6": 1, "L6": 0, "M6": 0, "N6": 1, "O6": 1, "P6": 1, "Q6": 1, "R6": 1, "S6": 0, "T6": 0, "U6": 1, "V6": 1, "W6": 1, "X6": 1, "Y6": 1, "Z6": 0, "AA6": 0, "AB6": 1, "AC6": 1, "AD6": "=IF(C6=\"unassigned\",0,(SUM(I6:AC6)*$B$1)*G6)", "A7": "=G7/100", "B7": "=G7/1", "C7": "Resource 5", "E7": "Dev", "F7": "Offshore", "G7": 1, "I7": 1, "J7": 1, "K7": 1, "L7": 0, "M7": 0, "N7": 1, "O7": 1, "P7": 1, "Q7": 1, "R7": 1, "S7": 0, "T7": 0, "U7": 1, "V7": 1, "W7": 1, "X7": 1, "Y7": 1, "Z7": 0, "AA7": 0, "AB7": 1, "AC7": 1, "AD7": "=IF(C7=\"unassigned\",0,(SUM(I7:AC7)*$B$1)*G7)", "A8": "=G8/100", "B8": "=G8/1", "C8": "Resource 13", "E8": "Dev", "F8": "Offshore", "G8": 1, "I8": 1, "J8": 1, "K8": 1, "L8": 0, "M8": 0, "N8": 1, "O8": 1, "P8": 1, "Q8": 1, "R8": 1, "S8": 0, "T8": 0, "U8": 1, "V8": 1, "W8": 1, "X8": 1, "Y8": 1, "Z8": 0, "AA8": 0, "AB8": 1, "AC8": 1, "AD8": "=IF(C8=\"unassigned\",0,(SUM(I8:AC8)*$B$1)*G8)", "A9": "=G9/100", "B9": "=G9/1", "C9": "Resource 8", "E9": "Dev", "F9": "Offshore", "G9": 1, "I9": 1, "J9": 1, "K9": 1, "L9": 0, "M9": 0, "N9": 1, "O9": 1, "P9": 1, "Q9": 1, "R9": 1, "S9": 0, "T9": 0, "U9": 1, "V9": 1, "W9": 1, "X9": 1, "Y9": 1, "Z9": 0, "AA9": 0, "AB9": 1, "AC9": 1, "AD9": "=IF(C9=\"unassigned\",0,(SUM(I9:AC9)*$B$1)*G9)", "A10": "=G10/100", "B10": "=G10/1", "C10": "Resource 14", "E10": "Dev", "F10": "Offshore", "G10": 1, "I10": 1, "J10": 1, "K10": 1, "L10": 0, "M10": 0, "N10": 1, "O10": 1, "P10": 1, "Q10": 1, "R10": 1, "S10": 0, "T10": 0, "U10": 1, "V10": 1, "W10": 1, "X10": 1, "Y10": 1, "Z10": 0, "AA10": 0, "AB10": 1, "AC10": 1, "AD10": "=IF(C10=\"unassigned\",0,(SUM(I10:AC10)*$B$1)*G10)", "A11": "=G11/100", "B11": "=G11/1", "C11": "Resource 9", "E11": "Dev", "F11": "Offshore", "G11": 1, "I11": 1, "J11": 1, "K11": 1, "L11": 0, "M11": 0, "N11": 1, "O11": 1, "P11": 1, "Q11": 1, "R11": 1, "S11": 0, "T11": 0, "U11": 1, "V11": 1, "W11": 1, "X11": 1, "Y11": 1, "Z11": 0, "AA11": 0, "AB11": 1, "AC11": 1, "AD11": "=IF(C11=\"unassigned\",0,(SUM(I11:AC11)*$B$1)*G11)", "A12": "=G12/100", "B12": "=G12/1", "C12": "Resource 4", "E12": "Dev", "F12": "Offshore", "G12": 1, "I12": 1, "J12": 1, "K12": 1, "L12": 0, "M12": 0, "N12": 1, "O12": 1, "P12": 1, "Q12": 1, "R12": 1, "S12": 0, "T12": 0, "U12": 1, "V12": 1, "W12": 1, "X12": 1, "Y12": 1, "Z12": 0, "AA12": 0, "AB12": 1, "AC12": 1, "AD12": "=IF(C12=\"unassigned\",0,(SUM(I12:AC12)*$B$1)*G12)", "A13": "=G13/100", "B13": "=G13/1", "C13": "Resource 7", "E13": "Dev", "F13": "Offshore", "G13": 1, "I13": 1, "J13": 1, "K13": 1, "L13": 0, "M13": 0, "N13": 1, "O13": 1, "P13": 1, "Q13": 1, "R13": 1, "S13": 0, "T13": 0, "U13": 1, "V13": 1, "W13": 1, "X13": 1, "Y13": 1, "Z13": 0, "AA13": 0, "AB13": 1, "AC13": 1, "AD13": "=IF(C13=\"unassigned\",0,(SUM(I13:AC13)*$B$1)*G13)", "A14": "=G14/100", "B14": "=G14/1", "C14": "Resource 10", "E14": "Dev", "F14": "Offshore", "G14": 1, "I14": 1, "J14": 1, "K14": 1, "L14": 0, "M14": 0, "N14": 1, "O14": 1, "P14": 1, "Q14": 1, "R14": 1, "S14": 0, "T14": 0, "U14": 1, "V14": 1, "W14": 1, "X14": 1, "Y14": 1, "Z14": 0, "AA14": 0, "AB14": 1, "AC14": 1, "AD14": "=IF(C14=\"unassigned\",0,(SUM(I14:AC14)*$B$1)*G14)", "A15": "=G15/100", "B15": "=G15/1", "C15": "Resource 18", "E15": "BSA", "F15": "Offshore", "G15": 1, "I15": 1, "J15": 1, "K15": 1, "L15": 0, "M15": 0, "N15": 1, "O15": 1, "P15": 1, "Q15": 1, "R15": 1, "S15": 0, "T15": 0, "U15": 1, "V15": 1, "W15": 1, "X15": 1, "Y15": 1, "Z15": 0, "AA15": 0, "AB15": 1, "AC15": 1, "AD15": "=IF(C15=\"unassigned\",0,(SUM(I15:AC15)*$B$1)*G15)", "A16": "=G16/100", "B16": "=G16/1", "C16": "Resource 20", "E16": "BSA", "F16": "Offshore", "G16": 1, "I16": 1, "J16": 1, "K16": 1, "L16": 0, "M16": 0, "N16": 1, "O16": 1, "P16": 1, "Q16": 1, "R16": 1, "S16": 0, "T16": 0, "U16": 1, "V16": 1, "W16": 1, "X16": 1, "Y16": 1, "Z16": 0, "AA16": 0, "AB16": 1, "AC16": 1, "AD16": "=IF(C16=\"unassigned\",0,(SUM(I16:AC16)*$B$1)*G16)", "A17": "=G17/100", "B17": "=G17/1", "C17": "Resource 22", "E17": "SIT Automation", "F17": "Offshore", "G17": 1, "I17": 1, "J17": 1, "K17": 1, "L17": 0, "M17": 0, "N17": 1, "O17": 1, "P17": 1, "Q17": 1, "R17": 1, "S17": 0, "T17": 0, "U17": 1, "V17": 1, "W17": 1, "X17": 1, "Y17": 1, "Z17": 0, "AA17": 0, "AB17": 1, "AC17": 1, "AD17": "=IF(C17=\"unassigned\",0,(SUM(I17:AC17)*$B$1)*G17)", "A18": "=G18/100", "B18": "=G18/1", "C18": "Resource 21", "E18": "SIT - Automation", "F18": "Offshore", "G18": 1, "I18": 1, "J18": 1, "K18": 1, "L18": 0, "M18": 0, "N18": 1, "O18": 1, "P18": 1, "Q18": 1, "R18": 1, "S18": 0, "T18": 0, "U18": 1, "V18": 1, "W18": 1, "X18": 1, "Y18": 1, "Z18": 0, "AA18": 0, "AB18": 1, "AC18": 1, "AD18": "=IF(C18=\"unassigned\",0,(SUM(I18:AC18)*$B$1)*G18)", "A19": "=G19/100", "B19": "=G19/1", "C19": "Resource 19", "E19": "SIT - Manual", "F19": "Off Shore", "G19": 1, "I19": 1, "J19": 1, "K19": 1, "L19": 0, "M19": 0, "N19": 1, "O19": 1, "P19": 1, "Q19": 1, "R19": 1, "S19": 0, "T19": 0, "U19": 1, "V19": 1, "W19": 1, "X19": 1, "Y19": 1, "Z19": 0, "AA19": 0, "AB19": 1, "AC19": 1, "AD19": "=IF(C19=\"unassigned\",0,(SUM(I19:AC19)*$B$1)*G19)", "A20": "=G20/100", "B20": 0.5, "C20": "Resource 16", "E20": "UAT", "F20": "Onshore", "G20": 0.5, "I20": 1, "J20": 1, "K20": 1, "L20": 0, "M20": 0, "N20": 1, "O20": 1, "P20": 1, "Q20": 1, "R20": 1, "S20": 0, "T20": 0, "U20": 1, "V20": 1, "W20": 1, "X20": 1, "Y20": 1, "Z20": 0, "AA20": 0, "AB20": 1, "AC20": 1, "AD20": "=IF(C20=\"unassigned\",0,(SUM(I20:AC20)*$B$1)*G20)", "A21": "=G21/100", "B21": 1, "C21": "Resource 3", "E21": "Dev", "F21": "Onshore", "G21": 0.5, "I21": 1, "J21": 1, "K21": 1, "L21": 0, "M21": 0, "N21": 1, "O21": 1, "P21": 1, "Q21": 1, "R21": 1, "S21": 0, "T21": 0, "U21": 1, "V21": 1, "W21": 1, "X21": 1, "Y21": 1, "Z21": 0, "AA21": 0, "AB21": 1, "AC21": 1, "AD21": "=IF(C21=\"unassigned\",0,(SUM(I21:AC21)*$B$1)*G21)", "A22": "=G22/100", "C22": "Resource 28", "E22": "Automation Lead", "F22": "Onshore", "G22": 0, "I22": 1, "J22": 1, "K22": 1, "L22": 0, "M22": 0, "N22": 1, "O22": 1, "P22": 1, "Q22": 1, "R22": 1, "S22": 0, "T22": 0, "U22": 1, "V22": 1, "W22": 1, "X22": 1, "Y22": 1, "Z22": 0, "AA22": 0, "AB22": 1, "AC22": 1, "AD22": "=IF(C22=\"unassigned\",0,(SUM(I22:AC22)*$B$1)*G22)", "AD23": "=SUM(AD3:AD22)", "AD24": "=AD23/8", "AD26": "=AD24*1.3"}, "widths": {"A": 15.6, "B": 6.4, "C": 27.0, "D": 28.0, "E": 14.1, "F": 9.1, "G": 9.7, "H": 9.1, "I": 9.1, "J": 9.1, "K": 9.1, "L": 9.1, "M": 9.1, "N": 9.1, "O": 9.1, "P": 9.1, "Q": 9.1, "R": 9.1, "S": 9.1, "T": 9.1, "U": 9.1, "V": 9.1, "W": 9.1, "X": 9.1, "Y": 9.1, "Z": 9.1, "AA": 9.1, "AB": 9.1, "AC": 9.1, "AD": 9.1, "AE": 9.1, "AF": 9.1, "AG": 9.1}, "hidden": ["D"]}, {"name": "Carry forward", "cells": {"D7": "=SUM(D1:D6)", "E7": "=SUM(E1:E6)"}, "widths": {"A": 16.0, "B": 49.0, "C": 37.1}, "hidden": []}, {"name": "Previous sprint AI savings", "cells": {"A1": "Key", "B1": "Summary", "C1": "Story Points", "D1": "Windsurf", "C12": "=SUM(C2:C11)", "D12": "=SUM(D2:D11)", "E12": "=C12-D12"}, "widths": {"A": 12.0, "B": 42.4}, "hidden": []}]}</script>
+<footer class="a-footnote">From copied from sprint 26.4.2. One file per sprint in sdlc/framework/context/sprint-sheets/.</footer>
+
+</main>
+<script>
+
+/* Devin artifact kit — self-contained behavior for standalone HTML artifacts.
+   No build step, no imports, no network calls. Every widget is progressive
+   enhancement: the markup stays readable and printable with scripting off. */
+(function () {
+  "use strict";
+
+  var root = document.documentElement;
+  var THEMES = { light: 1, dark: 1 };
+
+  function showError(message) {
+    document.querySelectorAll("[data-a-error]").forEach(function (region) {
+      region.hidden = false;
+      var detail = region.querySelector("[data-a-error-detail]");
+      if (detail && message) detail.textContent = message;
+    });
+  }
+
+  window.addEventListener("error", function (event) {
+    showError(event.message);
+  });
+  window.addEventListener("unhandledrejection", function (event) {
+    showError(String(event.reason || "An interactive control failed."));
+  });
+
+  /* ---------- theme ----------
+     Order of precedence:
+       1. an explicit host signal (`?theme=`/`#theme=`, a `devin:theme`
+          message from an embedding page, or a preset `data-theme`),
+       2. a reader's in-document choice,
+       3. the OS/browser preference via `prefers-color-scheme`.
+     Hosts that expose no signal simply fall through to step 3. */
+  function hostTheme() {
+    var search = new URLSearchParams(
+      window.location.search + "&" + window.location.hash.replace(/^#/, "")
+    );
+    var fromUrl = search.get("theme");
+    if (fromUrl && THEMES[fromUrl]) return fromUrl;
+    var preset = root.getAttribute("data-theme");
+    if (preset && THEMES[preset]) return preset;
+    return null;
+  }
+
+  function systemTheme() {
+    return window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  }
+
+  var pinned = hostTheme();
+
+  function apply(theme) {
+    root.setAttribute("data-theme", theme);
+    document.querySelectorAll("[data-a-theme-toggle]").forEach(function (el) {
+      var label =
+        theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
+      el.setAttribute("aria-label", label);
+      el.setAttribute("title", label);
+    });
+  }
+
+  apply(pinned || systemTheme());
+
+  if (window.matchMedia) {
+    var media = window.matchMedia("(prefers-color-scheme: dark)");
+    var onChange = function () {
+      if (!pinned) apply(systemTheme());
+    };
+    if (media.addEventListener) media.addEventListener("change", onChange);
+    else if (media.addListener) media.addListener(onChange);
+  }
+
+  window.addEventListener("message", function (event) {
+    if (window.parent === window || event.source !== window.parent) return;
+    var data = event.data;
+    if (!data || data.type !== "devin:theme" || !THEMES[data.theme]) return;
+    pinned = data.theme;
+    apply(pinned);
+  });
+
+  document.addEventListener("click", function (event) {
+    var toggle = event.target.closest("[data-a-theme-toggle]");
+    if (!toggle) return;
+    pinned = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    apply(pinned);
+  });
+
+  /* ---------- tabs ----------
+     <div data-a-tabs role="tablist">
+       <button class="a-btn" role="tab" aria-controls="panel-id">Label</button>
+     Panels are plain elements toggled with `hidden`, so print reveals the
+     active one and `.a-print-reveal` can opt others in. */
+  function selectTab(list, tab) {
+    list.querySelectorAll('[role="tab"]').forEach(function (candidate) {
+      var selected = candidate === tab;
+      candidate.setAttribute("aria-selected", String(selected));
+      candidate.tabIndex = selected ? 0 : -1;
+      var panel = document.getElementById(
+        candidate.getAttribute("aria-controls") || ""
+      );
+      if (panel) panel.hidden = !selected;
+    });
+  }
+
+  document.querySelectorAll("[data-a-tabs]").forEach(function (list) {
+    var tabs = Array.prototype.slice.call(
+      list.querySelectorAll('[role="tab"]')
+    );
+    if (!tabs.length) return;
+    var active =
+      tabs.filter(function (t) {
+        return t.getAttribute("aria-selected") === "true";
+      })[0] || tabs[0];
+    selectTab(list, active);
+
+    list.addEventListener("click", function (event) {
+      var tab = event.target.closest('[role="tab"]');
+      if (tab) selectTab(list, tab);
+    });
+
+    list.addEventListener("keydown", function (event) {
+      var step =
+        event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
+      if (!step) return;
+      event.preventDefault();
+      var current = tabs.indexOf(document.activeElement);
+      var next = tabs[(current + step + tabs.length) % tabs.length];
+      next.focus();
+      selectTab(list, next);
+    });
+  });
+
+  /* ---------- row filters ----------
+     <select data-a-filter="#table-id" data-a-filter-key="team">
+     Rows opt in with a matching `data-team` attribute; "all" clears it. */
+  document.querySelectorAll("[data-a-filter]").forEach(function (control) {
+    var target = document.querySelector(control.getAttribute("data-a-filter"));
+    var key = control.getAttribute("data-a-filter-key") || "filter";
+    if (!target) return;
+
+    var emptySelector = control.getAttribute("data-a-filter-empty");
+    var empty = emptySelector ? document.querySelector(emptySelector) : null;
+
+    var applyFilter = function () {
+      var value = control.value;
+      var shown = 0;
+      /* Re-read the rows every time: a script may have replaced them since
+         the last pass, and those rows must obey the current selection too. */
+      target.querySelectorAll("[data-" + key + "]").forEach(function (row) {
+        var match = value === "all" || row.getAttribute("data-" + key) === value;
+        row.hidden = !match;
+        if (match) shown += 1;
+      });
+      if (empty) empty.hidden = shown !== 0;
+      target.hidden = shown === 0 && !!empty;
+    };
+
+    control.addEventListener("change", applyFilter);
+    applyFilter();
+
+    /* Rows swapped in by a script are filtered as soon as they land, so a
+       redraw never shows rows the current selection excludes. Only childList
+       is watched, so the `hidden` writes above cannot retrigger this. */
+    new MutationObserver(function () {
+      applyFilter();
+    }).observe(target, { childList: true, subtree: true });
+  });
+
+  /* ---------- tooltips ----------
+     One shared tooltip serves every chart and any element carrying
+     `data-a-tip`. Pointer, keyboard focus, and touch all route through the
+     same show/hide pair, so an exact value is never hover-only. */
+  var tipEl = null;
+  var tipRelease = null;
+  var tipHost = null;
+
+  function tipNode() {
+    if (tipEl) return tipEl;
+    tipEl = document.createElement("div");
+    tipEl.className = "a-tip a-no-print";
+    tipEl.setAttribute("role", "tooltip");
+    tipEl.hidden = true;
+    document.body.appendChild(tipEl);
+    return tipEl;
+  }
+
+  function hideTip() {
+    var release = tipRelease;
+    tipRelease = null;
+    tipHost = null;
+    if (release) release();
+    if (tipEl) tipEl.hidden = true;
+  }
+
+  function positionTip(anchor, pointer) {
+    var el = tipNode();
+    var width = el.offsetWidth;
+    var height = el.offsetHeight;
+    var edge = 8;
+    var x = pointer ? pointer.x + 14 : anchor.left + anchor.width / 2 - width / 2;
+    var y = pointer ? pointer.y - height - 16 : anchor.top - height - 10;
+    if (y < edge) y = pointer ? pointer.y + 22 : anchor.bottom + 10;
+    x = Math.max(edge, Math.min(x, window.innerWidth - width - edge));
+    y = Math.max(edge, Math.min(y, window.innerHeight - height - edge));
+    el.style.transform =
+      "translate(" + Math.round(x) + "px, " + Math.round(y) + "px)";
+  }
+
+  function tipRow(row) {
+    var line = document.createElement("div");
+    line.className =
+      "a-tip__row" + (row.series ? " a-series-" + row.series : "");
+    if (row.series) {
+      var swatch = document.createElement("span");
+      swatch.className = "a-tip__swatch";
+      line.appendChild(swatch);
+    }
+    var name = document.createElement("span");
+    name.className = "a-tip__name";
+    name.textContent = row.name || "";
+    line.appendChild(name);
+    var value = document.createElement("span");
+    value.className = "a-tip__value";
+    value.textContent = row.value == null || row.value === "" ? "—" : row.value;
+    line.appendChild(value);
+    return line;
+  }
+
+  /* `content` is { title, text, rows: [{ name, value, series }] }. `release`
+     runs when the tooltip is replaced or dismissed so the owner can drop its
+     highlight state. */
+  function showTip(content, host, anchor, pointer, release) {
+    if (tipRelease && tipRelease !== release) {
+      var previous = tipRelease;
+      tipRelease = null;
+      previous();
+    }
+    tipRelease = release || null;
+    tipHost = host || null;
+    var el = tipNode();
+    el.textContent = "";
+    if (content.title) {
+      var title = document.createElement("div");
+      title.className = "a-tip__title";
+      title.textContent = content.title;
+      el.appendChild(title);
+    }
+    if (content.text) {
+      var text = document.createElement("div");
+      text.className = "a-tip__text";
+      text.textContent = content.text;
+      el.appendChild(text);
+    }
+    (content.rows || []).forEach(function (row) {
+      el.appendChild(tipRow(row));
+    });
+    el.hidden = false;
+    positionTip(anchor, pointer);
+  }
+
+  /* Escape hatch for hand-authored marks: `data-a-tip` holds the value text
+     and the optional `data-a-tip-title` holds a heading. */
+  function annotatedHost(node) {
+    return node && node.closest ? node.closest("[data-a-tip]") : null;
+  }
+
+  function showAnnotatedTip(host, pointer) {
+    showTip(
+      {
+        title: host.getAttribute("data-a-tip-title") || "",
+        text: host.getAttribute("data-a-tip") || ""
+      },
+      host,
+      host.getBoundingClientRect(),
+      pointer,
+      null
+    );
+  }
+
+  document.addEventListener("pointerover", function (event) {
+    var host = annotatedHost(event.target);
+    if (!host) return;
+    showAnnotatedTip(
+      host,
+      event.pointerType === "touch" ? null : { x: event.clientX, y: event.clientY }
+    );
+  });
+
+  document.addEventListener("pointermove", function (event) {
+    if (!tipHost || event.pointerType === "touch") return;
+    if (!tipHost.hasAttribute || !tipHost.hasAttribute("data-a-tip")) return;
+    if (annotatedHost(event.target) !== tipHost) return;
+    positionTip(tipHost.getBoundingClientRect(), {
+      x: event.clientX,
+      y: event.clientY
+    });
+  });
+
+  document.addEventListener("pointerout", function (event) {
+    var host = annotatedHost(event.target);
+    if (!host || host !== tipHost) return;
+    if (event.relatedTarget && host.contains(event.relatedTarget)) return;
+    hideTip();
+  });
+
+  document.addEventListener("focusin", function (event) {
+    var host = annotatedHost(event.target);
+    if (host) showAnnotatedTip(host, null);
+  });
+
+  document.addEventListener("focusout", function (event) {
+    var host = annotatedHost(event.target);
+    if (!host || host !== tipHost) return;
+    /* A still-hovered mark keeps its tooltip; `pointerout` closes that one. */
+    if (host.matches && host.matches(":hover")) return;
+    hideTip();
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") hideTip();
+  });
+
+  window.addEventListener("scroll", hideTip, true);
+  window.addEventListener("resize", hideTip);
+
+  /* ---------- charts ----------
+     <figure class="a-figure" data-a-chart="bar|stacked-bar|line"> wrapping a
+     plain <table> of the same numbers. The table is both the data source and
+     the no-script fallback: the kit draws the chart from it and then keeps it
+     under a disclosure as the exact-value equivalent. Each category gets a
+     hover band that also takes keyboard focus, so pointer, arrow keys, and
+     tap all produce the same readout. */
+  var SVG_NS = "http://www.w3.org/2000/svg";
+  var CHART_WIDTH = 640;
+  var CHART_TYPES = { bar: 1, "stacked-bar": 1, line: 1 };
+
+  function svgNode(name, attrs) {
+    var node = document.createElementNS(SVG_NS, name);
+    Object.keys(attrs || {}).forEach(function (key) {
+      node.setAttribute(key, String(attrs[key]));
+    });
+    return node;
+  }
+
+  /* `data-value` wins so cells can stay human-readable ("1,284", "18m 24s"). */
+  function cellNumber(cell) {
+    var explicit = cell.getAttribute("data-value");
+    var text = (explicit === null ? cell.textContent : explicit) || "";
+    var match = text
+      .replace(/\u2212/g, "-")
+      .replace(/,/g, "")
+      .match(/-?\d*\.?\d+/);
+    return match ? parseFloat(match[0]) : null;
+  }
+
+  function readChartTable(table) {
+    var headCells = table.querySelectorAll("thead th");
+    if (headCells.length < 2) return null;
+    var series = [];
+    for (var column = 1; column < headCells.length; column += 1) {
+      series.push(headCells[column].textContent.trim());
+    }
+    var categories = [];
+    table.querySelectorAll("tbody tr").forEach(function (row) {
+      var cells = row.children;
+      if (cells.length < 2) return;
+      /* A hidden row is filtered out, so the chart matches what is listed. */
+      if (row.hidden || row.hasAttribute("data-a-excluded")) return;
+      var point = {
+        label: cells[0].textContent.trim(),
+        row: row,
+        values: [],
+        texts: []
+      };
+      series.forEach(function (name, position) {
+        var cell = cells[position + 1];
+        point.values.push(cell ? cellNumber(cell) : null);
+        point.texts.push(cell ? cell.textContent.trim() : "");
+      });
+      categories.push(point);
+    });
+    return categories.length
+      ? { series: series, categories: categories }
+      : null;
+  }
+
+  function niceCeil(value) {
+    if (!(value > 0)) return 1;
+    var magnitude = Math.pow(10, Math.floor(Math.log(value) / Math.LN10));
+    var steps = [1, 1.5, 2, 2.5, 3, 4, 5, 7.5, 10];
+    for (var i = 0; i < steps.length; i += 1) {
+      if (value <= steps[i] * magnitude) return steps[i] * magnitude;
+    }
+    return 10 * magnitude;
+  }
+
+  function formatTick(value) {
+    var size = Math.abs(value);
+    if (size >= 1000000) {
+      return (value / 1000000).toFixed(size % 1000000 ? 1 : 0) + "M";
+    }
+    if (size >= 1000) return (value / 1000).toFixed(size % 1000 ? 1 : 0) + "k";
+    return String(Math.round(value * 100) / 100);
+  }
+
+  /* Per-figure render state so a chart can be drawn more than once: the
+     nodes from the previous pass are thrown away and rebuilt from whatever
+     the table says now. */
+  var chartState = new WeakMap();
+
+  function chartTable(figure) {
+    var details = figure.querySelector(".a-chart__data");
+    return (details || figure).querySelector("table");
+  }
+
+  /* The table is the source of truth, so any change to it — a filter hiding
+     rows, new rows, an edited cell — redraws the chart on its own. */
+  function watchChartTable(figure, state) {
+    if (state.observer) return;
+    var queued = false;
+    state.observer = new MutationObserver(function () {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(function () {
+        queued = false;
+        renderChart(figure);
+      });
+    });
+    /* Watching the disclosure rather than the table keeps the chart live even
+       when a script replaces the whole <table>. */
+    state.observer.observe(state.details, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: ["hidden", "data-a-excluded", "data-value"]
+    });
+  }
+
+  function renderChart(figure) {
+    var type = figure.getAttribute("data-a-chart");
+    var table = chartTable(figure);
+    if (!CHART_TYPES[type] || !table) return;
+
+    var state = chartState.get(figure);
+    if (!state) {
+      state = { nodes: [], details: null, observer: null, focused: null };
+      chartState.set(figure, state);
+    }
+
+    /* Keeping the reader's place: a re-render restores keyboard focus to the
+       same category when it survives. */
+    var hadFocus = state.nodes.some(function (node) {
+      return node.contains(document.activeElement);
+    });
+    var refocus = hadFocus ? state.focused : null;
+    if (tipHost && figure.contains(tipHost)) hideTip();
+    state.nodes.forEach(function (node) {
+      if (node.parentNode) node.parentNode.removeChild(node);
+    });
+    state.nodes = [];
+
+    if (!state.details) {
+      var source = table.closest(".a-table-scroll") || table;
+      var details = document.createElement("details");
+      details.className = "a-disclosure a-chart__data";
+      var summary = document.createElement("summary");
+      summary.textContent = "Data table";
+      details.appendChild(summary);
+      source.parentNode.insertBefore(details, source);
+      details.appendChild(source);
+      state.details = details;
+    }
+    watchChartTable(figure, state);
+
+    var data = readChartTable(table);
+    if (!data) {
+      var empty = document.createElement("p");
+      empty.className = "a-chart__empty";
+      empty.textContent =
+        figure.getAttribute("data-a-chart-empty") ||
+        "No data for this selection.";
+      figure.insertBefore(empty, state.details);
+      state.nodes.push(empty);
+      state.focused = null;
+      return;
+    }
+
+    var stacked = type === "stacked-bar";
+    var isLine = type === "line";
+    var height = parseFloat(figure.getAttribute("data-a-chart-height")) || 220;
+    var unit = figure.getAttribute("data-a-chart-unit") || "";
+    var tickUnit = unit.length <= 2 ? unit : "";
+    var pad = { top: 14, right: 14, bottom: 30, left: 46 };
+    var plotWidth = CHART_WIDTH - pad.left - pad.right;
+    var plotHeight = height - pad.top - pad.bottom;
+    var bandWidth = plotWidth / data.categories.length;
+
+    var high = 0;
+    var low = 0;
+    data.categories.forEach(function (point) {
+      var sum = 0;
+      point.values.forEach(function (value) {
+        if (value === null) return;
+        sum += value > 0 ? value : 0;
+        low = Math.min(low, value);
+        if (!stacked) high = Math.max(high, value);
+      });
+      if (stacked) high = Math.max(high, sum);
+    });
+    var declaredMax = parseFloat(figure.getAttribute("data-a-chart-max"));
+    var maxY = isFinite(declaredMax) ? declaredMax : niceCeil(high);
+    var minY = low < 0 ? -niceCeil(-low) : 0;
+    var span = maxY - minY || 1;
+
+    var scaleY = function (value) {
+      return pad.top + ((maxY - value) / span) * plotHeight;
+    };
+    var centerX = function (index) {
+      return pad.left + bandWidth * (index + 0.5);
+    };
+    var describe = function (index) {
+      var point = data.categories[index];
+      return (
+        point.label +
+        ": " +
+        data.series
+          .map(function (name, position) {
+            return name + " " + (point.texts[position] || "no value");
+          })
+          .join(", ")
+      );
+    };
+
+    var caption = figure.querySelector("figcaption");
+    var svg = svgNode("svg", {
+      class: "a-chart",
+      viewBox: "0 0 " + CHART_WIDTH + " " + height,
+      role: "group",
+      "aria-label":
+        (figure.getAttribute("data-a-chart-label") ||
+          (caption ? caption.textContent.trim() : "Chart")) +
+        ". Use the arrow keys to read each value."
+    });
+
+    var grid = svgNode("g", { class: "a-chart__grid" });
+    var axis = svgNode("g", { class: "a-chart__axis" });
+    for (var tick = 0; tick <= 4; tick += 1) {
+      var value = minY + (span * tick) / 4;
+      var y = scaleY(value);
+      grid.appendChild(
+        svgNode("line", {
+          x1: pad.left,
+          y1: y,
+          x2: CHART_WIDTH - pad.right,
+          y2: y
+        })
+      );
+      var tickLabel = svgNode("text", {
+        x: pad.left - 8,
+        y: y + 3.5,
+        "text-anchor": "end"
+      });
+      tickLabel.textContent = formatTick(value) + tickUnit;
+      axis.appendChild(tickLabel);
+    }
+
+    var labelStep = Math.ceil(data.categories.length / 8);
+    data.categories.forEach(function (point, index) {
+      if (index % labelStep) return;
+      var text = svgNode("text", {
+        x: centerX(index),
+        y: height - 10,
+        "text-anchor": "middle"
+      });
+      text.textContent = point.label;
+      axis.appendChild(text);
+    });
+
+    var plot = svgNode("g", { class: "a-chart__plot" });
+    /* Past ~30 points a marker per category reads as a scatter plot instead
+       of a line, so dense series drop to a bare stroke and only the active
+       point is drawn (CSS gives it a radius again). */
+    var pointRadius = data.categories.length > 30 ? 0 : 2.75;
+    if (isLine) {
+      data.series.forEach(function (name, position) {
+        /* A missing value breaks the line rather than bridging the gap. */
+        var segments = [[]];
+        data.categories.forEach(function (point, index) {
+          var value = point.values[position];
+          if (value === null) {
+            if (segments[segments.length - 1].length) segments.push([]);
+            return;
+          }
+          segments[segments.length - 1].push(
+            centerX(index) + "," + scaleY(value)
+          );
+          plot.appendChild(
+            svgNode("circle", {
+              class: "a-chart__point a-series-" + (position + 1),
+              cx: centerX(index),
+              cy: scaleY(value),
+              r: pointRadius,
+              "data-a-index": index
+            })
+          );
+        });
+        segments.forEach(function (coordinates) {
+          if (!coordinates.length) return;
+          plot.insertBefore(
+            svgNode("polyline", {
+              class: "a-chart__series a-series-" + (position + 1),
+              points: coordinates.join(" ")
+            }),
+            plot.firstChild
+          );
+        });
+      });
+    } else {
+      var inset = bandWidth * 0.18;
+      var slot = (bandWidth - inset * 2) / (stacked ? 1 : data.series.length);
+      var baseline = scaleY(Math.max(minY, 0));
+      data.categories.forEach(function (point, index) {
+        var stackTop = 0;
+        data.series.forEach(function (name, position) {
+          var value = point.values[position];
+          if (value === null) return;
+          var from = baseline;
+          var to;
+          if (stacked) {
+            from = scaleY(stackTop);
+            stackTop += value;
+            to = scaleY(stackTop);
+          } else {
+            to = scaleY(value);
+          }
+          plot.appendChild(
+            svgNode("rect", {
+              class: "a-chart__bar a-series-" + (position + 1),
+              x:
+                pad.left +
+                bandWidth * index +
+                inset +
+                slot * (stacked ? 0 : position),
+              y: Math.min(from, to),
+              width: Math.max(1, slot - 2),
+              height: Math.max(1, Math.abs(to - from)),
+              rx: 2,
+              "data-a-index": index
+            })
+          );
+        });
+      });
+    }
+
+    var crosshair = svgNode("line", {
+      class: "a-chart__crosshair",
+      x1: pad.left,
+      x2: pad.left,
+      y1: pad.top,
+      y2: pad.top + plotHeight,
+      hidden: "hidden"
+    });
+
+    var overlay = svgNode("g", { class: "a-chart__bands" });
+    var bands = data.categories.map(function (point, index) {
+      var band = svgNode("rect", {
+        class: "a-chart__band",
+        x: pad.left + bandWidth * index,
+        y: pad.top,
+        width: bandWidth,
+        height: plotHeight,
+        tabindex: index === 0 ? 0 : -1,
+        role: "img",
+        "aria-label": describe(index)
+      });
+      overlay.appendChild(band);
+      return band;
+    });
+
+    svg.appendChild(grid);
+    svg.appendChild(axis);
+    svg.appendChild(plot);
+    svg.appendChild(crosshair);
+    svg.appendChild(overlay);
+
+    figure.insertBefore(svg, state.details);
+    state.nodes.push(svg);
+
+    if (data.series.length > 1) {
+      var legend = document.createElement("ul");
+      legend.className = "a-legend";
+      data.series.forEach(function (name, position) {
+        var item = document.createElement("li");
+        item.className = "a-series-" + (position + 1);
+        var swatch = document.createElement("span");
+        swatch.className = "a-legend__swatch";
+        item.appendChild(swatch);
+        item.appendChild(document.createTextNode(name));
+        legend.appendChild(item);
+      });
+      figure.insertBefore(legend, state.details);
+      state.nodes.push(legend);
+    }
+
+    var readout = document.createElement("p");
+    readout.className = "a-visually-hidden";
+    readout.setAttribute("aria-live", "polite");
+    figure.appendChild(readout);
+    state.nodes.push(readout);
+
+    var clear = function () {
+      bands.forEach(function (band) {
+        band.removeAttribute("data-a-active");
+      });
+      plot.querySelectorAll("[data-a-index]").forEach(function (mark) {
+        mark.removeAttribute("data-a-active");
+      });
+      crosshair.setAttribute("hidden", "hidden");
+      readout.textContent = "";
+    };
+
+    var activate = function (index, pointer) {
+      if (index < 0 || index >= bands.length) return;
+      clear();
+      bands[index].setAttribute("data-a-active", "true");
+      plot
+        .querySelectorAll('[data-a-index="' + index + '"]')
+        .forEach(function (mark) {
+          mark.setAttribute("data-a-active", "true");
+        });
+      if (isLine) {
+        crosshair.setAttribute("x1", centerX(index));
+        crosshair.setAttribute("x2", centerX(index));
+        crosshair.removeAttribute("hidden");
+      }
+      readout.textContent = describe(index);
+      showTip(
+        {
+          title: data.categories[index].label,
+          rows: data.series.map(function (name, position) {
+            return {
+              name: name,
+              value: data.categories[index].texts[position],
+              series: position + 1
+            };
+          })
+        },
+        bands[index],
+        bands[index].getBoundingClientRect(),
+        pointer,
+        clear
+      );
+    };
+
+    /* -1 outside the plot area, so the axis and margins read as no category. */
+    var indexAt = function (clientX) {
+      var box = svg.getBoundingClientRect();
+      if (!box.width) return -1;
+      var local = ((clientX - box.left) / box.width) * CHART_WIDTH;
+      if (local < pad.left || local > pad.left + plotWidth) return -1;
+      var index = Math.floor((local - pad.left) / bandWidth);
+      return Math.max(0, Math.min(data.categories.length - 1, index));
+    };
+
+    svg.addEventListener("pointermove", function (event) {
+      if (event.pointerType === "touch") return;
+      var index = indexAt(event.clientX);
+      if (index === -1) {
+        if (bands.indexOf(document.activeElement) === -1) hideTip();
+        return;
+      }
+      activate(index, { x: event.clientX, y: event.clientY });
+    });
+
+    svg.addEventListener("pointerdown", function (event) {
+      if (event.pointerType !== "touch") return;
+      activate(indexAt(event.clientX), null);
+    });
+
+    /* Touch leaves as soon as the finger lifts, so a tap keeps its readout. */
+    svg.addEventListener("pointerleave", function (event) {
+      if (event.pointerType === "touch") return;
+      if (bands.indexOf(document.activeElement) === -1) hideTip();
+    });
+
+    bands.forEach(function (band, index) {
+      band.addEventListener("focus", function () {
+        state.focused = {
+          index: index,
+          row: data.categories[index].row,
+          label: data.categories[index].label
+        };
+        activate(index, null);
+      });
+      band.addEventListener("blur", function () {
+        if (tipHost === band) hideTip();
+      });
+    });
+
+    svg.addEventListener("keydown", function (event) {
+      var current = bands.indexOf(document.activeElement);
+      if (current === -1) return;
+      var next = current;
+      if (event.key === "ArrowRight") next = current + 1;
+      else if (event.key === "ArrowLeft") next = current - 1;
+      else if (event.key === "Home") next = 0;
+      else if (event.key === "End") next = bands.length - 1;
+      else return;
+      event.preventDefault();
+      next = Math.max(0, Math.min(bands.length - 1, next));
+      bands.forEach(function (band, position) {
+        band.setAttribute("tabindex", position === next ? "0" : "-1");
+      });
+      bands[next].focus();
+    });
+
+    if (refocus) {
+      /* The same row, not the same slot: filtering rows above the reader's
+         position must not move them onto a different bar. */
+      var target = data.categories.findIndex(function (category) {
+        return category.row === refocus.row;
+      });
+      /* Rows rebuilt wholesale lose their identity, so fall back to the label
+         and then to the old slot. */
+      if (target === -1) {
+        target = data.categories.findIndex(function (category) {
+          return category.label === refocus.label;
+        });
+      }
+      if (target === -1) target = Math.min(refocus.index, bands.length - 1);
+      bands.forEach(function (band, position) {
+        band.setAttribute("tabindex", position === target ? "0" : "-1");
+      });
+      bands[target].focus();
+    }
+  }
+
+  function renderCharts(target) {
+    if (target === undefined || target === null) {
+      document.querySelectorAll("[data-a-chart]").forEach(renderChart);
+      return;
+    }
+    var scope =
+      typeof target === "string" ? document.querySelector(target) : target;
+    if (!scope) return;
+    if (scope.matches && scope.matches("[data-a-chart]")) renderChart(scope);
+    else scope.querySelectorAll("[data-a-chart]").forEach(renderChart);
+  }
+
+  renderCharts();
+
+  /* The only public surface of the kit: artifacts that swap or filter a
+     chart's rows themselves can force a redraw, though the table observer
+     above already covers ordinary DOM edits. */
+  window.artifactKit = window.artifactKit || {};
+  window.artifactKit.renderCharts = renderCharts;
+
+  /* Print carries the numbers, not the hover: expand every chart's data
+     table before the page is rendered. */
+  var printReopened = [];
+  window.addEventListener("beforeprint", function () {
+    hideTip();
+    document.querySelectorAll(".a-chart__data").forEach(function (details) {
+      if (details.open) return;
+      printReopened.push(details);
+      details.open = true;
+    });
+  });
+
+  window.addEventListener("afterprint", function () {
+    printReopened.forEach(function (details) {
+      details.open = false;
+    });
+    printReopened = [];
+  });
+
+  /* ---------- diagram: pan, zoom, select ----------
+     Pointer drag and wheel pan/zoom the viewport group; arrow keys and
+     +/-/0 do the same from the keyboard so the diagram is operable without
+     a pointing device. Node clicks (or Enter/Space) update the inspector. */
+  document.querySelectorAll("[data-a-diagram]").forEach(function (diagram) {
+    var svg = diagram.querySelector("[data-a-diagram-canvas]");
+    var viewport = diagram.querySelector("[data-a-diagram-viewport]");
+    if (!svg || !viewport) return;
+
+    var view = { x: 0, y: 0, scale: 1 };
+    var drag = null;
+
+    var render = function () {
+      viewport.setAttribute(
+        "transform",
+        "translate(" + view.x + " " + view.y + ") scale(" + view.scale + ")"
+      );
+    };
+
+    var zoomBy = function (factor) {
+      view.scale = Math.min(2.5, Math.max(0.5, view.scale * factor));
+      render();
+    };
+
+    svg.addEventListener("pointerdown", function (event) {
+      if (event.target.closest("[data-a-node]")) return;
+      drag = { x: event.clientX, y: event.clientY };
+      svg.setPointerCapture(event.pointerId);
+    });
+
+    svg.addEventListener("pointermove", function (event) {
+      if (!drag) return;
+      view.x += event.clientX - drag.x;
+      view.y += event.clientY - drag.y;
+      drag = { x: event.clientX, y: event.clientY };
+      render();
+    });
+
+    var endDrag = function () {
+      drag = null;
+    };
+    svg.addEventListener("pointerup", endDrag);
+    svg.addEventListener("pointercancel", endDrag);
+
+    svg.addEventListener(
+      "wheel",
+      function (event) {
+        if (!event.ctrlKey && !event.metaKey) return;
+        event.preventDefault();
+        zoomBy(event.deltaY < 0 ? 1.1 : 0.9);
+      },
+      { passive: false }
+    );
+
+    diagram.addEventListener("keydown", function (event) {
+      var pan = { ArrowUp: [0, 24], ArrowDown: [0, -24], ArrowLeft: [24, 0], ArrowRight: [-24, 0] }[
+        event.key
+      ];
+      if (pan && !event.target.closest("[data-a-node]")) {
+        event.preventDefault();
+        view.x += pan[0];
+        view.y += pan[1];
+        render();
+        return;
+      }
+      if (event.key === "+" || event.key === "=") zoomBy(1.1);
+      else if (event.key === "-") zoomBy(0.9);
+      else if (event.key === "0") {
+        view = { x: 0, y: 0, scale: 1 };
+        render();
+      }
+    });
+
+    diagram.querySelectorAll("[data-a-zoom]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var action = button.getAttribute("data-a-zoom");
+        if (action === "in") zoomBy(1.15);
+        else if (action === "out") zoomBy(0.87);
+        else {
+          view = { x: 0, y: 0, scale: 1 };
+          render();
+        }
+      });
+    });
+
+    var inspector = diagram.querySelector("[data-a-inspector]");
+    var select = function (node) {
+      diagram.querySelectorAll("[data-a-node]").forEach(function (other) {
+        other.setAttribute("aria-current", String(other === node));
+      });
+      if (!inspector) return;
+      var title = inspector.querySelector("[data-a-inspector-title]");
+      var body = inspector.querySelector("[data-a-inspector-body]");
+      if (title) title.textContent = node.getAttribute("data-a-title") || "";
+      if (body) body.textContent = node.getAttribute("data-a-detail") || "";
+    };
+
+    diagram.querySelectorAll("[data-a-node]").forEach(function (node) {
+      node.addEventListener("click", function () {
+        select(node);
+      });
+      node.addEventListener("keydown", function (event) {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        select(node);
+      });
+    });
+
+    render();
+  });
+})();
+    
+</script>
+<script>
+
+(function(){
+var MARK = "# SDLC-SPRINT-SHEET-EDITS v1";
+var sheet = JSON.parse(document.getElementById("ss-data").textContent);
+var edits = {}, orig = {};
+function cn(s){var n=0;for(var i=0;i<s.length;i++){n=n*26+s.charCodeAt(i)-64;}return n;}
+function cl(n){var s="";while(n){var r=(n-1)%26;s=String.fromCharCode(65+r)+s;n=(n-1-r)/26;}return s;}
+function sp(ref){var m=/^\$?([A-Z]{1,3})\$?(\d+)$/.exec(ref);return [cn(m[1]),+m[2]];}
+var TK=/\s*(?:(\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)|("[^"]*")|(\$?[A-Z]{1,3}\$?\d+:\$?[A-Z]{1,3}\$?\d+)|(\$?[A-Z]{1,3}\$?\d+)|([A-Z][A-Z0-9.]*)\s*\(|(<>|<=|>=|[-+*\/^&=<>(),:]))/y;
+function toks(t){var o=[],i=0;t=t.trim();while(i<t.length){TK.lastIndex=i;var m=TK.exec(t);if(!m||TK.lastIndex===i){throw "#ERROR!";}
+ if(m[1]!==undefined)o.push(["num",m[1]]);else if(m[2]!==undefined)o.push(["str",m[2]]);else if(m[3]!==undefined)o.push(["range",m[3].toUpperCase()]);
+ else if(m[4]!==undefined)o.push(["ref",m[4].toUpperCase()]);else if(m[5]!==undefined)o.push(["fn",m[5].toUpperCase()]);else o.push(["op",m[6]]);i=TK.lastIndex;}return o;}
+function num(v){if(v===null||v===undefined||v==="")return 0;if(v===true)return 1;if(v===false)return 0;if(typeof v==="number")return v;var f=Number(String(v).trim());if(isNaN(f))throw "#VALUE!";return f;}
+function show(v){if(v===true)return "TRUE";if(v===false)return "FALSE";if(typeof v==="number"){var r=Math.round(v*10000)/10000;return String(r);}return v===null||v===undefined?"":String(v);}
+function crit(v,c){var m=/^(<>|<=|>=|=|<|>)?(.*)$/.exec(String(c)),op=m[1]||"=",t=m[2],tn=Number(t);
+ if(t!==""&&!isNaN(tn)){var x=typeof v==="number"?v:Number(v);if(v===""||v===null||v===undefined||isNaN(x))return op==="<>";return {"=":x===tn,"<>":x!==tn,"<":x<tn,">":x>tn,"<=":x<=tn,">=":x>=tn}[op];}
+ var same=String(v==null?"":v).trim().toLowerCase()===t.trim().toLowerCase();return op==="="?same:(op==="<>"?!same:false);}
+function evalTab(tab){var cells=tab.cells,done={},busy={};
+ function get(ref){if(ref in done)return done[ref];var v=cells[ref];if(typeof v==="string"&&v.charAt(0)==="="){if(busy[ref])return "#CIRCULAR!";busy[ref]=1;try{v=run(v.slice(1));}catch(e){v=(typeof e==="string"&&e.charAt(0)==="#")?e:"#ERROR!";}delete busy[ref];}
+  if(v===undefined)v=null;done[ref]=v;return v;}
+ function run(text){var t=toks(text),i=0;function pk(){return t[i]||[null,null];}function tk(x){var a=pk();if(x!==undefined&&a[1]!==x)throw "#ERROR!";i++;return a;}
+  function cmp(){var a=cat();while(["=","<>","<",">","<=",">="].indexOf(pk()[1])>=0){var op=tk()[1],b=cat(),x,y;if(typeof a==="string"||typeof b==="string"){x=String(a).toLowerCase();y=String(b).toLowerCase();}else{x=num(a);y=num(b);}
+   a={"=":x===y,"<>":x!==y,"<":x<y,">":x>y,"<=":x<=y,">=":x>=y}[op];}return a;}
+  function cat(){var a=add();while(pk()[1]==="&"){tk();a=show(a)+show(add());}return a;}
+  function add(){var a=mul();while(pk()[1]==="+"||pk()[1]==="-"){var op=tk()[1],b=mul();a=op==="+"?num(a)+num(b):num(a)-num(b);}return a;}
+  function mul(){var a=pw();while(pk()[1]==="*"||pk()[1]==="/"){var op=tk()[1],b=num(pw());if(op==="/"&&b===0)throw "#DIV/0!";a=op==="*"?num(a)*b:num(a)/b;}return a;}
+  function pw(){var a=un();while(pk()[1]==="^"){tk();a=Math.pow(num(a),num(un()));}return a;}
+  function un(){if(pk()[1]==="+"||pk()[1]==="-"){var op=tk()[1],v=num(un());return op==="+"?v:-v;}return pr();}
+  function rng(r){var p=r.replace(/\$/g,"").split(":"),a=sp(p[0]),b=sp(p[1]),o=[];o.isRange=true;for(var y=Math.min(a[1],b[1]);y<=Math.max(a[1],b[1]);y++)for(var x=Math.min(a[0],b[0]);x<=Math.max(a[0],b[0]);x++)o.push(get(cl(x)+y));return o;}
+  function nums(args){var o=[];args.forEach(function(a){if(a&&a.isRange){a.forEach(function(v){if(typeof v==="number")o.push(v);});}else o.push(num(a));});return o;}
+  function call(n,a){if(n==="SUM")return nums(a).reduce(function(s,x){return s+x;},0);if(n==="MIN"){var m=nums(a);return m.length?Math.min.apply(null,m):0;}if(n==="MAX"){var M=nums(a);return M.length?Math.max.apply(null,M):0;}
+   if(n==="AVERAGE"){var v=nums(a);if(!v.length)throw "#DIV/0!";return v.reduce(function(s,x){return s+x;},0)/v.length;}
+   if(n==="ROUND"){var k=Math.pow(10,a.length>1?num(a[1]):0);return Math.round(num(a[0])*k)/k;}
+   if(n==="IF"){var c=a[0],ok=typeof c==="string"?!!c:!!num(c);return ok?a[1]:(a.length>2?a[2]:false);}
+   if(n==="COUNTIF"){var r=a[0]&&a[0].isRange?a[0]:[a[0]];return r.filter(function(v){return crit(v,a[1]);}).length;}throw "#NAME?";}
+  function pr(){var a=tk(),k=a[0],v=a[1];if(k==="num")return Number(v);if(k==="str")return v.slice(1,-1);if(k==="ref")return get(v.replace(/\$/g,""));if(k==="range")return rng(v);
+   if(k==="fn"){var args=[];if(pk()[1]!==")"){args.push(cmp());while(pk()[1]===","){tk();args.push(cmp());}}tk(")");return call(v,args);}
+   if(v==="("){var r=cmp();tk(")");return r;}throw "#ERROR!";}
+  var out=cmp();if(i!==t.length)throw "#ERROR!";return out;}
+ Object.keys(cells).forEach(get);return {get:get};}
+function rawOf(s){s=String(s).trim();if(s.charAt(0)==="=")return s;if(s!==""&&!isNaN(Number(s)))return Number(s);return s;}
+function recalc(){sheet.tabs.forEach(function(tab){var ev=evalTab(tab);
+ if(/^capacity$/i.test(tab.name.trim())){document.querySelectorAll("[data-total]").forEach(function(b){if(b.dataset.total)b.textContent=show(ev.get(b.dataset.total));});}
+ var t0=0,t=document.querySelector('table.ss[data-tab="'+CSS.escape(tab.name)+'"]');if(!t)return;
+ t.querySelectorAll("input[data-ref]").forEach(function(inp){if(document.activeElement===inp)return;var v=ev.get(inp.dataset.ref);inp.value=show(v);
+  var td=inp.parentNode;td.classList.toggle("ss-err",show(v).charAt(0)==="#");
+  if(td.dataset.day&&!td.classList.contains("ss-wkend")){td.classList.toggle("ss-off",show(v)==="0");td.classList.toggle("ss-half",show(v)==="0.5");td.classList.toggle("ss-hol",show(v).toUpperCase()==="H");}});});
+ var b=document.getElementById("ss-edits");if(b){var n=Object.keys(edits).reduce(function(s,k){return s+Object.keys(edits[k]).length;},0);document.getElementById("ss-count").textContent=n?n+" cell"+(n>1?"s":"")+" changed":"No changes yet";}}
+document.querySelectorAll("table.ss").forEach(function(t){var lay=JSON.parse(t.dataset.days||"[]");
+ t.querySelectorAll("input[data-ref]").forEach(function(inp){var col=inp.dataset.ref.replace(/\d+/g,""),row=+inp.dataset.ref.replace(/[A-Z]+/g,"");if(lay.indexOf(col)>=0&&row>2)inp.parentNode.dataset.day="1";
+  inp.addEventListener("focus",function(){inp.value=inp.dataset.raw;});
+  function commit(){var name=t.dataset.tab,tab=sheet.tabs.filter(function(x){return x.name===name;})[0],ref=inp.dataset.ref,nv=rawOf(inp.value),old=tab.cells[ref];
+   var was=String(old===undefined?"":rawOf(old));orig[name]=orig[name]||{};if(!(ref in orig[name]))orig[name][ref]=was;
+   if(String(nv)!==was){if(nv===""){delete tab.cells[ref];}else{tab.cells[ref]=nv;}inp.dataset.raw=String(nv);
+    if(String(nv)===orig[name][ref]){if(edits[name]){delete edits[name][ref];if(!Object.keys(edits[name]).length)delete edits[name];}}
+    else{(edits[name]=edits[name]||{})[ref]=String(nv);}}recalc();}
+  inp.addEventListener("blur",commit);inp.addEventListener("change",commit);
+  inp.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();inp.blur();}});});});
+var save=document.getElementById("ss-save");
+if(save){save.addEventListener("click",function(){var by=(document.getElementById("ss-by").value||"").trim(),out=document.getElementById("ss-edits"),msg=document.getElementById("ss-msg");
+ if(!Object.keys(edits).length){msg.textContent="Nothing changed.";return;}if(!by){msg.textContent="Type your name first.";return;}
+ var block=MARK+"\nsprint: "+sheet.sprint+"\nby: "+by+"\nedits: "+JSON.stringify(edits);
+ if(location.protocol.indexOf("http")===0&&window.SS_SAVE_URL){msg.textContent="Showing the change…";
+  fetch(window.SS_SAVE_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sprint:sheet.sprint,by:by,user:by,edits:edits,write:false})}).then(function(r){return r.json();}).then(function(p){
+   if(p.error){msg.textContent=p.error;return;}out.value=p.preview||"";out.hidden=false;var ok=document.getElementById("ss-approve");ok.hidden=false;msg.textContent="Check the change, then press Approved and save.";
+   ok.onclick=function(){fetch(window.SS_SAVE_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sprint:sheet.sprint,by:by,user:by,edits:edits,write:true})}).then(function(r){return r.json();}).then(function(d){
+    msg.textContent=d.error?d.error:("Saved: "+(d.saved||[]).join(", ")+(d.confluence?" · Sprint Leave page version "+d.confluence:""));if(!d.error){edits={};orig={};ok.hidden=true;recalc();}});};});
+ }else{out.value=block;out.hidden=false;out.select();msg.textContent="Copy this block and paste it to Devin; it shows the change and saves it after you type approved.";}});}
+recalc();
+})();
+
+</script>
+</body>
+</html>

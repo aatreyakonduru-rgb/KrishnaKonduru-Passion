@@ -1,0 +1,285 @@
+# Acme Claims SDLC Session — Approvals Tracking File
+#
+# PURPOSE
+# ───────
+# This file tracks which SDLC gates have been signed for a requirement.
+# It is created by /sdlc (or /intake) when a new
+# requirement session starts. It is read by /sdlc on resume to
+# determine where to continue the pipeline.
+#
+# LOCATION
+# ────────
+# sdlc/framework/context/session/{OWNER}/{REQ_ID}/approvals.yaml
+#
+# GATE SIGN-OFF FORMAT
+# ────────────────────
+# When the user approves a gate, update the relevant phase:
+#   status: approved
+#   signed_by: <approver display name and email>
+#   signed_at: <ISO8601 timestamp>
+#   decision, rationale, artifacts_reviewed, and next_gate are recorded from
+#   approval_record_schema in .devin/rules/approval-gates.yaml
+#   approval_words: the reviewer's exact reply — must start with "approved" (any case)
+#   or be a /dashboard Approve action; "continue" / "ok" / "approve" leave the gate open
+#   decision_items: one entry per numbered item with state pending|approved|rejected|delegated
+#
+# WAITING ON SOMEONE ELSE (/send-approval)
+#   status: waiting
+#   approval_subtask: ACME-nnnn      # Jira Approval sub-task under the story
+#   delegated_to: <jira username>
+#   delegated_items: [4]
+#   delegated_by / delegated_at / delegation_note
+#   Poll with approval_subtask.py status every 15 minutes; /resume-session re-checks on wake.
+#
+# JIRA WRITES
+#   jira_updates: [{key, field, old, new, by, at}] — only after an approved
+#   "Update ACME-nnnn … in Jira" decision item; never silently.
+#
+# KB DRIFT
+#   kb_drift: [{doc, evidence, correction, status: open|fixed-in-pr|exception-approved}]
+#   shared by /research and /plan; /pr-readiness fails while any entry is open.
+#
+# SESSION OWNERSHIP
+# ─────────────────
+# `owner` identifies the person running the session; `signed_by` identifies the
+# approver of each gate. They are frequently different people and must not be
+# conflated. `owner_email` records the source email, and `devin_session_url`
+# identifies the Devin session that created the artefact when available.
+#
+# GATE IDs (canonical — see .devin/rules/approval-gates.yaml)
+# ────────────────────
+# SDLC_01_INTAKE_CLARIFICATION       — Intake Clarification (BSA / Product Owner)
+# SDLC_02_GAP_ANALYSIS_REVIEW        — Gap Analysis Review (BSA, bottom-up)
+# SDLC_02b_STORY_CANDIDATE_REVIEW    — Story Candidate Review (Product Owner, top-down)
+# SDLC_03_BACKLOG_APPROVAL           — Backlog Approval (Product Owner)
+# SDLC_03a_STORY_ESTIMATION_REVIEW   — Story Estimation Review (Tech Lead)
+# SDLC_04_ROUTING_APPROVAL           — Routing / Insertion Points (Tech Lead)
+# SDLC_05_CODE_REVIEW                — Code Review (Tech Lead)
+# SDLC_06_QA_SIGNOFF                 — QA Sign-off (QA team)
+# SDLC_07_ENV_PROMOTION_APPROVAL     — Environment Promotion (Release Manager)
+# SDLC_08_KB_REFRESH_VALIDATION      — KB Refresh Validation (Tech Lead)
+
+requirement_id: "REQ-YYYY-NNN"   # Replace with actual REQ ID
+mode: "bottom_up"                 # bottom_up | top_down
+created: "YYYY-MM-DDTHH:MM:SSZ"  # ISO8601 timestamp
+owner: "{OWNER}"                  # session owner slug — see .devin/rules/session-isolation.md
+owner_email: "name@acme.example"
+devin_session_url: "~"            # Devin session that created this, if any
+created_on_branch: "{current git branch}" # git rev-parse --abbrev-ref HEAD
+
+kb_drift: []                      # [{doc, evidence, correction, status: open|fixed-in-pr|exception-approved}]
+
+phases:
+  intake:
+    status: pending               # pending | waiting | approved | rejected — SDLC_01 is mandatory, never skipped
+    gate: SDLC_01_INTAKE_CLARIFICATION
+    artifacts:
+      - "{REQ_ID}-SPEC.md"
+    signed_by: ~
+    signed_at: ~
+    approval_words: ~
+    decision_items:
+      - {n: 1, text: "The spec as written", state: pending, by: ~, note: ~}
+    approval_subtask: ~
+    delegated_to: ~
+    jira_updates: []
+    notes: ~
+    gate_id: SDLC_01_INTAKE_CLARIFICATION
+    requirement_id: "{REQ_ID}"
+    story_id: ~
+    approver_name: ~
+    approver_role: ~
+    decision: ~
+    timestamp: ~
+    rationale: ~
+    artifacts_reviewed: []
+    next_gate: SDLC_02_GAP_ANALYSIS_REVIEW
+    role_mismatch: false
+
+  research:
+    status: pending
+    gate: SDLC_02_GAP_ANALYSIS_REVIEW
+    artifacts:
+      - "{REQ_ID}-GAP-ANALYSIS.md"
+    signed_by: ~
+    signed_at: ~
+    notes: ~
+    gate_id: SDLC_02_GAP_ANALYSIS_REVIEW
+    requirement_id: "{REQ_ID}"
+    story_id: ~
+    approver_name: ~
+    approver_role: ~
+    decision: ~
+    timestamp: ~
+    rationale: ~
+    artifacts_reviewed: []
+    next_gate: SDLC_03_BACKLOG_APPROVAL
+    role_mismatch: false
+
+  backlog:
+    status: pending
+    gate: SDLC_03_BACKLOG_APPROVAL
+    artifacts:
+      - "{REQ_ID}-BACKLOG.md"
+    signed_by: ~
+    signed_at: ~
+    notes: ~
+    gate_id: SDLC_03_BACKLOG_APPROVAL
+    requirement_id: "{REQ_ID}"
+    story_id: ~
+    approver_name: ~
+    approver_role: ~
+    decision: ~
+    timestamp: ~
+    rationale: ~
+    artifacts_reviewed: []
+    next_gate: SDLC_04_ROUTING_APPROVAL
+    role_mismatch: false
+
+  estimation:
+    status: pending
+    gate: SDLC_03a_STORY_ESTIMATION_REVIEW
+    artifacts:
+      - "{REQ_ID}-BACKLOG.md"
+      - "{REQ_ID}-ESTIMATION-AUDIT.md"
+    signed_by: ~
+    signed_at: ~
+    notes: ~
+    gate_id: SDLC_03a_STORY_ESTIMATION_REVIEW
+    requirement_id: "{REQ_ID}"
+    story_id: ~
+    approver_name: ~
+    approver_role: ~
+    decision: ~
+    timestamp: ~
+    rationale: ~
+    artifacts_reviewed: []
+    next_gate: SDLC_04_ROUTING_APPROVAL
+    role_mismatch: false
+
+  story_candidates:                 # top_down only — ignored in bottom_up sessions
+    status: pending
+    gate: SDLC_02b_STORY_CANDIDATE_REVIEW
+    artifacts:
+      - "{REQ_ID}-STORY-CANDIDATES.md"
+    signed_by: ~
+    signed_at: ~
+    notes: ~
+    gate_id: SDLC_02b_STORY_CANDIDATE_REVIEW
+    requirement_id: "{REQ_ID}"
+    story_id: ~
+    approver_name: ~
+    approver_role: ~
+    decision: ~
+    timestamp: ~
+    rationale: ~
+    artifacts_reviewed: []
+    next_gate: SDLC_03_BACKLOG_APPROVAL
+    role_mismatch: false
+
+  routing:                          # per-story — repeat block per STORY-{n} if needed
+    status: pending
+    gate: SDLC_04_ROUTING_APPROVAL
+    artifacts:
+      - "{REQ_ID}-STORY-{n}-ROUTING.md"
+      - "insertion-points.yaml"
+    signed_by: ~
+    signed_at: ~
+    notes: ~
+    gate_id: SDLC_04_ROUTING_APPROVAL
+    requirement_id: "{REQ_ID}"
+    story_id: "{STORY_ID}"
+    approver_name: ~
+    approver_role: ~
+    decision: ~
+    timestamp: ~
+    rationale: ~
+    artifacts_reviewed: []
+    next_gate: SDLC_05_CODE_REVIEW
+    role_mismatch: false
+
+  code_review:
+    status: pending
+    gate: SDLC_05_CODE_REVIEW
+    artifacts:
+      - "{REQ_ID}-STORY-{n}-AI-VERIFICATION.md"
+    signed_by: ~
+    signed_at: ~
+    notes: ~
+    gate_id: SDLC_05_CODE_REVIEW
+    requirement_id: "{REQ_ID}"
+    story_id: "{STORY_ID}"
+    approver_name: ~
+    approver_role: ~
+    decision: ~
+    timestamp: ~
+    rationale: ~
+    artifacts_reviewed: []
+    next_gate: SDLC_06_QA_SIGNOFF
+    role_mismatch: false
+    jira_key: ~                     # ACME-nnnn this story is tracked under
+    tests:                          # executable tests stay in the app test files; this is the index
+      - path: "api/apps/<app>/tests.py"
+        cases: []                   # test function/method names added for this story
+        acceptance_criteria: []     # AC numbers each case covers, same order as cases
+
+  qa:
+    status: pending
+    gate: SDLC_06_QA_SIGNOFF
+    artifacts:
+      - "{REQ_ID}-STORY-{n}-TEST-REPORT.md"
+    signed_by: ~
+    signed_at: ~
+    notes: ~
+    gate_id: SDLC_06_QA_SIGNOFF
+    requirement_id: "{REQ_ID}"
+    story_id: "{STORY_ID}"
+    approver_name: ~
+    approver_role: ~
+    decision: ~
+    timestamp: ~
+    rationale: ~
+    artifacts_reviewed: []
+    next_gate: SDLC_07_ENV_PROMOTION_APPROVAL
+    role_mismatch: false
+
+  release:
+    status: pending
+    gate: SDLC_07_ENV_PROMOTION_APPROVAL
+    artifacts:
+      - "{REQ_ID}-STORY-{n}-DEPLOYMENT-PLAN.md"
+      - "{REQ_ID}-STORY-{n}-DEPLOYMENT-LOG.md"
+    signed_by: ~
+    signed_at: ~
+    notes: ~
+    gate_id: SDLC_07_ENV_PROMOTION_APPROVAL
+    requirement_id: "{REQ_ID}"
+    story_id: "{STORY_ID}"
+    approver_name: ~
+    approver_role: ~
+    decision: ~
+    timestamp: ~
+    rationale: ~
+    artifacts_reviewed: []
+    next_gate: SDLC_08_KB_REFRESH_VALIDATION
+    role_mismatch: false
+
+  kb_refresh:
+    status: pending
+    gate: SDLC_08_KB_REFRESH_VALIDATION
+    artifacts:
+      - "{REQ_ID}-KB-REFRESH-REPORT.md"
+    signed_by: ~
+    signed_at: ~
+    notes: ~
+    gate_id: SDLC_08_KB_REFRESH_VALIDATION
+    requirement_id: "{REQ_ID}"
+    story_id: "{STORY_ID}"
+    approver_name: ~
+    approver_role: ~
+    decision: ~
+    timestamp: ~
+    rationale: ~
+    artifacts_reviewed: []
+    next_gate: ~
+    role_mismatch: false

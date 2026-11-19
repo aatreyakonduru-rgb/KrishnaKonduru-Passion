@@ -1,0 +1,422 @@
+# Sample team roster: who is who, and which roles they hold for the SDLC approval gates.
+# Every person is a placeholder (Resource 1, Resource 2, ...). Replace them with your own team;
+# keep the role names, which must match .devin/rules/approval-gates.yaml, role-routing.yaml and
+# dashboard-roles.yaml.
+#
+#   jira_user        Jira username; owner, backups and delegate_to point at it
+#   email            work address, used to recognise the person in chat and git
+#   devin_user_id    Devin user id, when known
+#   roles            gate roles: which approvals this person may sign
+#   primary_role     job role that shapes a Devin session for this person
+#   secondary_roles  other hats the same person wears
+#   role_hints       words that pick one of the secondary hats for a request
+#   delegate_to      who gets this person's approvals while they are away
+#   allocation       % of a sprint they are available (absent = 100)
+#   delivery         false for people with no sprint work of their own (absent = true)
+#
+#   access           which gate roles may change which folders of your repository. The longest
+#                    matching path wins; `any` is anyone on the roster; {owner} is the person's own
+#                    session folder; default_roles covers every path no area lists. Gates named in
+#                    no_self_approval cannot be signed by the person who asked for the change. The
+#                    paths below are examples: use your own code, knowledge-base and framework folders.
+#                    roster_signoff says, per gates.mode, whose sign-off of the roster page unlocks
+#                    guarded writes and gate sign-offs: owner, backup, or a gate role the signer holds.
+#
+# If your roster lives on a wiki page, the source: block names that page; tools/roster_sync.py
+# regenerates this file from it.
+
+source:
+  confluence_page_id: '{{CONFLUENCE_ROSTER_PAGE_ID}}'
+  confluence_version: 1
+  confluence_title: '{{PRODUCT}} Team Roster'
+  synced_at: null
+  owner_signoff: pending
+owner:
+  primary: resource1
+  backups:
+  - resource3
+  - resource4
+  - resource2
+  review_cadence: quarterly
+  last_reviewed: YYYY-MM-DD
+  signoff:
+    status: pending
+    signed_by: null
+    signed_on: null
+    signed_via: null
+people:
+- jira_user: resource1
+  name: Resource 1
+  email: resource1@acme.example
+  devin_user_id: null
+  delivery: false
+  roles:
+  - manager
+  primary_role: manager
+  secondary_roles:
+  - reviewer
+  role_hints:
+    reviewer:
+    - review
+    - PR feedback
+    - code review
+    - pull request
+  delegate_to: null
+- jira_user: resource2
+  name: Resource 2
+  email: resource2@acme.example
+  devin_user_id: null
+  allocation: 50
+  roles:
+  - tech_lead
+  - delivery_lead
+  primary_role: solution_lead
+  secondary_roles:
+  - lead
+  - architect
+  - reviewer
+  role_hints:
+    lead:
+    - status
+    - RAG
+    - escalation
+    - delivery plan
+    - milestone
+    architect:
+    - design
+    - options
+    - trade-off
+    - trade off
+    - NFR
+    - blast radius
+    - architecture
+    reviewer:
+    - review
+    - PR feedback
+    - code review
+    - pull request
+  delegate_to: null
+- jira_user: resource3
+  name: Resource 3
+  email: resource3@acme.example
+  devin_user_id: null
+  roles:
+  - tech_lead
+  primary_role: solution_lead
+  secondary_roles:
+  - architect
+  - reviewer
+  role_hints:
+    architect:
+    - design
+    - options
+    - trade-off
+    - NFR
+    - blast radius
+    - architecture
+    reviewer:
+    - review
+    - PR feedback
+    - code review
+    - pull request
+  delegate_to: null
+- jira_user: resource4
+  name: Resource 4
+  email: resource4@acme.example
+  devin_user_id: null
+  roles:
+  - tech_lead
+  primary_role: solution_lead
+  secondary_roles:
+  - reviewer
+  role_hints:
+    reviewer:
+    - review
+    - PR feedback
+    - code review
+    - pull request
+  delegate_to: null
+- jira_user: resource5
+  name: Resource 5
+  email: resource5@acme.example
+  devin_user_id: null
+  roles:
+  - tech_lead
+  - developer
+  - dev_team
+  primary_role: solution_lead
+  secondary_roles:
+  - developer
+  - reviewer
+  role_hints:
+    developer:
+    - implement
+    - build
+    - fix
+    - code this
+    - branch
+    reviewer:
+    - review
+    - PR feedback
+    - code review
+    - pull request
+  delegate_to: null
+- jira_user: resource6
+  name: Resource 6
+  email: resource6@acme.example
+  devin_user_id: null
+  roles:
+  - developer
+  - dev_team
+  primary_role: developer
+  secondary_roles: []
+  role_hints: {}
+  delegate_to: null
+- jira_user: resource7
+  name: Resource 7
+  email: resource7@acme.example
+  devin_user_id: null
+  roles:
+  - developer
+  - dev_team
+  primary_role: developer
+  secondary_roles: []
+  role_hints: {}
+  delegate_to: null
+- jira_user: resource8
+  name: Resource 8
+  email: resource8@acme.example
+  devin_user_id: null
+  roles:
+  - developer
+  - dev_team
+  primary_role: developer
+  secondary_roles: []
+  role_hints: {}
+  delegate_to: null
+- jira_user: resource9
+  name: Resource 9
+  email: resource9@acme.example
+  devin_user_id: null
+  allocation: 50
+  roles:
+  - developer
+  - dev_team
+  primary_role: developer
+  secondary_roles: []
+  role_hints: {}
+  delegate_to: null
+- jira_user: resource10
+  name: Resource 10
+  email: resource10@acme.example
+  devin_user_id: null
+  roles:
+  - developer
+  - dev_team
+  primary_role: developer
+  secondary_roles: []
+  role_hints: {}
+  delegate_to: null
+- jira_user: resource11
+  name: Resource 11
+  email: resource11@acme.example
+  devin_user_id: null
+  roles:
+  - developer
+  - dev_team
+  primary_role: developer
+  secondary_roles: []
+  role_hints: {}
+  delegate_to: null
+- jira_user: resource12
+  name: Resource 12
+  email: resource12@acme.example
+  devin_user_id: null
+  roles:
+  - developer
+  - dev_team
+  primary_role: etl_developer
+  secondary_roles: []
+  role_hints: {}
+  delegate_to: null
+- jira_user: resource13
+  name: Resource 13
+  email: resource13@acme.example
+  devin_user_id: null
+  roles:
+  - developer
+  - dev_team
+  primary_role: etl_developer
+  secondary_roles: []
+  role_hints: {}
+  delegate_to: null
+- jira_user: resource14
+  name: Resource 14
+  email: resource14@acme.example
+  devin_user_id: null
+  roles:
+  - developer
+  - dev_team
+  primary_role: etl_developer
+  secondary_roles: []
+  role_hints: {}
+  delegate_to: null
+- jira_user: resource15
+  name: Resource 15
+  email: resource15@acme.example
+  devin_user_id: null
+  roles:
+  - developer
+  primary_role: ux_designer
+  secondary_roles: []
+  role_hints: {}
+  delegate_to: null
+- jira_user: resource16
+  name: Resource 16
+  email: resource16@acme.example
+  devin_user_id: null
+  roles:
+  - product_owner
+  - bsa
+  - uat_lead
+  - ops_release_manager
+  primary_role: product_owner
+  secondary_roles:
+  - bsa_lead
+  - uat_lead
+  - release_manager
+  role_hints:
+    bsa_lead:
+    - intake
+    - clarification
+    - gap analysis
+    - business rule
+    - epic
+    uat_lead:
+    - UAT
+    - user acceptance
+    - business testing
+    - sign off the test
+    release_manager:
+    - promote
+    - promotion
+    - deploy to
+    - release
+    - rollback
+    - PROD
+  delegate_to: null
+- jira_user: resource17
+  name: Resource 17
+  email: resource17@acme.example
+  devin_user_id: null
+  roles:
+  - product_owner
+  primary_role: product_owner
+  secondary_roles: []
+  role_hints: {}
+  delegate_to: resource16
+- jira_user: resource18
+  name: Resource 18
+  email: resource18@acme.example
+  devin_user_id: null
+  roles:
+  - test_lead
+  - qa_engineer
+  primary_role: qa_lead
+  secondary_roles:
+  - qa_staff
+  role_hints:
+    qa_staff:
+    - execute
+    - run the tests
+    - retest
+    - defect
+  delegate_to: null
+- jira_user: resource19
+  name: Resource 19
+  email: resource19@acme.example
+  devin_user_id: null
+  roles:
+  - test_lead
+  - qa_engineer
+  primary_role: qa_staff
+  secondary_roles: []
+  role_hints: {}
+  delegate_to: null
+- jira_user: resource20
+  name: Resource 20
+  email: resource20@acme.example
+  devin_user_id: null
+  roles:
+  - tester
+  primary_role: qa_staff
+  secondary_roles: []
+  role_hints: {}
+  delegate_to: null
+- jira_user: resource21
+  name: Resource 21
+  email: resource21@acme.example
+  devin_user_id: null
+  roles:
+  - tester
+  primary_role: qa_staff
+  secondary_roles: []
+  role_hints: {}
+  delegate_to: null
+- jira_user: resource22
+  name: Resource 22
+  email: resource22@acme.example
+  devin_user_id: null
+  roles:
+  - tester
+  primary_role: qa_staff
+  secondary_roles: []
+  role_hints: {}
+  delegate_to: null
+default_role: developer
+access:
+  default_roles:
+  - tech_lead
+  no_self_approval:
+  - SDLC_05_CODE_REVIEW
+  roster_signoff:
+    dev:
+    - owner
+    - backup
+    enforced:
+    - manager
+    - reviewer
+  areas:
+  - name: application code
+    paths:
+    - src/
+    - api/
+    - package.json
+    roles:
+    - developer
+    - dev_team
+    - tech_lead
+  - name: knowledge base
+    paths:
+    - docs/knowledge-base/
+    roles:
+    - product_owner
+    - bsa
+    - tech_lead
+  - name: architecture decisions
+    paths:
+    - docs/knowledge-base/DECISIONS/
+    roles:
+    - any
+  - name: SDLC framework
+    paths:
+    - .devin/
+    - sdlc/
+    - AGENTS.md
+    roles:
+    - tech_lead
+  - name: own session folder
+    paths:
+    - sdlc/context/session/{owner}/
+    roles:
+    - any

@@ -1,0 +1,8 @@
+# Evidence rules for code changes. Read by sdlc/framework/tools/confidence.py and tools/gates.py.
+#
+# unverified_claims.warn_until: the last day an unverified or missing claim in a plan only warns.
+# From the next day it blocks SDLC_04. Agreed rule: warn for two sprints, then block. Set the date
+# to the end of the second sprint; while it is empty, unverified claims only warn.
+# Sprints 26.4.3 (10/28-11/17) and 26.4.4 (11/18-12/8), from SHARED/delivery-teams.yaml.
+unverified_claims:
+  warn_until: "2026-12-08"

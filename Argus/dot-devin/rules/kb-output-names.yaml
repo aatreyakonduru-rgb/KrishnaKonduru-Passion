@@ -1,0 +1,23 @@
+# Staged file name (what the shared prompt writes) -> our live file name, both relative to
+# paths.kb_root in kb-profile.yaml. Used by sdlc/kb/tools/kb_compare.py --map and
+# kb_promote.py --map, so a rebuild is compared with, and replaces, the file we already have.
+# Files not listed keep the name the prompt gives them.
+
+# DB: the prompts number these 9B and 16; ours were numbered 11 and 18. The DB-16 prompt writes the
+# hand-documented chains; they live beside the code-generated CROSS-LAYER/CROSS_LAYER_IMPACT_MATRIX.yaml
+# (tools/kbgen/gen_cross_module_matrix.py), which carries them in as documented_chains.
+DB-DOCS/9B_DB_DATA_CONTRACTS.yaml: DB-DOCS/11_DB_DATA_CONTRACTS.yaml
+DB-DOCS/16_DB_CROSS_MODULE_DEPENDENCY_MATRIX.yaml: CROSS-LAYER/CROSS_LAYER_IMPACT_MATRIX.CURATED.yaml
+
+# ETL: the folder had two copies of 00-06 and 10, with and without the ETL_ prefix. The shared
+# prompts write and read the ETL_ names, so those are the live names. The list names the file
+# merged into first; kb_promote.py --merge folds in the lines of the unprefixed copy and moves
+# that copy to the archive. Once it has moved, these entries change nothing.
+ETL/claims-etl/00_ETL_DISCOVERY_REPORT.md: [ETL/claims-etl/00_ETL_DISCOVERY_REPORT.md, ETL/claims-etl/00_DISCOVERY_REPORT.md]
+ETL/claims-etl/01_ETL_BUSINESS_REQUIREMENTS.md: [ETL/claims-etl/01_ETL_BUSINESS_REQUIREMENTS.md, ETL/claims-etl/01_BUSINESS_REQUIREMENTS.md]
+ETL/claims-etl/02_ETL_FUNCTIONAL_REQUIREMENTS.md: [ETL/claims-etl/02_ETL_FUNCTIONAL_REQUIREMENTS.md, ETL/claims-etl/02_FUNCTIONAL_REQUIREMENTS.md]
+ETL/claims-etl/03_ETL_TECHNICAL_REQUIREMENTS.md: [ETL/claims-etl/03_ETL_TECHNICAL_REQUIREMENTS.md, ETL/claims-etl/03_TECHNICAL_REQUIREMENTS.md]
+ETL/claims-etl/04_ETL_USER_MANUAL.md: [ETL/claims-etl/04_ETL_USER_MANUAL.md, ETL/claims-etl/04_USER_MANUAL.md]
+ETL/claims-etl/05_ETL_PROCESS_DOCUMENTATION.md: [ETL/claims-etl/05_ETL_PROCESS_DOCUMENTATION.md, ETL/claims-etl/05_PROCESS_DOCUMENTATION.md]
+ETL/claims-etl/06_ETL_ARCHITECTURE_DIAGRAMS.md: [ETL/claims-etl/06_ETL_ARCHITECTURE_DIAGRAMS.md, ETL/claims-etl/06_ARCHITECTURE_DIAGRAMS.md]
+ETL/claims-etl/10_ETL_MODULE_IO_SUMMARY.md: [ETL/claims-etl/10_ETL_MODULE_IO_SUMMARY.md, ETL/claims-etl/10_MODULE_IO_SUMMARY.md]

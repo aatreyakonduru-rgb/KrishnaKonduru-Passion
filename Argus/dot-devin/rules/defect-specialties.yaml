@@ -1,0 +1,46 @@
+# Which specialty an open SIT or UAT defect belongs to. Read by
+# sdlc/framework/tools/defects_by_specialty.py, which backs /defects-by-specialty and the
+# "Defects by specialty" tab (panel specialty_defects in dashboard-roles.yaml).
+#
+# Jira has no specialty field on Acme Claims defects. Checked 2026-10-06: Component/s is empty, labels are
+# only AI-* tags, "606 Impacted Programs" is blank and "ServiceNow Program" is the same on almost
+# every defect. So the specialty is read from words, in this order:
+#   1. the defect summary
+#   2. the name of the defect's epic
+#   3. the summaries of the issues the defect links to
+# The first specialty below with a match wins (list order breaks ties inside one text). A defect
+# that matches nothing goes under `unassigned`. The page shows what matched, so a wrong match is
+# easy to spot; fix it here, not in code.
+#
+#   keywords   whole words, case-insensitive ("CHF" matches "CHF- Cl..." but not "CHFX")
+#   patterns   Python regular expressions, case-insensitive, for codes glued to other text
+#
+# Specialty list agreed with Resource 3 (resource3) on 2026-10-06.
+specialties:
+  - name: EOC
+    label: Episode of Care
+    keywords: [EOC, Episode, Episodes, BNP, Asthma, TJR, PAP]
+  - name: Maternity
+    keywords: [Maternity, Perinatal, MHPP]
+  - name: CHF
+    keywords: [CHF]
+  - name: THL
+    keywords: [THL, TLH]
+  - name: ProgramA
+    keywords: [ProgramA]
+    patterns: ['\bMSK[A-Z0-9]']
+  - name: ProgramB
+    keywords: [ProgramB]
+  - name: ProgramC
+    label: Oncology
+    keywords: [ProgramC, OMHPA, Oncology]
+  - name: PCMH
+    keywords: [PCMH]
+
+unassigned: Unassigned
+
+# A fix version with one of these names is a placeholder, not a planned release.
+placeholder_versions: [NA, N/A, TBD]
+
+# A defect not updated for this many days is flagged "not moving".
+stale_days: 14

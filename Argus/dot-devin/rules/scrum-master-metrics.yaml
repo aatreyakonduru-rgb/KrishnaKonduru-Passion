@@ -1,0 +1,68 @@
+# What the Scrum Master watches every day, and how the dashboard reads each number from Jira.
+# Source: "a day in your life" call between Resource 3 and Resource 2 (Scrum Master),
+# 2026-10-12. Read by sdlc/framework/tools/scrum_metrics.py for the Scrum Master lens in
+# .devin/rules/dashboard-roles.yaml. Edit the targets here; nothing else needs to change.
+#
+# The Boost view in Tableau is the number of record. The dashboard works the same parts out from
+# Jira so they can be seen every morning; check them against Tableau before relying on them.
+
+targets:
+  cycle_time_baseline_days: 12.8    # 2025 baseline from the Boost view (14.2 on the day of the call)
+  story_throughput_floor: 185.7     # story points; story throughput must not fall below this
+  team_capacity: 181                # story points; this sprint's capacity from the capacity sheet on SharePoint
+  ai_adoption_pct: 100              # every closed sub-task carries AI-Used or AI-NA, monthly
+  ai_efficiency_pct: 30             # at least, monthly
+
+capacity:
+  hours_per_point: 8                # the capacity sheet turns the team's available hours into points: hours / 8
+  sheet:                            # the sprint's capacity sheet (.xlsx), when it is not passed with --capacity-sheet
+
+cycle_time:
+  # From the first move into a start status to the first move into an end status after it.
+  start: [In Progress]
+  end: [Ready For Release, Closed]
+  hold: [On Hold]                   # time in these statuses does not count, as in the Boost cycle time
+  window_days: 90                   # stories finished in this many days make up the average
+  story_days_hint: 8                # a story should be closed within about this many days
+  idle_working_days: 2              # In Progress with no change on the story or its sub-tasks this many working days = not being worked
+
+dre:
+  # DRE = 1 - production defects / defects found in every environment ("Defect Detected In").
+  production: [PRODUCTION, PRODUCTION - Warranty, PRODUCTION - Dark Release]
+  since: startOfYear()
+
+ai_labels: [AI-Used, AI-NA]         # exact case, as in jira-ticket-standards.yaml labels.ai_adoption;
+                                    # AI-USED or any other variant is a wrong label, not AI-Used
+
+# AI efficiency = (estimated hours - logged hours) / estimated hours, over the AI-Used sub-tasks closed
+# in the month. The sub-task estimates are the story's initial estimate split across its sub-tasks.
+# Exempted sub-tasks (AI-Used, logged over the estimate) stay out of the sum.
+
+# Not settled on the call; the dashboard shows these as "to confirm" instead of guessing.
+open_questions:
+  - No capacity sheet was given, so capacity is team_capacity from this file; pass this sprint's sheet with --capacity-sheet.
+  - DRE period — which defects does Tableau count, by created date (this year, this PI, this month)?
+  - DRE production — are PRODUCTION, PRODUCTION - Warranty and PRODUCTION - Dark Release the production values?
+  - DRE all environments — do Dev defects count, or only SIT, UAT and later?
+  - Does cycle time count calendar days or working days?
+  - Sprint close — Jira has no "Completed" status; is Ready for Approval or any done status (Ready For Release, Closed, Approved, Production Validation, Resolved, Abandoned) right?
+
+# Cost per story (Cost tab): hours logged on the story and its sub-tasks times this rate.
+# Left blank, the tab shows hours only; the rate comes from the delivery lead, it is not guessed.
+cost:
+  hourly_rate:
+  # A CSV exported from Devin's usage page (columns session_id, acus) adds ACUs to "Devin sessions per story and
+  # stage" on the Cost tab. The Devin API does not report ACUs per session, so without it none are shown.
+  devin_usage_export:
+  # Dollars per ACU from our Devin contract, for the "Show $" box on Team Insights. Left blank, there is no box
+  # and no $ columns, only ACUs; the rate comes from whoever holds the contract, it is not guessed.
+  usd_per_acu:
+
+# /sprint-close-check and the Sprint close tab: what each story and sub-task needs before the sprint closes.
+# Asked for by Resource 2 (Scrum Master): sub-tasks closed, time logged, AI-Used or AI-NA, an original
+# estimate, status Completed or Ready for Approval. Acme Claims has no "Completed" status, so a done-category status
+# (Ready For Release, Closed, Approved, Production Validation; Resolved, Closed, Abandoned on sub-tasks) counts
+# as completed until Resource 2 says otherwise (learn-more L-029).
+sprint_close:
+  accepted_statuses: [Ready for Approval]
+  done_category_counts: true

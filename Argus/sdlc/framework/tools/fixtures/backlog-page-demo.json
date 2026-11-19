@@ -1,0 +1,223 @@
+{
+ "sample": true,
+ "items": [
+  {
+   "k": "ACME-18710",
+   "t": "Story",
+   "s": "Override a program threshold from the member record",
+   "ep": "Threshold override screen",
+   "sp": "EOC",
+   "pts": null,
+   "sprint": "Sprint 26.21",
+   "st": "To Do",
+   "groom": true,
+   "d": "Coordinators override a threshold from the member record and give a reason.",
+   "ac": [
+    "Override saved with reason",
+    "Audit row written"
+   ],
+   "checks": [
+    [
+     "ok",
+     "Has an epic"
+    ],
+    [
+     "bad",
+     "No story points"
+    ],
+    [
+     "bad",
+     "Acceptance criteria do not say who can override"
+    ],
+    [
+     "ok",
+     "Specialty label set"
+    ]
+   ],
+   "devin": "5"
+  },
+  {
+   "k": "ACME-18711",
+   "t": "Story",
+   "s": "Show override history on the member record",
+   "ep": "Threshold override screen",
+   "sp": "EOC",
+   "pts": 3,
+   "sprint": "Sprint 26.21",
+   "st": "To Do",
+   "groom": false,
+   "d": "A history list of every override on the member record.",
+   "ac": [
+    "Newest first",
+    "Shows who, when and why"
+   ],
+   "checks": [
+    [
+     "ok",
+     "Ready to work on"
+    ]
+   ],
+   "devin": "3"
+  },
+  {
+   "k": "ACME-18720",
+   "t": "Story",
+   "s": "Program year selector above Member Journey",
+   "ep": "Program year filter",
+   "sp": "Foundational",
+   "pts": null,
+   "sprint": "Backlog",
+   "st": "To Do",
+   "groom": true,
+   "d": "",
+   "ac": [],
+   "checks": [
+    [
+     "bad",
+     "No description"
+    ],
+    [
+     "bad",
+     "No acceptance criteria"
+    ],
+    [
+     "bad",
+     "No story points"
+    ]
+   ],
+   "devin": "?"
+  },
+  {
+   "k": "ACME-18721",
+   "t": "Story",
+   "s": "Keep the program year when moving between pages",
+   "ep": "Program year filter",
+   "sp": "Foundational",
+   "pts": 13,
+   "sprint": "Backlog",
+   "st": "To Do",
+   "groom": true,
+   "d": "The chosen program year carries across all report pages.",
+   "ac": [
+    "Year kept on every page"
+   ],
+   "checks": [
+    [
+     "bad",
+     "13 points: rule book says split before the sprint"
+    ]
+   ],
+   "devin": "13"
+  },
+  {
+   "k": "ACME-18730",
+   "t": "Story",
+   "s": "CHF care gap list for coordinators",
+   "ep": "CHF care gap view",
+   "sp": "CHF",
+   "pts": null,
+   "sprint": "Backlog",
+   "st": "To Do",
+   "groom": true,
+   "d": "List of CHF members with open care gaps.",
+   "ac": [
+    "Filter by gap type"
+   ],
+   "checks": [
+    [
+     "bad",
+     "No story points"
+    ],
+    [
+     "bad",
+     "Epic has no owner"
+    ]
+   ],
+   "devin": "8"
+  },
+  {
+   "k": "ACME-18740",
+   "t": "Defect",
+   "s": "[UAT][ProgramA] Episode total off by one day",
+   "ep": "ProgramA episode reporting",
+   "sp": "ProgramA",
+   "pts": 2,
+   "sprint": "Sprint 26.20 (current)",
+   "st": "In Progress",
+   "groom": false,
+   "d": "Episode length counts the discharge day twice.",
+   "ac": [
+    "Totals match the source"
+   ],
+   "checks": [
+    [
+     "ok",
+     "Ready to work on"
+    ]
+   ],
+   "devin": "2"
+  },
+  {
+   "k": "ACME-18300",
+   "t": "Epic",
+   "s": "Threshold override screen",
+   "ep": "",
+   "sp": "EOC",
+   "pts": null,
+   "sprint": "",
+   "st": "In Progress",
+   "groom": false,
+   "d": "PCMH coordinators override program thresholds in Acme Claims.",
+   "ac": [
+    "Override saved and audited"
+   ],
+   "checks": [
+    [
+     "ok",
+     "Owner, source and target release set"
+    ]
+   ],
+   "devin": ""
+  },
+  {
+   "k": "ACME-18302",
+   "t": "Epic",
+   "s": "CHF care gap view",
+   "ep": "",
+   "sp": "CHF",
+   "pts": null,
+   "sprint": "",
+   "st": "To Do",
+   "groom": true,
+   "d": "",
+   "ac": [],
+   "checks": [
+    [
+     "bad",
+     "No owner"
+    ],
+    [
+     "bad",
+     "No objective"
+    ],
+    [
+     "bad",
+     "Source page older than 90 days"
+    ]
+   ],
+   "devin": ""
+  }
+ ],
+ "sprints": [
+  "Sprint 26.20 (current)",
+  "Sprint 26.21",
+  "Sprint 26.22",
+  "Backlog"
+ ],
+ "team": [
+  "Resource 17",
+  "Resource 16",
+  "Resource 2",
+  "Resource 3"
+ ]
+}

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "cui-layout": {
+      "command": "node",
+      "args": ["web/node_modules/@cui/layout-contracts/mcp/server.js"]
+    }
+  }
+}

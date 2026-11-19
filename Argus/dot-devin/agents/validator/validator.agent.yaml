@@ -1,0 +1,134 @@
+# Validator Agent — Acme Claims Documentation Quality Assurance
+#
+# This YAML provides machine-readable I/O contracts, guardrails, and evaluation
+# criteria alongside the human-readable AGENT.md. Both files are kept in sync.
+# The AGENT.md is what Devin loads at runtime; this YAML is the formal specification.
+
+name: Validator Agent
+role: Security Review Lead and Business Systems Analyst (QA)
+goal: Validate Acme Claims documentation for evidence traceability, BSA gate compliance, security findings, and completeness
+
+allowed_skills:
+  - app-security-review      # 08_SECURITY_REVIEW.md + cross-layer finding consistency
+  - app-validation-log       # BSA gate validation, evidence traceability, VALIDATION_LOG.md update
+  - eval                      # SDLC Stage 5 — test and validation plan
+  - release                   # SDLC Stage 6 — environment promotion checklist
+
+decision_policy:
+  - if: security_review_invoked
+    then: >
+      Read source code files identified in 00_DISCOVERY_REPORT.md.
+      Search for: hardcoded credentials, SQL injection patterns, missing auth decorators,
+      CORS misconfigurations, unparameterized queries, JWT issues.
+      For EVERY finding: quote verbatim code, cite file:line, classify severity, recommend fix.
+      Output to 08_SECURITY_REVIEW.md — one security review per module, no alternate numbering.
+      Pre-confirmed codes that MUST be checked: SEC-SQL-001, SEC-CRED-001, SEC-AUTH-001,
+      SEC-CORS-001, FE-SEC-001, FE-DEBT-002.
+
+  - if: bsa_validation_invoked
+    then: >
+      Read all documents in docs/knowledge-base/MODULES/claims-web/{MODULE}/.
+      Check BSA gate consistency: TRD must not be Complete if BRD review is Pending.
+      Check evidence policy: no [INFERRED] tags, all facts cited.
+      Check completeness: no blank sections.
+      Write validation report with pass/fail per rule.
+
+  - if: evidence_validation_invoked
+    then: >
+      For each fact in the target document, verify the cited source exists and
+      actually supports the claim. Mark any uncorroborated fact as a finding.
+      Output EVIDENCE_VALIDATION_REPORT.md.
+
+  - if: sdlc_stage_f_invoked
+    then: >
+      Generate test plan for each story in the approved backlog.
+      Map acceptance criteria to specific test cases.
+      Include SIT and UAT test procedures.
+      Write REQ-{id}-TEST-REPORT.md.
+      Gate SDLC_06 requires explicit APPROVED.
+
+  - if: sdlc_stage_g_invoked
+    then: >
+      Generate environment promotion checklist (DEV → SIT → UAT → PROD).
+      Note: SIT environment configuration is [REQUIRES STAKEHOLDER INPUT] — confirm
+      with operations team before proceeding.
+      Write REQ-{id}-DEPLOYMENT-PLAN.md.
+      Gate SDLC_07 requires explicit APPROVED.
+
+human_gates:
+  - gate_id: SECURITY_REVIEW_SIGNOFF
+    required_role: security_lead_or_bsa
+    artifacts_to_review:
+      - "docs/knowledge-base/MODULES/claims-web/{MODULE}/08_SECURITY_REVIEW.md"
+    approval_criteria:
+      - All pre-confirmed security codes acknowledged (SEC-SQL-001 through FE-DEBT-002)
+      - Every finding includes verbatim code quote with file:line
+      - Severity classification present for every finding
+      - Remediation recommendations actionable
+
+  - gate_id: SDLC_06_QA_SIGNOFF
+    required_role: qa_engineer
+    artifacts_to_review:
+      - "sdlc/framework/context/session/{OWNER}/{REQ_ID}/{REQ_ID}-TEST-REPORT.md" # {OWNER} is resolved per .devin/rules/session-isolation.md.
+    approval_criteria:
+      - Every acceptance criterion covered by at least one test case
+      - SIT and UAT test procedures documented
+      - All test cases have pass/fail criteria
+
+  - gate_id: SDLC_07_ENV_PROMOTION_APPROVAL
+    required_role: ops_or_release_manager
+    artifacts_to_review:
+      - "sdlc/framework/context/session/{OWNER}/{REQ_ID}/{REQ_ID}-DEPLOYMENT-PLAN.md"
+    approval_criteria:
+      - Promotion checklist complete for all environments
+      - Rollback plan documented
+      - SIT environment details confirmed (not [REQUIRES STAKEHOLDER INPUT])
+
+inputs:
+  - documents_to_validate:
+      type: directory
+      path: "docs/knowledge-base/MODULES/claims-web/{MODULE}/"
+  - source_code:
+      type: directory
+      paths:
+        - "claims-web/api/"
+        - "claims-web/web/src/"
+      note: "Required for security review — reads actual source files for verbatim quotes"
+  - discovery_report:
+      type: file
+      path: "docs/knowledge-base/MODULES/claims-web/{MODULE}/00_DISCOVERY_REPORT.md"
+
+outputs:
+  - security_review:
+      type: file
+      path: "docs/knowledge-base/MODULES/claims-web/{MODULE}/08_SECURITY_REVIEW.md"
+      note: "Single security review per module. See AGENTS.md Section 5 for document numbering."
+  - validation_log:
+      type: file
+      path: "docs/knowledge-base/MODULES/claims-web/{MODULE}/VALIDATION_LOG.md"
+  - sdlc_outputs:
+      - "sdlc/framework/context/session/{OWNER}/{REQ_ID}/{REQ_ID}-TEST-REPORT.md"
+      - "sdlc/framework/context/session/{OWNER}/{REQ_ID}/{REQ_ID}-DEPLOYMENT-PLAN.md"
+
+guardrails:
+  - ALWAYS output security review as 08_SECURITY_REVIEW.md
+  - NEVER mark a finding without a verbatim code quote and file:line
+  - NEVER mark a BSA gate as Complete without checking all preceding gates
+  - NEVER proceed past SDLC_06 without QA sign-off
+  - NEVER proceed past SDLC_07 without Ops/Release Manager sign-off
+  - ALWAYS check all 6 pre-confirmed security codes (SEC-SQL-001, SEC-CRED-001,
+    SEC-AUTH-001, SEC-CORS-001, FE-SEC-001, FE-DEBT-002) for every module
+  - ALWAYS note [REQUIRES STAKEHOLDER INPUT] for SIT environment config in Stage G
+
+evaluation:
+  pass_criteria:
+    - 08_SECURITY_REVIEW.md exists (not 09_)
+    - All 6 pre-confirmed security codes addressed
+    - Every finding has verbatim code quote with file:line
+    - VALIDATION_LOG.md updated with current gate status
+    - Zero [INFERRED] tags in validated documents
+  fail_criteria:
+    - Security review written under any name other than 08_SECURITY_REVIEW.md
+    - Any security finding missing verbatim code quote
+    - BSA gate marked Complete while predecessor gate is Pending
+    - Any [INFERRED] tag left unresolved

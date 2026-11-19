@@ -1,0 +1,67 @@
+# Snowflake environment map for the Acme Claims DB skills and prompts.
+#
+# Every db-* skill, /app-knowledge-refresh and the shared DB prompts in sdlc/kb/kb-prompts/
+# resolve these placeholders from this file instead of hard-coding names:
+#
+#   {{SNOWFLAKE_DB}}      -> environments.<env>.database      (e.g. SIT01_CLAIMS)
+#   {{SNOWFLAKE_IAM_DB}}  -> environments.<env>.iam_database  (e.g. SIT01_IAM, holds IAM_RSTRCTD_POLICY)
+#   {{SNOWFLAKE_WH}}      -> environments.<env>.warehouse     (e.g. SIT01_WH)
+#   {{env}}               -> the resolved environment key      (dev|sit|uat|prod)
+#   {{DB_DOCS_DIR}}       -> environments.<env>.docs_dir      (folder under
+#                            docs/knowledge-base/DB-DOCS/ that this env's
+#                            generated documents are written to; "." = the DB-DOCS root)
+#
+# Documents at the DB-DOCS root are the production (P01) set. Lower regions each get
+# their own sub-folder so a SIT or DEV run never overwrites the prod baseline.
+#
+# Sandbox: when SDLC_SANDBOX is set there is no Snowflake. Run every query with
+#   python3 sdlc/framework/tools/sandbox/sandbox_db.py query "<sql>"   (read-only SQLite, sample.db)
+# instead of the Snowflake MCP, list the tables with `sandbox_db.py tables`, use SQLite SQL (no database or
+# schema prefix: {{SNOWFLAKE_DB}} is "sample"), and stamp documents "Sandbox: sample.db".
+#
+# Resolution order (first match wins):
+#   1. `--env <name>` argument on the skill invocation   e.g. /db-discovery --env sit
+#   2. SNOWFLAKE_ENV environment variable                e.g. SNOWFLAKE_ENV=uat
+#   3. `default` below
+#
+# Any skill that resolves an env must print the resolved database once at the
+# start ("Snowflake target: SIT01_CLAIMS (sit)") and stamp it in the header of
+# every document it writes, so a reader knows which instance the facts came from.
+#
+# Account note: the Devin Snowflake MCP (acme-nonprod) only exposes the
+# dev and sit databases. uat and prod are listed for completeness; running the
+# pipeline against them needs a connection to the corresponding account.
+#
+# Which login the app itself uses (service account on the Devin Cloud VM, own Okta ID on a PC):
+# see "Snowflake Connection Identity" in .devin/rules/data-access.md.
+
+default: sit
+
+environments:
+  dev:
+    database: DEV01_CLAIMS
+    iam_database: DEV01_IAM
+    warehouse: DEV01_WH
+    label: Development
+    docs_dir: DEV
+  sit:
+    database: SIT01_CLAIMS
+    iam_database: SIT01_IAM
+    warehouse: SIT01_WH
+    label: System Integration Test
+    docs_dir: SIT
+  uat:
+    database: UAT01_CLAIMS
+    iam_database: UAT01_IAM
+    warehouse: UAT01_WH
+    label: User Acceptance Test
+    docs_dir: UAT
+  prod:
+    database: PRD01_CLAIMS
+    iam_database: PRD01_IAM
+    warehouse: PRD01_WH
+    label: Production
+    docs_dir: .
+
+# Schema names are the same in every environment.
+schema: CLAIMS_UI_DATA

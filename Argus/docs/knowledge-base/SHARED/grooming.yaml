@@ -1,0 +1,12 @@
+# How Grooming prep (Argus and the PO, BSA and Scrum Master dashboards) reads the backlog before a
+# grooming call. Read by sdlc/framework/tools/grooming_prep.py. Every rule is a starting assumption
+# until the Product Owner confirms it.
+found_at: 0.67
+similar_at: 0.34
+groom_labels: [needs_grooming, needs_split, needs-grooming, needs-split]
+split_at: 13
+core_roles: [Product Owner, Scrum Master, Dev lead, Solution Lead, Testing]
+# Partner teams (keys in delivery-teams.yaml) to invite when the story or its epic names their area.
+partner_teams: {}
+dls: {}
+assumptions: []

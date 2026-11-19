@@ -1,0 +1,562 @@
+{
+  "_comment": "Offline demo fixture for gen_dashboard.py --cache. Fabricated data; no real Jira content. Use with --lens to preview any role lens without Jira access.",
+  "defect_matrix": "defects-by-specialty-demo.json",
+  "hygiene": "jira-hygiene-demo.json",
+  "backlog": "backlog-page-demo.json",
+  "grooming_prep": "grooming-prep-demo.json",
+  "base": "origin/master",
+  "user": {
+    "name": "resource13",
+    "displayName": "Resource 13",
+    "roles": [
+      "developer"
+    ]
+  },
+  "questions_for_me": [
+    {
+      "key": "ACME-19001",
+      "parent": "ACME-18712",
+      "parent_title": "Contract template upload validation",
+      "asker": "Resource 24",
+      "assignee": "resource13",
+      "assignee_display": "Resource 13",
+      "question": "When a bulk upload row fails validation, should the whole file be rejected or only the failing rows?",
+      "answer": "",
+      "answer_by": "",
+      "age": 5,
+      "waiting": false
+    },
+    {
+      "key": "ACME-19002",
+      "parent": "ACME-18815",
+      "parent_title": "Provider grouping approver config",
+      "asker": "Resource 4",
+      "assignee": "resource13",
+      "assignee_display": "Resource 13",
+      "question": "Is a duplicate assignee allowed when the same person holds two approver roles?",
+      "answer": "",
+      "answer_by": "",
+      "age": 1,
+      "waiting": false
+    }
+  ],
+  "my_questions": [
+    {
+      "key": "ACME-19010",
+      "parent": "ACME-18712",
+      "parent_title": "Contract template upload validation",
+      "asker": "Resource 13",
+      "assignee": "resource24",
+      "assignee_display": "Resource 24",
+      "question": "Which SIT data set should the negative upload cases use?",
+      "answer": "Use the SIT-2 refreshed set; SIT-1 has stale contract effective dates.",
+      "answer_by": "Resource 24",
+      "age": 2,
+      "waiting": false
+    }
+  ],
+  "approvals": [
+    {
+      "requirement": "REQ-2026-014",
+      "title": "Contract bulk upload validation rules",
+      "session": "sdlc/framework/context/session/resource5/REQ-2026-014",
+      "gate_id": "SDLC_04_ROUTING_APPROVAL",
+      "name": "Routing & Insertion Points",
+      "requirement_text": "Routing map covers every affected layer; insertion points verified against real line numbers",
+      "owner": "resource5",
+      "days": 2,
+      "timeout_hours": 24,
+      "time_left": -32
+    },
+    {
+      "requirement": "REQ-2026-015",
+      "title": "Provider grouping approver duplicates",
+      "session": "sdlc/framework/context/session/resource24/REQ-2026-015",
+      "gate_id": "SDLC_06_QA_SIGNOFF",
+      "name": "QA Sign-off",
+      "requirement_text": "All acceptance criteria covered by tests; coverage at or above 80%; no open critical defects",
+      "owner": "resource24",
+      "days": 1,
+      "timeout_hours": 48,
+      "time_left": 20
+    }
+  ],
+  "team_pipeline": [
+    {
+      "requirement": "REQ-2026-014",
+      "owner": "resource5",
+      "phase": "Routing & Insertion Points",
+      "blocked_on": "approval: SDLC_04_ROUTING_APPROVAL"
+    },
+    {
+      "requirement": "REQ-2026-015",
+      "owner": "resource24",
+      "phase": "QA Sign-off",
+      "blocked_on": "approval: SDLC_06_QA_SIGNOFF"
+    },
+    {
+      "requirement": "REQ-2026-016",
+      "owner": "resource7",
+      "phase": "Moving forward",
+      "blocked_on": "nothing recorded"
+    }
+  ],
+  "branches": [
+    {
+      "branch": "feature/ACME-18712-contract-template",
+      "key": "ACME-18712",
+      "author": "Resource 13",
+      "committed": "2026-09-18",
+      "ahead": "6",
+      "behind": "31",
+      "remote": true,
+      "conflicts": true
+    },
+    {
+      "branch": "defect/ACME-18815",
+      "key": "ACME-18815",
+      "author": "Resource 13",
+      "committed": "2026-09-12",
+      "ahead": "2",
+      "behind": "4",
+      "remote": false,
+      "conflicts": false
+    },
+    {
+      "branch": "feature/ACME-13019-pg-flow",
+      "key": "ACME-13019",
+      "author": "Resource 8",
+      "committed": "2026-08-02",
+      "ahead": "9",
+      "behind": "120",
+      "remote": true,
+      "conflicts": false
+    }
+  ],
+  "branch_status": [
+    {
+      "key": "ACME-18712",
+      "status": "In Progress",
+      "assignee": "Resource 13",
+      "summary": "Contract template upload validation",
+      "resolved": false
+    },
+    {
+      "key": "ACME-18815",
+      "status": "In Review",
+      "assignee": "Resource 13",
+      "summary": "Provider grouping approver config",
+      "resolved": false
+    },
+    {
+      "key": "ACME-13019",
+      "status": "Closed",
+      "assignee": "Resource 8",
+      "summary": "PG flow remittance split",
+      "resolved": true
+    }
+  ],
+  "panels": {
+    "my_work": [
+      {
+        "key": "ACME-18712",
+        "type": "Story",
+        "summary": "Contract template upload validation",
+        "status": "In Progress",
+        "assignee": "Resource 13",
+        "sprint": "Acme Claims Sprint 41",
+        "points": 5,
+        "updated": "2026-09-18"
+      },
+      {
+        "key": "ACME-18815",
+        "type": "Story",
+        "summary": "Provider grouping approver config",
+        "status": "In Review",
+        "assignee": "Resource 13",
+        "sprint": "Acme Claims Sprint 41",
+        "points": 3,
+        "updated": "2026-09-17"
+      },
+      {
+        "key": "ACME-18990",
+        "type": "Technical task",
+        "summary": "Split contract dashboard SQL into paged queries",
+        "status": "Open",
+        "assignee": "Resource 13",
+        "sprint": "Acme Claims Sprint 42",
+        "points": "",
+        "updated": "2026-09-05"
+      }
+    ],
+    "my_reviews": [
+      {
+        "key": "ACME-18815",
+        "type": "Story",
+        "summary": "Provider grouping approver config",
+        "status": "In Review",
+        "updated": "2026-09-17"
+      }
+    ],
+    "review_queue": [
+      {
+        "key": "ACME-18815",
+        "type": "Story",
+        "summary": "Provider grouping approver config",
+        "status": "In Review",
+        "assignee": "Resource 13",
+        "sprint": "Acme Claims Sprint 41",
+        "updated": "2026-09-17"
+      },
+      {
+        "key": "ACME-18844",
+        "type": "Defect",
+        "summary": "Financial review screen totals rounding",
+        "status": "In Review",
+        "assignee": "Resource 23",
+        "sprint": "Acme Claims Sprint 41",
+        "updated": "2026-09-16"
+      }
+    ],
+    "stale_work": [
+      {
+        "key": "ACME-18990",
+        "type": "Technical task",
+        "summary": "Split contract dashboard SQL into paged queries",
+        "status": "Open",
+        "updated": "2026-09-05"
+      }
+    ],
+    "defects_on_me": [
+      {
+        "key": "ACME-18844",
+        "type": "Defect",
+        "summary": "Financial review screen totals rounding",
+        "status": "Open",
+        "severity": "Fails, workaround available",
+        "reporter": "Resource 19",
+        "updated": "2026-09-16"
+      }
+    ],
+    "test_queue": [
+      {
+        "key": "ACME-18712",
+        "type": "Story",
+        "summary": "Contract template upload validation",
+        "status": "Test Ready",
+        "assignee": "Resource 13",
+        "sprint": "Acme Claims Sprint 41",
+        "updated": "2026-09-18"
+      },
+      {
+        "key": "ACME-18760",
+        "type": "Story",
+        "summary": "TIN/NPI substitution search error handling",
+        "status": "Testing",
+        "assignee": "Resource 19",
+        "sprint": "Acme Claims Sprint 41",
+        "updated": "2026-09-17"
+      }
+    ],
+    "my_defects": [
+      {
+        "key": "ACME-18844",
+        "type": "Defect",
+        "summary": "Financial review screen totals rounding",
+        "status": "In Review",
+        "severity": "Fails, workaround available",
+        "assignee": "Resource 23",
+        "updated": "2026-09-16"
+      },
+      {
+        "key": "ACME-18901",
+        "type": "Observation",
+        "summary": "Contract filter resets after paging",
+        "status": "Open",
+        "severity": "",
+        "assignee": "",
+        "updated": "2026-09-15"
+      }
+    ],
+    "retest_queue": [
+      {
+        "key": "ACME-18790",
+        "summary": "Draft contract count excludes abandoned drafts",
+        "status": "Resolved",
+        "severity": "Medium",
+        "assignee": "Resource 7",
+        "updated": "2026-09-14"
+      }
+    ],
+    "demo_ready": [
+      {"key": "ACME-18630", "type": "Story", "summary": "CHF - CC/CR request development - DEV", "status": "Ready For Release", "sprint": "Acme Claims Sprint 26.4.1(9/16-10/6)", "assignee": "Resource 7", "updated": "2026-09-12", "recorded": {"url": "https://wiki.acme.example/pages/viewpage.action?pageId=100099", "acs": 3}},
+      {"key": "ACME-18640", "type": "Story", "summary": "PCMH - Attribution export columns - DEV", "status": "In Review", "sprint": "Acme Claims Sprint 26.4.1(9/16-10/6)", "assignee": "Resource 19", "updated": "2026-09-14", "recorded": false},
+      {"key": "ACME-18792", "type": "Story", "summary": "THL - Additional changes to attribution screen - SIT", "status": "In Progress", "sprint": "Acme Claims Sprint 26.4.2(10/7-10/27)", "assignee": "Resource 19", "updated": "2026-09-15", "recorded": false},
+      {"key": "ACME-18810", "type": "Story", "summary": "EoC - Episode summary filters - DEV", "status": "Open", "sprint": "", "assignee": "", "updated": "2026-09-10", "recorded": false}
+    ],
+    "demo_queue": [
+      {"key": "ACME-18792", "type": "Story", "summary": "THL - Additional changes to attribution screen - SIT", "status": "In Progress", "sprint": "26.4.2", "assignee": "Resource 19", "updated": "2026-09-15"},
+      {"key": "ACME-18630", "type": "Story", "summary": "CHF - CC/CR request development - DEV", "status": "Ready For Release", "sprint": "26.4.1", "assignee": "Resource 7", "updated": "2026-09-12"}
+    ],
+    "observation_triage": [
+      {
+        "key": "ACME-18901",
+        "summary": "Contract filter resets after paging",
+        "status": "Open",
+        "reporter": "Resource 19",
+        "assignee": "",
+        "updated": "2026-09-15"
+      }
+    ],
+    "uat_queue": [
+      {
+        "key": "ACME-18650",
+        "type": "Story",
+        "summary": "Assign approvers page grouping",
+        "status": "Ready for UAT",
+        "assignee": "Resource 18",
+        "sprint": "Acme Claims Sprint 40",
+        "updated": "2026-09-16"
+      },
+      {
+        "key": "ACME-18661",
+        "type": "Story",
+        "summary": "Scorecard bulk upload stepper",
+        "status": "UAT",
+        "assignee": "Resource 21",
+        "sprint": "Acme Claims Sprint 40",
+        "updated": "2026-09-15"
+      }
+    ],
+    "uat_fixed": [
+      {
+        "key": "ACME-18604",
+        "type": "Defect",
+        "summary": "Contract dashboard filter not applied on second page",
+        "status": "Ready for UAT",
+        "severity": "Medium",
+        "assignee": "Resource 6",
+        "updated": "2026-09-17"
+      }
+    ],
+    "unrouted_questions": [
+      {
+        "key": "ACME-19020",
+        "summary": "Which contract types are in scope for the 2027 template?",
+        "reporter": "Resource 5",
+        "created": "2026-09-16"
+      }
+    ],
+    "aging_questions": [
+      {
+        "key": "ACME-19001",
+        "summary": "Bulk upload row failure — reject file or rows?",
+        "reporter": "Resource 24",
+        "assignee": "Resource 13",
+        "created": "2026-09-14"
+      }
+    ],
+    "grooming": [
+      {
+        "key": "ACME-18992",
+        "type": "Story",
+        "summary": "Contract amendment history view",
+        "status": "Refining",
+        "points": "",
+        "assignee": "",
+        "updated": "2026-09-12"
+      },
+      {
+        "key": "ACME-18995",
+        "type": "Story",
+        "summary": "Bulk scorecard upload for specialty programmes",
+        "status": "Refining",
+        "points": 21,
+        "assignee": "Resource 14",
+        "updated": "2026-09-11"
+      }
+    ],
+    "sprint_scope": [
+      {
+        "key": "ACME-18712",
+        "type": "Story",
+        "summary": "Contract template upload validation",
+        "status": "Test Ready",
+        "points": 5,
+        "assignee": "Resource 13",
+        "updated": "2026-09-18"
+      },
+      {
+        "key": "ACME-18815",
+        "type": "Story",
+        "summary": "Provider grouping approver config",
+        "status": "In Review",
+        "points": 3,
+        "assignee": "Resource 13",
+        "updated": "2026-09-17"
+      },
+      {
+        "key": "ACME-18760",
+        "type": "Story",
+        "summary": "TIN/NPI substitution search error handling",
+        "status": "Testing",
+        "points": 8,
+        "assignee": "Resource 19",
+        "updated": "2026-09-17"
+      }
+    ],
+    "awaiting_business_approval": [
+      {
+        "key": "ACME-18500",
+        "type": "Epic",
+        "summary": "2027 contract template family",
+        "status": "Ready for Approval",
+        "assignee": "Resource 5",
+        "updated": "2026-09-13"
+      }
+    ],
+    "aging_work": [
+      {
+        "key": "ACME-18401",
+        "type": "Story",
+        "summary": "Remittance split rules for specialty programmes",
+        "status": "In Progress",
+        "assignee": "Resource 7",
+        "sprint": "Acme Claims Sprint 39",
+        "updated": "2026-09-01"
+      }
+    ],
+    "epics": [
+      {
+        "key": "ACME-18500",
+        "type": "Epic",
+        "summary": "2027 contract template family",
+        "status": "Ready for Approval",
+        "assignee": "Resource 5",
+        "updated": "2026-09-13"
+      },
+      {
+        "key": "ACME-17900",
+        "type": "Capability",
+        "summary": "Retire OldClaims contract configuration",
+        "status": "In Progress",
+        "assignee": "Resource 4",
+        "updated": "2026-09-10"
+      }
+    ],
+    "risks": [
+      {
+        "key": "ACME-18300",
+        "type": "Risk",
+        "summary": "Snowflake row access policy blocks contract dashboard paging",
+        "status": "Owned",
+        "reporter": "Resource 4",
+        "assignee": "Resource 4",
+        "updated": "2026-09-09"
+      }
+    ],
+    "technical_debt": [
+      {
+        "key": "ACME-18990",
+        "type": "Technical task",
+        "summary": "Split contract dashboard SQL into paged queries",
+        "status": "Open",
+        "assignee": "Resource 13",
+        "updated": "2026-09-05"
+      },
+      {
+        "key": "ACME-18120",
+        "type": "Story",
+        "summary": "Spike: micro-frontend shell upgrade",
+        "status": "Refining",
+        "assignee": "",
+        "updated": "2026-08-28"
+      }
+    ],
+    "release_queue": [
+      {
+        "key": "ACME-18650",
+        "type": "Story",
+        "summary": "Assign approvers page grouping",
+        "status": "Ready For Release",
+        "assignee": "Resource 18",
+        "sprint": "Acme Claims Sprint 40",
+        "updated": "2026-09-16"
+      }
+    ],
+    "prod_validation": [
+      {
+        "key": "ACME-18400",
+        "type": "Story",
+        "summary": "Contract dashboard my-queue counts",
+        "status": "Production Validation",
+        "assignee": "Resource 6",
+        "updated": "2026-09-18"
+      }
+    ]
+  },
+  "scrum": "scrum-master-demo.json",
+  "workload": {
+    "sprint": {
+      "name": "Acme Claims Sprint 26.4.1(9/16-10/6)",
+      "start": "2026-09-16T12:01:00.000-04:00",
+      "end": "2026-10-06T21:01:00.000-04:00"
+    },
+    "issues": [
+      {
+        "username": "resource13",
+        "display": "Resource 13",
+        "category": "new",
+        "estimate_hours": 160.0
+      },
+      {
+        "username": "resource13",
+        "display": "Resource 13",
+        "category": "indeterminate",
+        "estimate_hours": 128.0
+      },
+      {
+        "username": "resource5",
+        "display": "Resource 5",
+        "category": "new",
+        "estimate_hours": 60.0
+      },
+      {
+        "username": "resource9",
+        "display": "Resource 9",
+        "category": "indeterminate",
+        "estimate_hours": 54.0
+      },
+      {
+        "username": "resource10",
+        "display": "Resource 10",
+        "category": "new",
+        "estimate_hours": 28.0
+      },
+      {
+        "username": "resource6",
+        "display": "Resource 6",
+        "category": "new",
+        "estimate_hours": 16.0
+      },
+      {
+        "username": "resource21",
+        "display": "Resource 21",
+        "category": "new",
+        "estimate_hours": 0.0
+      },
+      {
+        "username": "",
+        "display": "",
+        "category": "new",
+        "estimate_hours": 64.0
+      },
+      {
+        "username": "user2",
+        "display": "P, Resource 33",
+        "category": "new",
+        "estimate_hours": 8.0
+      }
+    ]
+  }
+}

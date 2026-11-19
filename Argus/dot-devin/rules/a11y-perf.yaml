@@ -1,0 +1,12 @@
+# Accessibility and performance checks run by /eval (tools/a11y_perf.py) on the pages a story changes.
+# Accessibility: every finding of a rule listed under blocking fails the check; the others are listed as warnings.
+# Performance: a page over a limit fails. lcp_ms 2500 is the published Core Web Vitals "good" limit; the other
+# limits are starting values for the team to confirm, not agreed targets.
+accessibility:
+  blocking: [img-alt, form-label, control-name, html-lang]
+  warning: [heading-order, duplicate-id, page-title]
+performance:
+  lcp_ms: 2500
+  load_ms: 3000
+  transfer_kb: 2048
+  requests: 80

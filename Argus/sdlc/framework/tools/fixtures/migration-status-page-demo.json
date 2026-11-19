@@ -1,0 +1,135 @@
+{
+ "sample": true,
+ "title": "Migration status: legacy systems to Acme Claims",
+ "label": "Migration status",
+ "lead": "How much of OldClaims, OldBilling and OldCare is already in Acme Claims, module by module. Review it, correct anything, and approve it to save and share.",
+ "tabs": [
+  {
+   "title": "Summary",
+   "blocks": [
+    {
+     "metrics": [
+      [
+       "70%",
+       "Configure (replaces OldClaims)",
+       70
+      ],
+      [
+       "55%",
+       "Attribution (replaces OldBilling)",
+       55
+      ],
+      [
+       "40%",
+       "Reporting (replaces OldCare)",
+       40
+      ]
+     ]
+    },
+    {
+     "table": {
+      "head": [
+       "Module",
+       "Replaces",
+       "Moved",
+       "Partly moved",
+       "Not started",
+       "Unclear"
+      ],
+      "rows": [
+       [
+        "Configure",
+        "OldClaims",
+        {
+         "pill": 9,
+         "kind": "ok"
+        },
+        {
+         "pill": 3,
+         "kind": "warn"
+        },
+        {
+         "pill": 2,
+         "kind": "no"
+        },
+        1
+       ],
+       [
+        "Attribution",
+        "OldBilling",
+        {
+         "pill": 6,
+         "kind": "ok"
+        },
+        {
+         "pill": 3,
+         "kind": "warn"
+        },
+        {
+         "pill": 3,
+         "kind": "no"
+        },
+        0
+       ],
+       [
+        "Reporting",
+        "OldCare",
+        {
+         "pill": 4,
+         "kind": "ok"
+        },
+        {
+         "pill": 2,
+         "kind": "warn"
+        },
+        {
+         "pill": 5,
+         "kind": "no"
+        },
+        2
+       ]
+      ]
+     }
+    },
+    {
+     "callout": "Based on the knowledge base as of the report date. Some recent work may not be documented yet."
+    }
+   ]
+  },
+  {
+   "title": "Configure (OldClaims)",
+   "blocks": [
+    {
+     "table": {
+      "head": [
+       "Capability",
+       "Status",
+       "Where it is described",
+       "Notes"
+      ],
+      "rows": [
+       [
+        "Contract setup",
+        {
+         "pill": "Moved",
+         "kind": "ok"
+        },
+        "Business requirements, section 3.2",
+        ""
+       ],
+       [
+        "Threshold rules",
+        {
+         "pill": "Partly moved",
+         "kind": "warn"
+        },
+        "Functional requirements, section 4.5",
+        "Override approval is still open"
+       ]
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

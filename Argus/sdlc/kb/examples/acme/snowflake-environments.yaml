@@ -1,0 +1,20 @@
+# Sample environment map. {{SNOWFLAKE_DB}}, {{SNOWFLAKE_IAM_DB}}, {{SNOWFLAKE_WH}} and
+# {{DB_SCHEMA}} come from here for the environment picked with --env (or SNOWFLAKE_ENV).
+default: test
+schema: ORDERS
+environments:
+  dev:
+    database: ACMEDEV_ORDERS
+    iam_database: ACMEDEV_IAM
+    warehouse: ACMEDEV_WH
+    label: Development
+  test:
+    database: ACMETEST_ORDERS
+    iam_database: ACMETEST_IAM
+    warehouse: ACMETEST_WH
+    label: Test
+  prod:
+    database: ACMEPROD_ORDERS
+    iam_database: ACMEPROD_IAM
+    warehouse: ACMEPROD_WH
+    label: Production

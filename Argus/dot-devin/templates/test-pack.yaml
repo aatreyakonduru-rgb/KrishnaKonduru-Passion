@@ -1,0 +1,91 @@
+# Test pack: what to test on a developer PC for one story, at one commit.
+#
+# Written by Cloud in /eval (STEP 3b) and committed on the PR branch as
+#   sdlc/framework/context/test-packs/{REQ_ID}-{STORY_ID}.yaml
+# so the PC gets it with the code. Read on the PC by /test-on-pc and by
+#   sdlc/framework/tools/evidence.py
+#
+# Rules:
+# - `commit` is the full SHA of the code to test. The commit adding this pack may sit on top of it;
+#   any later code push means a new pack.
+# - Env files list key NAMES only. Values come from the tester's own copy and never enter the repo.
+# - Every check and acceptance criterion starts as "not run". Only a real run changes it.
+# - Values shown here are placeholders. A filled-in pack is a plan, not evidence.
+
+req_id: "REQ-{id}"
+story_id: "STORY-{n}"
+jira_key: "ACME-{n}"
+pr_url: "https://git.acme.example/projects/ACME/repos/claims-web/pull-requests/{n}"
+branch: "devin/ACME-{n}-{slug}"
+commit: "{full 40-character SHA of the code commit under test}"
+cloud_session: "https://acme.devinenterprise.com/sessions/{session-id}"
+written_by: "/eval, {ISO8601 timestamp}"
+
+setup:
+  env_files:
+    - path: "web/.env.local"          # git-ignored (web/.gitignore: .env*.local)
+      keys: ["{KEY_NAME}", "{KEY_NAME}"]   # names only
+  needs:                                   # what the PC must reach; anything missing makes items "not run"
+    - "Artifactory login (ARTIFACTORY_TOKEN) for npm/pip installs"
+    - "DEV API reachable from the PC"
+    - "SSO sign-in that redirects back to localhost"
+  repos:                                   # other repos the checks need; Test on my PC clones or fetches
+    - project: "Acme Claims"                    # them next to this one in the ticket folder, using the
+      repo: "claims-qa"                       # same Bitbucket URL form as this repo (here: the QA suite)
+      branch: "master"
+  start:                                   # how the tester runs the app
+    - name: "UI"
+      cwd: "web"
+      command: "npm run dev"
+      url: "http://localhost:3000"
+
+checks:                                    # automated; evidence.py run executes these
+  - id: "CHK-1"
+    name: "web lint, jest and build"
+    cwd: "."
+    command: ["python3", "sdlc/framework/tools/build_check.py", "--component", "web"]
+    needs_env: ["ARTIFACTORY_TOKEN"]
+    not_run_exit: 5                        # build_check.py exit 5 = credential not provisioned
+    timeout_minutes: 60
+  - id: "CHK-2"
+    name: "framework validation"
+    cwd: "."
+    command: ["python3", "sdlc/framework/tools/validate_framework.py"]
+    needs_env: []
+    timeout_minutes: 5
+  # A UI check scripted with the QA suite (Behave + Selenium). It runs on the PC, where the browser,
+  # SSO and DEV access are. needs_cmd and needs_modules make it "not run", never "passed", on a PC
+  # without behave or selenium. Screenshots the suite saves still need the tester's OK.
+  - id: "CHK-3"
+    name: "Behave scenarios for this story"
+    cwd: "../claims-qa"
+    command: ["behave", "features/{story}.feature", "--no-capture"]
+    needs_cmd: ["behave"]
+    needs_modules: ["selenium"]
+    needs_env: []
+    timeout_minutes: 30
+  # An API check: the API's own tests, or a call against DEV.
+  - id: "CHK-4"
+    name: "api tests for the changed app"
+    cwd: "api"
+    command: ["python3", "manage.py", "test", "apps.{app}"]
+    needs_modules: ["django"]
+    needs_env: []
+    timeout_minutes: 20
+
+selected_tests:                            # written by tools/confidence.py tests: tests the link graph reaches
+  - id: "TST-1"                            # from the changed files; confidence.py required fails while any is not run
+    path: "{test file}"
+    why: "{the link that picked it, with its source}"
+    status: "not run"                      # passed | failed after a real run
+    # run_by: "QA"                         # Behave scenarios from ACME/claims-qa: QA runs them in SIT; not run is listed, not failed
+
+acceptance:                                # by a person, in the browser, on the PC
+  - id: "AC-1"
+    text: "{acceptance criterion, word for word from the backlog}"
+    where: "http://localhost:3000/{route}"
+    steps:
+      - "{step 1}"
+      - "{step 2}"
+    expected: "{what the tester should see}"
+    test_data: "{which test record to use, by test ID, never a real member}"

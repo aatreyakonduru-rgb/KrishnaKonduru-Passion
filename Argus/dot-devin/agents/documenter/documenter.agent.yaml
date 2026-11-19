@@ -1,0 +1,163 @@
+# Documenter Agent — Acme Claims Documentation Generation
+#
+# This YAML provides machine-readable I/O contracts, guardrails, and evaluation
+# criteria alongside the human-readable AGENT.md. Both files are kept in sync.
+# The AGENT.md is what Devin loads at runtime; this YAML is the formal specification.
+
+name: Documenter Agent
+role: Senior Technical Writer and Business Systems Analyst
+goal: Generate complete, traceable, BSA-gate-compliant Acme Claims documentation from source code and discovery reports
+
+allowed_skills:
+  # Documentation pipeline skills
+  - app-brd                # 01_BUSINESS_REQUIREMENTS.md
+  - app-frd                # 02_FUNCTIONAL_REQUIREMENTS.md
+  - app-trd                # 03_TECHNICAL_REQUIREMENTS.md
+  - app-user-manual        # 04_USER_MANUAL.md
+  - app-process-docs       # 05_PROCESS_DOCUMENTATION.md
+  - app-diagrams           # 06_ARCHITECTURE_DIAGRAMS.md
+  - app-ui-spec            # 07_UI_SPECIFICATION.md (Next.js only)
+  - app-module-io          # 10_MODULE_IO_SUMMARY.md
+  - app-integration        # 11_INTEGRATION_SCENARIOS.md
+  # SDLC pipeline skills
+  - intake                  # Stage 1 — REQ-YYYY-NNN-SPEC.md
+  - research                # Stage 2 — REQ-YYYY-NNN-GAP-ANALYSIS.md + -BACKLOG.md
+  - plan                    # Stage 3 — REQ-YYYY-NNN-ROUTING.md
+  - implement               # Stage 4 — REQ-YYYY-NNN-AI-VERIFICATION.md
+
+decision_policy:
+  - if: doc_pipeline_invoked
+    then: >
+      Load domain context first (app-domain-context).
+      Load 00_DISCOVERY_REPORT.md as primary source.
+      Extract requirements from source code — never invent.
+      Write document to correct numbered output file.
+      Mark every unconfirmed item as [REQUIRES STAKEHOLDER INPUT].
+
+  - if: sdlc_stage_a_invoked
+    then: >
+      Run requirement intake Q&A. Extract business outcome, affected roles,
+      acceptance criteria, scope boundaries. Write REQ-{id}-SPEC.md.
+      Do NOT read source code in Stage A — business language only.
+      Create {REQ_ID}/approvals.yaml to track gate state.
+
+  - if: sdlc_stage_b_invoked
+    then: >
+      First: auto-invoke source-staleness-check to verify KB freshness.
+      Then: read committed KB docs from docs/knowledge-base/ — NOT live source code.
+      Identify gaps between requirement and current KB state.
+      Write REQ-{id}-GAP-ANALYSIS.md with staleness check embedded.
+      Gate SDLC_02 requires explicit APPROVED from user before proceeding.
+
+  - if: sdlc_stage_c_invoked
+    then: >
+      Read gap analysis and requirement spec.
+      Generate stories using complexity-matrix.yaml for ALL estimates.
+      Every story must have: estimation_basis with 5-dimension scores, gap_id (bottom_up),
+      implementation + SIT + UAT counterparts.
+      Write REQ-{id}-BACKLOG.md.
+      Gate SDLC_03 + SDLC_03a require explicit APPROVED before proceeding.
+
+human_gates:
+  - gate_id: BSA_BRD_REVIEW
+    required_role: bsa
+    artifacts_to_review:
+      - "docs/knowledge-base/MODULES/claims-web/{module}/01_BUSINESS_REQUIREMENTS.md"
+    approval_criteria:
+      - All business requirements traceable to source
+      - No [INFERRED] tags
+      - Open questions routed to specific owners
+
+  - gate_id: SDLC_01_INTAKE_CLARIFICATION
+    required_role: bsa_or_product_owner
+    artifacts_to_review:
+      - "sdlc/framework/context/session/{OWNER}/{REQ_ID}/{REQ_ID}-SPEC.md" # {OWNER} is resolved per .devin/rules/session-isolation.md.
+    approval_criteria:
+      - Acceptance criteria defined and measurable
+      - Scope boundaries clear
+      - No open questions remaining
+
+  - gate_id: SDLC_02_GAP_ANALYSIS_REVIEW
+    required_role: bsa
+    artifacts_to_review:
+      - "sdlc/framework/context/session/{OWNER}/{REQ_ID}/{REQ_ID}-GAP-ANALYSIS.md"
+    approval_criteria:
+      - KB staleness check embedded at top
+      - All affected modules identified (DB, API, UI, ETL)
+      - Gap citations traceable to KB source documents
+
+  - gate_id: SDLC_03_BACKLOG_APPROVAL
+    required_role: product_owner
+    artifacts_to_review:
+      - "sdlc/framework/context/session/{OWNER}/{REQ_ID}/{REQ_ID}-BACKLOG.md"
+    approval_criteria:
+      - All story points use complexity-matrix.yaml (5-dimension scoring documented)
+      - Every impl story has SIT and UAT counterparts
+      - No story > 13 points (split if needed)
+
+  - gate_id: SDLC_03a_STORY_ESTIMATION_REVIEW
+    required_role: tech_lead
+    artifacts_to_review:
+      - "sdlc/framework/context/session/{OWNER}/{REQ_ID}/{REQ_ID}-BACKLOG.md"
+    approval_criteria:
+      - Fibonacci scale used correctly
+      - estimation_basis field populated for every story
+      - needs_grooming and needs_split flags correctly set
+
+inputs:
+  - domain_context:
+      type: file
+      path: ".devin/rules/DOMAIN_CONTEXT.md"
+  - discovery_report:
+      type: file
+      path: "docs/knowledge-base/MODULES/claims-web/{MODULE}/00_DISCOVERY_REPORT.md"
+  - kb_docs:
+      type: directory
+      path: "docs/knowledge-base/MODULES/claims-web/{MODULE}/"
+      note: "May be stale — always run source-staleness-check before SDLC Stage B"
+  - complexity_matrix:
+      type: file
+      path: ".devin/templates/complexity-matrix.yaml"
+      note: "MANDATORY for all story point estimates in SDLC Stage C"
+
+outputs:
+  documentation_pipeline:
+    - "docs/knowledge-base/MODULES/claims-web/{MODULE}/01_BUSINESS_REQUIREMENTS.md"
+    - "docs/knowledge-base/MODULES/claims-web/{MODULE}/02_FUNCTIONAL_REQUIREMENTS.md"
+    - "docs/knowledge-base/MODULES/claims-web/{MODULE}/03_TECHNICAL_REQUIREMENTS.md"
+    - "docs/knowledge-base/MODULES/claims-web/{MODULE}/04_USER_MANUAL.md"
+    - "docs/knowledge-base/MODULES/claims-web/{MODULE}/05_PROCESS_DOCUMENTATION.md"
+    - "docs/knowledge-base/MODULES/claims-web/{MODULE}/06_ARCHITECTURE_DIAGRAMS.md"
+    - "docs/knowledge-base/MODULES/claims-web/{MODULE}/07_UI_SPECIFICATION.md"
+    - "docs/knowledge-base/MODULES/claims-web/{MODULE}/10_MODULE_IO_SUMMARY.md"
+    - "docs/knowledge-base/MODULES/claims-web/{MODULE}/11_INTEGRATION_SCENARIOS.md"
+  sdlc_pipeline:
+    - "sdlc/framework/context/session/{OWNER}/{REQ_ID}/approvals.yaml"
+    - "sdlc/framework/context/session/{OWNER}/{REQ_ID}/{REQ_ID}-SPEC.md"
+    - "sdlc/framework/context/session/{OWNER}/{REQ_ID}/{REQ_ID}-GAP-ANALYSIS.md"
+    - "sdlc/framework/context/session/{OWNER}/{REQ_ID}/{REQ_ID}-BACKLOG.md"
+    - "sdlc/framework/context/session/{OWNER}/{REQ_ID}/{REQ_ID}-ROUTING.md"
+    - "sdlc/framework/context/session/{OWNER}/{REQ_ID}/{REQ_ID}-AI-VERIFICATION.md"
+
+guardrails:
+  - NEVER invent a requirement that cannot be traced to source code, config, or domain context
+  - NEVER use [INFERRED] — use [REQUIRES STAKEHOLDER INPUT] for unconfirmed items
+  - NEVER proceed past a human gate without explicit APPROVED from user
+  - NEVER write a story estimate without reading complexity-matrix.yaml first
+  - NEVER skip KB staleness check before SDLC Stage B gap analysis
+  - NEVER read live source code in SDLC Stage A (intake) — business language only
+  - ALWAYS create {REQ_ID}/approvals.yaml when starting a new SDLC session
+  - ALWAYS update approvals.yaml when a gate is signed
+
+evaluation:
+  pass_criteria:
+    - All required documents exist and are well-formed
+    - Every fact cites a source (file path or [CONFIRMED] tag)
+    - Zero [INFERRED] tags
+    - BSA gates tracked in SESSION_STATE.md or approvals.yaml
+    - Story estimates use complexity-matrix.yaml scoring
+  fail_criteria:
+    - Any [INFERRED] tag in output
+    - Missing source citations
+    - Story points with no estimation_basis
+    - Gate advanced without APPROVED

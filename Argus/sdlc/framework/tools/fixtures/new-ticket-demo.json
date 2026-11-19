@@ -1,0 +1,163 @@
+{
+ "sample": true,
+ "source": {
+  "link": "https://confluence.example/display/ACMEWIKI/Threshold+Override+BRD",
+  "text": "Coordinators keep emailing the analyst to change thresholds for a practice. They want to do it themselves in Acme Claims, with a reason recorded."
+ },
+ "questions": [
+  {
+   "topic": "Who",
+   "q": "Who should be able to override a threshold: every care coordinator, or only coordinator leads?",
+   "found": "Today only Program analysts change thresholds, on the Program Configuration screen. Care coordinators can see thresholds on the member record but cannot change them.",
+   "affects": [
+    "Care coordinators",
+    "Program analysts",
+    "Member record screen"
+   ],
+   "sug": [
+    "Every care coordinator",
+    "Coordinator leads only"
+   ]
+  },
+  {
+   "topic": "Rule",
+   "q": "Should an override apply to one member only, or to the whole program for that practice?",
+   "found": "A threshold is set per program and applies to every attributed member in it. The Monthly program report and the quality heatmap both use the program threshold.",
+   "affects": [
+    "Monthly program report",
+    "Quality heatmap",
+    "Attribution results"
+   ],
+   "sug": [
+    "One member only",
+    "Whole program for the practice"
+   ]
+  },
+  {
+   "topic": "Approval",
+   "q": "Does someone need to approve an override before it takes effect?",
+   "found": "Contract changes in Acme Claims already go through an approver, who sees who changed what on the contract history screen.",
+   "affects": [
+    "Contract approvers",
+    "Audit history"
+   ],
+   "sug": [
+    "No approval needed",
+    "Program analyst approves",
+    "Same as contract approval"
+   ]
+  },
+  {
+   "topic": "Downstream",
+   "q": "Should the payment and incentive figures use the overridden threshold, or keep the original?",
+   "found": "Incentive figures sent to the finance partners are calculated from the program threshold every month.",
+   "affects": [
+    "Finance partners",
+    "Monthly incentive feed"
+   ],
+   "sug": [
+    "Use the override",
+    "Keep the original",
+    "Not sure, ask finance"
+   ]
+  },
+  {
+   "topic": "Done",
+   "q": "How will the business know this works? One or two checks are enough.",
+   "found": "The BRD for threshold overrides (Confluence, version 4) lists two outcomes but no checks.",
+   "affects": [
+    "Acceptance criteria"
+   ],
+   "sug": [
+    "Override shows on the member record",
+    "Audit history shows who and why"
+   ]
+  }
+ ],
+ "tree": {
+  "k": "New epic",
+  "t": "Threshold override screen",
+  "owner": "Resource 17",
+  "spec": "EOC",
+  "release": "Acme Claims 2027.2",
+  "size": "M",
+  "checks": [
+   [
+    "ok",
+    "Owner"
+   ],
+   [
+    "ok",
+    "Objective"
+   ],
+   [
+    "ok",
+    "Source under 90 days"
+   ],
+   [
+    "ok",
+    "Specialty label"
+   ]
+  ],
+  "stories": [
+   {
+    "t": "Override a threshold from the member record",
+    "pts": 5,
+    "ac": [
+     "A coordinator lead can enter an override with a reason",
+     "The override shows on the member record"
+    ],
+    "checks": [
+     [
+      "ok",
+      "Acceptance criteria"
+     ],
+     [
+      "ok",
+      "Points"
+     ],
+     [
+      "ok",
+      "Epic link"
+     ]
+    ]
+   },
+   {
+    "t": "Approve or reject an override",
+    "pts": 3,
+    "ac": [
+     "The program analyst sees pending overrides",
+     "Rejected overrides do not take effect"
+    ],
+    "checks": [
+     [
+      "ok",
+      "Acceptance criteria"
+     ],
+     [
+      "ok",
+      "Points"
+     ]
+    ]
+   },
+   {
+    "t": "Show override history and use it in reports",
+    "pts": 13,
+    "ac": [
+     "History shows who, when and why",
+     "Reports use the override where approved"
+    ],
+    "checks": [
+     [
+      "bad",
+      "13 points: split before the sprint"
+     ],
+     [
+      "ok",
+      "Acceptance criteria"
+     ]
+    ]
+   }
+  ]
+ }
+}

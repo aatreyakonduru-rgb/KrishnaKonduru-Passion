@@ -1,0 +1,1024 @@
+# Dashboard role lenses for /dashboard.
+#
+# `panels` is the catalogue of things a dashboard can show. `lenses` composes those
+# panels per role, so a new role is a configuration change rather than a code change.
+# Every lens implicitly gets the two question panels first: "Questions for me" (with the
+# answer box) and "My questions".
+#
+# Panel kinds:
+#   jira      — a JQL table. `{user}` is substituted with the viewer's Jira username. A query
+#               without `{user}` is team-wide and is narrowed by the `team.scope` clause below;
+#               one with `{user}` is already personal and is left alone. `{statuses.<queue>}`
+#               becomes the quoted status list under `jira.statuses.<queue>` in
+#               .devin/rules/sdlc-profile.json, so a renamed Jira status is one edit there.
+#   approvals — named approval gates from approval-gates.yaml that are still open for
+#               the viewer, read from session approvals.yaml, plus Jira approval sub-tasks
+#               (label Approval) assigned to the viewer. Each numbered decision item has
+#               Approve / Approve with notes / Reject / Send to someone else; the page emits a
+#               SDLC-DASHBOARD-APPROVALS block that /send-approval applies under
+#               .devin/rules/gate-presentation.md — the page itself records nothing.
+#   pipeline  — one row per active requirement with the gate it is waiting on.
+#   health    — per-gate counts from the owners' metrics.jsonl (tools/metrics.py): presented,
+#               approved, rework, average wait, escalations, and what is waiting right now.
+#   branches  — local and origin branches carrying a Acme Claims key, with ahead/behind and
+#               conflict state against the base branch, joined to the Jira status.
+#   workload  — who is carrying how much of the active sprint: estimated hours on sub-tasks (and on
+#               stories or defects with no sub-task in the sprint) against the person's Available
+#               hours on that sprint's planning sheet (context/sprint-sheets/<sprint>.json, so leave
+#               and holidays count); someone not on the sheet gets working days × `hours_per_day` ×
+#               their `allocation` in people.yaml. A light load and an overload are both visible.
+#               Shown to solution leads and the PO office. Reading only — rebalancing is a
+#               conversation, and a handover is the "Hand work over" form.
+#   docgap    — generated documents carrying `marker`, the note a pipeline leaves where it could
+#               not answer something from the code and needs a human. Shown to everyone who can
+#               answer one or chase it: leads, the PO office and the BSA. Reading only — the answer
+#               is an edit to the document, which /document-validation collects into a form.
+#   docdrift  — generated documents whose subject has been committed to since the document was
+#               last written, by git date. A signal to re-check, not proof of divergence:
+#               /source-staleness-check compares content, /kb-refresh regenerates.
+#   sessions  — the viewer's own Devin sessions, sorted by who they are waiting on, with a
+#               "hand to" picker per row. /dashboard collects the list with the Devin session
+#               tools and writes it to JSON for the generator, which never talks to the API itself.
+#   roster    — roster drift from people.yaml and role-routing.yaml: incomplete entries,
+#               people who cannot be matched, roles outside the vocabulary and gates nobody
+#               can sign. Shown only to the roster resolver and the backups named in the
+#               people.yaml owner block; everyone else sees the panel empty. Reading only —
+#               the correction is a pull request raised by /roster-check.
+#   roadmap   — the page /roadmap last wrote (`path`, default the Jira-derived UI-DELIVERY-ROADMAP.html):
+#               the Year plan, Sprint grid and the rest of its tabs, carried inside the dashboard
+#               and opened in a new browser tab when the Roadmap tab is chosen, with the date it
+#               was generated. Reading only — /roadmap rebuilds it.
+#   page      — a generated KB page (`path`) carried inside the dashboard and opened in a new browser
+#               tab when its tab is chosen, with the date it was generated (read from the page's
+#               "generated YYYY-MM-DD"). `summary` is the line above the button, `rebuild` says
+#               which command regenerates it. Reading only.
+#   demo_board — stories from `jql` (every result page), one collapsible group per sprint, newest
+#               sprint open, with a Demo recorded column: a link to the story's page under
+#               Confluence "Acme Claims Demo Recordings" once /demo-needed has published an AC demo, else
+#               "Not recorded" ("?" when Confluence could not be read). `columns` as for jira.
+#   defect_matrix — open SIT and UAT defects across the whole of project Acme Claims (never narrowed by
+#               team.scope; every result page is read), grouped by specialty and then IT Team.
+#               Specialty comes from the keyword rules in `rules` (default
+#               .devin/rules/defect-specialties.yaml) because Jira has no specialty field. Each row
+#               shows who is working on it, the planned release (fix version, else sprint end),
+#               days open and idle, and flags: nobody assigned, no release planned, release date
+#               passed, not moving. `jql` overrides the query. Hot when a Critical or High defect
+#               has nobody on it or no live release date. /defects-by-specialty draws the same view
+#               as a page of its own (tools/defects_by_specialty.py).
+#   hygiene   — the team's tickets that do not yet follow the Jira rule book: epics, stories and
+#               defects from the last 120 days and sub-tasks from the last 60, run through the
+#               checks in .devin/rules/jira-ticket-standards.yaml plus the rule-book additions
+#               (epic owner, sub-task phase prefix, sprint carry-over, who-asked label on
+#               Approval/Question sub-tasks). Grouped by check, worst first, with a filter box.
+#               Hot when a high-severity check trips. Reading only — the fix is the ticket in
+#               Jira. /jira-hygiene draws the same view as a page of its own (tools/jira_hygiene.py).
+#   insights  — Team Insights (tools/team_insights.py), one `view` per tab: overview, usage, cost, prompts,
+#               gaps, wins, learning, checkins. Team numbers and nameless findings come from
+#               SHARED/team-insights/<month>.yaml, the learning plans from SHARED/team-insights/people/<YYYY>/<MM>/
+#               <devin user id>.md (shown with the name from people.yaml), usage and ACUs per person only from the
+#               private file on the tech lead's own PC (team_insights.py import), never from the repo.
+#   automation_branches — the viewer's branches in the test automation repo (`automation` in sdlc-profile.json,
+#               checked out at ~/repos/<repo name> or ACME_AUTOMATION_CHECKOUT): their own ACME_Automation_<user>
+#               branch and any branch they last committed to, fetched, with ahead/behind and conflicts against the
+#               first base branch (Test_Bamboo). Hot when a branch with work to merge is behind or conflicts.
+#   framework_changes — recommended framework changes (SHARED/framework-recommendations.yaml), newest first.
+#
+# Panel options:
+#   group       — put the tab in a named group of its own on the strip (Team Devin Cloud Usage, Framework feedback)
+#                 instead of the Needs you / Waiting / Reference groups.
+#   tab, icon   — the short label (a word or two) and the emoji shown on the tab strip. The full
+#                 `title` is the panel heading and the tab's tooltip. Tabs are grouped on the strip
+#                 by how loudly they ask: Needs you, Waiting, Reference and tools, All clear.
+#   columns     — which issue columns the table renders.
+#   delegatable — rows from this panel appear in the "Hand work over" form.
+#   attention   — how the tab is coloured when it has rows: hot (red — needs the viewer to act),
+#                 watch (amber — waiting on someone, worth an eye) or info (blue — reference).
+#                 Jira panels default to watch; an empty tab is always green and sorts last.
+#   scope: mine — branches whose story is assigned to the viewer, or whose last commit is theirs.
+#
+# A lens may narrow a shared panel with its own `columns:` map, keyed by panel id —
+# used to keep per-person workload off lenses that should not carry it.
+#
+# Actions are the paste-back blocks the generated page can assemble:
+#   answers      — SDLC-DASHBOARD-ANSWERS v1      → question_subtask.py answer
+#   delegations  — SDLC-DASHBOARD-DELEGATIONS v1  → question_subtask.py delegate
+#   observations — SDLC-DASHBOARD-OBSERVATIONS v1 → question_subtask.py observe
+#   session_handovers — SDLC-DASHBOARD-SESSION-HANDOVERS v1 → /handover, one per session
+
+default_base: origin/master
+
+# Jira project Acme Claims ("Acme Value Based Care Product Suite") holds every Value Based Care team,
+# so an unscoped panel shows ~1,900 unresolved issues of which only ~335 belong here. Every panel
+# team-wide panel query is narrowed by this clause, which is the same one behind the team's board
+# 247285 (filter 492657, "ACME-UI"). Change it here and every panel follows.
+team:
+  it_team: Acme-Claims-Web
+  board: 247285
+  scope: '"IT Team" = Acme-Claims-Web'
+
+panels:
+  my_work:
+    kind: jira
+    attention: info
+    title: My work in flight
+    tab: My work
+    icon: "🛠️"
+    empty: No unresolved work is assigned to you.
+    jql: >-
+      project = ACME AND assignee = "{user}" AND resolution = Unresolved
+      AND (labels != Question OR labels is EMPTY) ORDER BY updated DESC
+    columns: [key, type, summary, status, sprint, updated]
+    delegatable: true
+
+  my_reviews:
+    kind: jira
+    attention: watch
+    title: Waiting on review
+    tab: To review
+    icon: "👀"
+    empty: Nothing of yours is sitting in review.
+    jql: >-
+      project = ACME AND assignee = "{user}" AND status in ({statuses.review})
+      AND resolution = Unresolved ORDER BY updated ASC
+    columns: [key, type, summary, status, updated]
+
+  review_queue:
+    kind: jira
+    attention: hot
+    title: Team review queue
+    tab: Reviews
+    icon: "🔍"
+    empty: No Acme Claims item is in review.
+    jql: >-
+      project = ACME AND status in ({statuses.review}) AND resolution = Unresolved
+      ORDER BY updated ASC
+    columns: [key, type, summary, assignee, sprint, updated]
+
+  branches_mine:
+    kind: branches
+    title: My branches against the base
+    tab: My branches
+    icon: "🌿"
+    empty: No branch in this checkout carries a Acme Claims key assigned to you.
+    scope: mine
+
+  branches_all:
+    kind: branches
+    title: Branch and merge state
+    tab: Branches
+    icon: "🌿"
+    empty: No branch in this checkout carries a Acme Claims key.
+    scope: all
+
+  stale_work:
+    kind: jira
+    attention: hot
+    title: Untouched for a week
+    tab: Stale
+    icon: "🕸️"
+    empty: Everything assigned to you moved in the last week.
+    jql: >-
+      project = ACME AND assignee = "{user}" AND resolution = Unresolved
+      AND updated <= -7d AND (labels != Question OR labels is EMPTY)
+      ORDER BY updated ASC
+    columns: [key, type, summary, status, updated]
+    delegatable: true
+
+  defects_on_me:
+    kind: jira
+    attention: hot
+    title: Defects and observations assigned to me
+    tab: My defects
+    icon: "🐞"
+    empty: No defect or observation is assigned to you.
+    jql: >-
+      project = ACME AND issuetype in (Defect, Observation) AND assignee = "{user}"
+      AND resolution = Unresolved ORDER BY priority DESC, created ASC
+    columns: [key, type, summary, status, severity, reporter, updated]
+    delegatable: true
+
+  automation_queue:
+    kind: jira
+    attention: hot
+    title: Automation sub-tasks assigned to me
+    tab: Automation
+    icon: "🤖"
+    empty: No open automation sub-task is assigned to you.
+    jql: >-
+      project = ACME AND assignee = "{user}" AND summary ~ "Automation"
+      AND resolution = Unresolved ORDER BY status DESC, updated DESC
+    columns: [key, type, summary, status, sprint, updated]
+    delegatable: true
+
+  automation_stale:
+    kind: jira
+    attention: hot
+    title: My automation tickets that have not moved for a week
+    tab: Not moving
+    icon: "🕸️"
+    empty: Every automation ticket of yours moved in the last week.
+    jql: >-
+      project = ACME AND assignee = "{user}" AND summary ~ "Automation"
+      AND resolution = Unresolved AND updated <= -7d ORDER BY updated ASC
+    columns: [key, type, summary, status, sprint, updated]
+    delegatable: true
+
+  automation_team:
+    kind: jira
+    attention: watch
+    title: Every open automation ticket on the team
+    tab: Team automation
+    icon: "📋"
+    empty: The team has no open automation ticket.
+    jql: >-
+      project = ACME AND summary ~ "Automation" AND resolution = Unresolved
+      ORDER BY assignee ASC, updated DESC
+    columns: [key, type, summary, status, assignee, sprint, updated]
+
+  automation_branches:
+    kind: automation_branches
+    title: My automation branches
+    tab: My branches
+    icon: "🌿"
+    empty: >-
+      No branch of yours in the automation repo: neither your own ACME_Automation branch nor a branch you last
+      committed to.
+
+  test_queue:
+    kind: jira
+    attention: hot
+    title: Queued for test
+    tab: To test
+    icon: "🧪"
+    empty: Nothing is waiting for test.
+    jql: >-
+      project = ACME AND status in ({statuses.qa})
+      AND resolution = Unresolved ORDER BY status ASC, updated ASC
+    columns: [key, type, summary, status, assignee, sprint, updated]
+    delegatable: true
+
+  my_defects:
+    kind: jira
+    attention: watch
+    title: Defects and observations I raised
+    tab: I raised
+    icon: "📣"
+    empty: You have not raised anything that is still open.
+    jql: >-
+      project = ACME AND reporter = "{user}" AND issuetype in (Defect, Observation)
+      AND resolution = Unresolved ORDER BY created DESC
+    columns: [key, type, summary, status, severity, assignee, updated]
+
+  retest_queue:
+    kind: jira
+    attention: hot
+    title: Fixed — waiting for my retest
+    tab: Retest
+    icon: "🔁"
+    empty: Nothing you raised is waiting to be retested.
+    jql: >-
+      project = ACME AND reporter = "{user}" AND issuetype = Defect
+      AND status in ({statuses.retest}) ORDER BY updated ASC
+    columns: [key, summary, status, severity, assignee, updated]
+
+  observation_triage:
+    kind: jira
+    attention: hot
+    title: Observations awaiting triage
+    tab: Triage
+    icon: "🩺"
+    empty: No untriaged observation.
+    jql: >-
+      project = ACME AND issuetype = Observation AND status in (Open, "In Progress")
+      ORDER BY created ASC
+    columns: [key, summary, status, reporter, assignee, updated]
+    delegatable: true
+
+  uat_queue:
+    kind: jira
+    attention: hot
+    title: Waiting for business validation
+    tab: To validate
+    icon: "✅"
+    empty: Nothing is in UAT right now.
+    jql: >-
+      project = ACME AND status in ({statuses.uat})
+      AND resolution = Unresolved ORDER BY status ASC, updated ASC
+    columns: [key, type, summary, status, assignee, sprint, updated]
+
+  uat_fixed:
+    kind: jira
+    attention: hot
+    title: Fixed for me to re-check
+    tab: Re-check
+    icon: "🔁"
+    empty: Nothing you raised has come back fixed.
+    jql: >-
+      project = ACME AND reporter = "{user}" AND issuetype in (Defect, Observation)
+      AND status in ({statuses.uat_recheck})
+      ORDER BY updated ASC
+    columns: [key, type, summary, status, severity, assignee, updated]
+
+  unrouted_questions:
+    kind: jira
+    attention: hot
+    title: Questions with nobody to answer them
+    tab: No answerer
+    icon: "🧭"
+    empty: Every open question has an assignee.
+    jql: >-
+      project = ACME AND labels = Question AND assignee is EMPTY
+      AND resolution = Unresolved ORDER BY created ASC
+    columns: [key, summary, reporter, created]
+    delegatable: true
+
+  aging_questions:
+    kind: jira
+    attention: hot
+    title: Team questions older than three days
+    tab: Old questions
+    icon: "⏳"
+    empty: No question has been open longer than three days.
+    jql: >-
+      project = ACME AND labels = Question AND resolution = Unresolved
+      AND created <= -3d ORDER BY created ASC
+    columns: [key, summary, reporter, assignee, created]
+    delegatable: true
+
+  grooming_prep:
+    kind: grooming_prep
+    attention: watch
+    title: Grooming prep — before the next grooming call
+    tab: Grooming prep
+    icon: "📋"
+    empty: Grooming prep could not read the backlog.
+    note: "Roadmap items with no story, stories not ready to groom, missing SIT and UAT stories, who to invite, and drafts of the agenda and group-chat message. Rules that need the Product Owner's confirmation are listed under Assumptions (SHARED/grooming.yaml)."
+    limit: 1000
+  grooming:
+    kind: jira
+    attention: watch
+    title: Not ready to estimate
+    tab: Grooming
+    icon: "🧹"
+    empty: No story is flagged for grooming or splitting.
+    jql: >-
+      project = ACME AND resolution = Unresolved
+      AND (labels in (needs_grooming, needs_split, needs-grooming, needs-split)
+      OR (issuetype = Story AND status in (Refining, Open) AND "Story Points" is EMPTY))
+      ORDER BY updated DESC
+    columns: [key, type, summary, status, points, assignee, updated]
+    delegatable: true
+
+  sprint_scope:
+    kind: jira
+    attention: info
+    title: This sprint
+    tab: Sprint
+    icon: "🏃"
+    empty: No open item is in an active sprint.
+    jql: >-
+      project = ACME AND sprint in openSprints() AND resolution = Unresolved
+      ORDER BY status ASC, updated DESC
+    columns: [key, type, summary, status, points, assignee, updated]
+
+  demo_ready:
+    kind: demo_board
+    attention: hot
+    title: Stories labelled for a demo, by sprint
+    tab: Ready to demo
+    icon: "🎤"
+    empty: No story carries the DEMO-NEEDED label.
+    # Every story labelled DEMO-NEEDED (or Demo), whatever its status, grouped by its latest sprint.
+    # Demo recorded comes from the AC demo pages /demo-needed publishes under Confluence
+    # "Acme Claims Demo Recordings" (confluence.pages.demo_recordings in sdlc-profile.json).
+    jql: >-
+      project = ACME AND issuetype = Story AND labels in ("DEMO-NEEDED", "Demo")
+      ORDER BY key ASC
+    columns: [key, type, summary, status, assignee, updated]
+    delegatable: true
+
+  demo_queue:
+    kind: jira
+    attention: watch
+    title: Demos coming up
+    tab: Demos coming up
+    icon: "🗓️"
+    empty: No open story is flagged for a demo.
+    jql: >-
+      project = ACME AND labels in ("DEMO-NEEDED", "Demo") AND resolution = Unresolved
+      AND status not in ({statuses.demo_ready}, Abandoned)
+      ORDER BY status DESC, sprint ASC, updated DESC
+    columns: [key, type, summary, status, sprint, assignee, updated]
+    delegatable: true
+
+  awaiting_business_approval:
+    kind: jira
+    attention: hot
+    title: Waiting for a business decision
+    tab: Business call
+    icon: "💼"
+    empty: Nothing is waiting for approval in Jira.
+    jql: >-
+      project = ACME AND status in ({statuses.business_approval})
+      AND resolution = Unresolved ORDER BY updated ASC
+    columns: [key, type, summary, status, assignee, updated]
+
+  aging_work:
+    kind: jira
+    attention: watch
+    title: In flight but not moving
+    tab: Not moving
+    icon: "🐢"
+    empty: Everything in flight moved in the last two weeks.
+    jql: >-
+      project = ACME AND resolution = Unresolved AND updated <= -14d
+      AND status not in (Open, Refining, Abandoned, "On Hold")
+      AND (labels != Question OR labels is EMPTY) ORDER BY updated ASC
+    columns: [key, type, summary, status, assignee, sprint, updated]
+    delegatable: true
+
+  epics:
+    kind: jira
+    attention: info
+    title: Open epics
+    tab: Epics
+    icon: "🏔️"
+    empty: No open epic.
+    jql: >-
+      project = ACME AND issuetype in (Epic, "Business Need", Initiative, Capability)
+      AND resolution = Unresolved ORDER BY updated DESC
+    columns: [key, type, summary, status, assignee, updated]
+
+  risks:
+    kind: jira
+    attention: hot
+    title: Risks and impediments
+    tab: Risks
+    icon: "⚠️"
+    empty: No open risk or impediment.
+    jql: >-
+      project = ACME AND issuetype in (Risk, RAAIDD) AND resolution = Unresolved
+      ORDER BY created DESC
+    columns: [key, type, summary, status, reporter, assignee, updated]
+    delegatable: true
+
+  technical_debt:
+    kind: jira
+    attention: info
+    title: Design, spikes and technical debt
+    tab: Tech debt
+    icon: "🏗️"
+    empty: No labelled design, spike or technical-debt item is open.
+    jql: >-
+      project = ACME AND resolution = Unresolved
+      AND labels in (architecture, design, spike, tech-debt, techdebt, nfr, performance)
+      ORDER BY updated DESC
+    columns: [key, type, summary, status, assignee, updated]
+    delegatable: true
+
+  release_queue:
+    kind: jira
+    attention: hot
+    title: Ready to promote
+    tab: To promote
+    icon: "🚀"
+    empty: Nothing is queued for release.
+    jql: >-
+      project = ACME AND status in ({statuses.release})
+      AND resolution = Unresolved ORDER BY updated ASC
+    columns: [key, type, summary, status, assignee, sprint, updated]
+
+  prod_validation:
+    kind: jira
+    attention: hot
+    title: In production validation
+    tab: In prod
+    icon: "🏭"
+    empty: Nothing is in production validation.
+    jql: >-
+      project = ACME AND status in ({statuses.prod_validation}) AND resolution = Unresolved
+      ORDER BY updated ASC
+    columns: [key, type, summary, status, assignee, updated]
+
+  roster_health:
+    kind: roster
+    title: Roster needing my attention
+    tab: Roster
+    icon: "👥"
+
+  sprint_workload:
+    kind: workload
+    title: Who is carrying the sprint
+    tab: Workload
+    icon: "🏋️"
+    empty: No active sprint on the team board.
+    # The sprint is whatever the board says is active. Capacity comes from the sprint planning
+    # sheet; hours_per_day is only for people not on it, and matches the sheet's 6 productive hours.
+    # Under half a person's capacity reads as room to take more, over 110% as more than the sprint can hold.
+    hours_per_day: 6
+    light_at: 0.5
+    heavy_at: 1.1
+    overloaded_at: 1.3
+
+  framework_feedback:
+    kind: feedback
+    group: Framework feedback
+    title: What people said about the framework
+    tab: Framework feedback
+    icon: "🗳"
+    empty: No feedback yet.
+    note: >-
+      One line per gate brief or artefact, from the person who read it (framework_feedback.py), least useful first.
+  workbench_feedback:
+    kind: workbench_feedback
+    group: Framework feedback
+    title: Feedback from Argus
+    tab: Team feedback
+    icon: "💬"
+    empty: No feedback from Argus yet. People send it with Feedback on Argus top bar.
+    note: >-
+      What people sent with Feedback on Argus top bar, newest first. Each line carries the session details
+      Argus already had (page, ticket, their runs with session links, stage, status, last error, what Devin
+      last said, the status light and what it noticed), so nobody has to type them. One file per send under
+      SHARED/workbench-feedback/.
+  workbench_noticed:
+    kind: workbench_noticed
+    group: Framework feedback
+    title: Problems Argus noticed
+    tab: Argus noticed
+    icon: "🔎"
+    empty: Nothing noticed yet.
+    note: >-
+      Problems Argus saw while people used it: failed Jira, Devin Cloud or Bitbucket calls, requests the
+      page sent and the server refused or failed, runs that ended in error or went quiet, Wake pressed again and
+      again, the same action started twice, and script errors on the page. Counted across everyone, with no names,
+      and each with how to fix it. Sent with feedback, or once a day on its own.
+  framework_changes:
+    kind: framework_changes
+    group: Framework feedback
+    title: Recommended framework changes
+    tab: Recommended changes
+    icon: "🛠"
+    empty: No recommended changes yet. The monthly /team-insights run adds them.
+    note: >-
+      Changes to the framework the monthly /team-insights run recommends from how the team uses Devin, each with
+      why, how many sessions and people it comes from, the expected gain and what it touches
+      (SHARED/framework-recommendations.yaml). Accept or reject one with team_insights.py recommend decide;
+      only accepted ones go to the backlog.
+  ti_overview:
+    kind: insights
+    view: overview
+    group: "👥☁️ Team Devin Cloud Usage"
+    title: "Team Devin Cloud Usage: the month in numbers"
+    tab: Overview
+    icon: "📊"
+  ti_usage:
+    kind: insights
+    view: usage
+    group: "👥☁️ Team Devin Cloud Usage"
+    title: Who uses Devin, and how
+    tab: Usage
+    icon: "👥"
+  ti_cost:
+    kind: insights
+    view: cost
+    group: "👥☁️ Team Devin Cloud Usage"
+    title: ACUs per person, role and kind of work
+    tab: Cost
+    icon: "💲"
+  ti_prompts:
+    kind: insights
+    view: prompts
+    group: "👥☁️ Team Devin Cloud Usage"
+    title: How the team writes prompts, and how to write them better
+    tab: Prompts
+    icon: "✍"
+  ti_gaps:
+    kind: insights
+    view: gaps
+    group: "👥☁️ Team Devin Cloud Usage"
+    title: Skill gaps and repeated work
+    tab: Skill gaps
+    icon: "🎯"
+  ti_wins:
+    kind: insights
+    view: wins
+    group: "👥☁️ Team Devin Cloud Usage"
+    title: What is going well
+    tab: Doing well
+    icon: "🏆"
+  ti_learning:
+    kind: insights
+    view: learning
+    group: "👥☁️ Team Devin Cloud Usage"
+    title: Learning plan per person
+    tab: Learning plan
+    icon: "📚"
+  ti_checkins:
+    kind: insights
+    view: checkins
+    group: "👥☁️ Team Devin Cloud Usage"
+    title: "Ask the team: the monthly check-in"
+    tab: Ask the team
+    icon: "🗣"
+  learn_questions:
+    kind: learn
+    title: Learn about who you serve
+    tab: Learn about who you serve
+    icon: "💬"
+    empty: Devin has no questions for you right now.
+    note: >-
+      What Devin still needs to learn about how you work and how the system works. Type /learn-about-who-you-serve (or /learn-more) to
+      answer them in chat. Devin shows what it will save and keeps it only after you type approved.
+  doc_questions:
+    kind: docgap
+    title: Documents waiting on a business answer
+    tab: Doc gaps
+    icon: "📝"
+    empty: No generated document is waiting on a business answer.
+    # Matched without the brackets: the pipelines write both `[MARKER]` and `[MARKER — question]`.
+    marker: REQUIRES STAKEHOLDER INPUT
+    # The generated knowledge base and the session specs. Prompts, templates and the archive carry
+    # the marker as instruction text rather than as an open question, so they are left out.
+    include:
+      - docs/knowledge-base/MODULES/**/*.md
+      - docs/knowledge-base/DB-DOCS/*.md
+      - docs/knowledge-base/ETL/**/*.md
+      - docs/knowledge-base/CONFLUENCE-DERIVED/**/*.md
+      - sdlc/framework/context/session/**/*.md
+    exclude:
+      - (^|/)([Aa]rchive|PROMPTS|Prompts|templates)/
+      - TEMPLATE
+    limit: 12
+
+  kb_freshness:
+    kind: docdrift
+    title: Knowledge base behind the code
+    tab: KB drift
+    icon: "📚"
+    empty: Every generated document is newer than the code it describes.
+    pattern: "*.md"
+    # Only what this checkout can date. The DB and ETL documents describe claims-etl and
+    # the Glue/Lambda repositories, which are not here, so their freshness stays with
+    # /source-staleness-check rather than being guessed from a git history that does not contain them.
+    areas:
+      - name: API (Django)
+        code: api
+        docs: docs/knowledge-base/MODULES/claims-web/api
+      - name: Frontend (Next.js)
+        code: web/src
+        docs: docs/knowledge-base/MODULES/claims-web/web
+    limit: 12
+
+  roadmap:
+    kind: roadmap
+    attention: info
+    title: Roadmap
+    tab: Roadmap
+    icon: "🗺️"
+    empty: No roadmap has been generated yet — run /roadmap.
+    path: docs/knowledge-base/JIRA-DERIVED/UI-DELIVERY-ROADMAP.html
+
+  # Claims verified against unverified, and the independent verifier's verdicts on medium and
+  # high-risk stories, read from the session folders by tools/verifier.py metrics. No Jira read.
+  change_confidence:
+    kind: confidence
+    title: How far the code changes rest on checked evidence
+    tab: Change confidence
+    icon: "🎯"
+    empty: No plan has a claims file and no verifier has run yet.
+  ontology:
+    kind: page
+    attention: info
+    title: Ontology
+    tab: Ontology
+    icon: "🕸️"
+    path: docs/knowledge-base/CROSS-LAYER/ACME_ONTOLOGY.html
+    summary: >-
+      The Acme Claims ontology: business objects (Provider Group, Contract, Run Request …), their states and rules,
+      the tables and columns they live in, the jobs that move them, column lineage seen in T01, and impact paths.
+    rebuild: Run python3 sdlc/framework/tools/kbgen/gen_ontology.py to rebuild it from the KB.
+    empty: The ontology has not been generated yet — run tools/kbgen/gen_ontology.py.
+  delivery_teams:
+    kind: page
+    attention: info
+    title: Delivery teams
+    tab: Delivery teams
+    icon: "🤝"
+    path: docs/knowledge-base/SHARED/ACME_DELIVERY_TEAMS.html
+    summary: >-
+      The other Acme Claims delivery teams: what each team's application does, its Jira IT Team and board, its sprint
+      cycle and who does what. Devin uses it to decide which team delivers each acceptance criterion of an epic.
+    rebuild: Run python3 sdlc/framework/tools/delivery_teams.py to rebuild it from SHARED/delivery-teams.yaml.
+    empty: The delivery teams page has not been generated yet — run tools/delivery_teams.py.
+
+  my_sessions:
+    kind: sessions
+    title: My Devin sessions
+    tab: Sessions
+    icon: "🤖"
+    empty: >-
+      No session of yours is open, or the session list was not collected for this dashboard.
+    host: acme.devinenterprise.com
+    limit: 12
+
+  # Who is working on what: one row per roster person with their sprint items in progress, the rest of
+  # their sprint, and the Devin Cloud sessions they used in the last 7 days. Argus collects the sessions for
+  # this page; people with no devin_user_id in people.yaml show as not known to Devin Cloud. Reading only.
+  team_activity:
+    kind: team_activity
+    title: Who is working on what
+    tab: Team activity
+    icon: "🧭"
+    audience: [solution_lead, tech_lead, lead_developer, manager, delivery_lead, programme_manager, lead]
+    empty: No one on the roster.
+    host: acme.devinenterprise.com
+    days: 7
+    limit: 4
+
+  risk_register:
+    kind: risks
+    title: Risks and dependencies per epic
+    tab: Risks
+    icon: "⚠️"
+    empty: No open risks or dependencies.
+    note: >-
+      From SHARED/risk-register.yaml (tools/risk_register.py). Late dependencies first, then risks by
+      likelihood times impact. /epics-from-roadmap asks for them when an epic is drafted.
+  defect_rca:
+    kind: defect_rca
+    title: Defect root cause and escape
+    tab: Root cause
+    icon: "🔎"
+    empty: No SIT or UAT defects open or closed in the last 30 days.
+    note: >-
+      Per SIT/UAT defect: the linked story, the stage that should have caught it, the root cause the fixer gave
+      (requirement, design, code, data, environment, test gap) and the fix files the link graph did not predict.
+  specialty_defects:
+    kind: defect_matrix
+    title: Open SIT and UAT defects by specialty
+    tab: Defects by specialty
+    icon: "🐞"
+    rules: .devin/rules/defect-specialties.yaml
+    empty: No open SIT or UAT defects in Acme Claims.
+  # One grid for grooming and ticket work (tools/review_pages.py). Each button gives a
+  # SDLC-DASHBOARD-BACKLOG block; tools/backlog_cli.py previews it and writes only after "approved".
+  backlog:
+    kind: backlog
+    attention: watch
+    title: Backlog
+    tab: Backlog
+    icon: "🗂️"
+    empty: Nothing open in the team's backlog.
+    limit: 200
+  jira_hygiene:
+    kind: hygiene
+    title: Tickets that do not yet follow the Jira rule book
+    tab: Jira hygiene
+    icon: "🧹"
+    empty: Every ticket read follows the rule book.
+  # The Scrum Master's daily numbers, all from scrum_metrics.py with the targets and definitions in
+  # .devin/rules/scrum-master-metrics.yaml. One Jira read serves every tab. Reading only.
+  sm_standup:
+    kind: scrum
+    view: standup
+    title: Before stand-up — what to ask the team about
+    tab: Stand-up check
+    icon: "📋"
+    empty: Every sprint story has sub-tasks, its AI label and time logged, and every sub-task has its AI label, estimate and hours.
+  sm_cycle:
+    kind: scrum
+    view: cycle
+    title: Cycle time and stories in progress
+    tab: Cycle time
+    icon: "⏱️"
+    empty: No story is in progress and none finished in the window.
+  sm_commitment:
+    kind: scrum
+    view: commitment
+    title: Sprint commitment against capacity
+    tab: Commitment
+    icon: "📦"
+    empty: No active sprint on the team board.
+  sm_close:
+    kind: scrum
+    view: close
+    title: Is every story ready for the sprint to close?
+    tab: Sprint close
+    icon: "✅"
+    empty: No stories in the active sprint.
+    note: >-
+      For each story: all sub-tasks closed, time logged, AI-Used or AI-NA, an original estimate, and status Ready for
+      Approval or done. The same for each sub-task, with hours logged. Reading only; /sprint-close-check runs it.
+  sm_leave:
+    kind: scrum
+    view: leave
+    title: Who is off which day this sprint
+    tab: Leave
+    icon: "🏖️"
+    empty: No leave for this sprint on the Sprint Leave page yet. Fill it in from Argus (Scrum Master follow-ups).
+  gate_config:
+    kind: gate_config
+    title: Who signs each gate
+    tab: Gate config
+    icon: "🔏"
+    note: >-
+      Every approval gate in approval-gates.yaml against everyone on the roster: the named approvers and the backups.
+      Changes go through a reviewed pull request on approval-gates.yaml.
+  role_config:
+    kind: role_config
+    title: Who holds each role
+    tab: Role config
+    icon: "🪪"
+    note: >-
+      Everyone on the roster against every role in role-routing.yaml: the main role and the other hats.
+      Changes go through a reviewed pull request on people.yaml, then /roster-sync updates the Confluence roster page.
+  workbench_config:
+    kind: workbench_config
+    title: How Argus runs for each person
+    tab: Argus config
+    icon: "🛠️"
+    note: >-
+      Everyone on the roster and how Test on my PC runs for them: Local Hands from their Devin Cloud Argus,
+      Devin Local on the PC, the Devin Cloud VM, or off. Changes go through a reviewed pull request on
+      workbench-settings.yaml.
+  skill_config:
+    kind: skill_config
+    title: Who gets each skill
+    tab: Skill config
+    icon: "🧩"
+    note: >-
+      Every skill in one place: who gets it (role-routing.yaml default_skills, more_skills and everyone_skills),
+      what is not assigned yet and what is internal to the system. Ticked skills show in that role's My tools menu in
+      Argus. Changes go through a reviewed pull request.
+  my_commands:
+    kind: commands
+    title: My commands
+    tab: My commands
+    icon: "⌘"
+    empty: No commands found for your role.
+    note: >-
+      Every command, with yours first: the first ones for your role, the others for your role, the ones for everyone,
+      the documentation pipelines with their stages, and every other command. Type any of them in a Devin session.
+      The lists are default_skills, more_skills and everyone_skills in .devin/rules/role-routing.yaml.
+  vacation_planner:
+    kind: vacation
+    title: Vacation planner
+    tab: Vacation planner
+    icon: "🌴"
+    empty: No time off planned from today on. Say /vacation in Devin to add yours.
+    note: >-
+      Everyone's time off from the Time off and backups table on the Acme Claims Sprint Leave page, with who covers
+      their stories, questions and approvals, and sick days anyone reported. /vacation shows and changes it.
+  unplanned_leave:
+    kind: unplanned
+    title: Unplanned leave
+    tab: Unplanned leave
+    icon: "🤒"
+    empty: No unplanned leave counted yet.
+    note: >-
+      Sick days and ad hoc leave per team member and sprint: the Unplanned leaves tab of the Scrum Master's leave
+      tracker (kept in the repo) plus every day reported to Devin since, from the Unplanned leave table on the
+      Acme Claims Sprint Leave page. The workbook's other tabs are below as a read-only copy.
+  sm_load:
+    kind: scrum
+    view: load
+    title: Sprint points against each person's capacity
+    tab: Over-committed
+    icon: "⚖️"
+    empty: No capacity for this sprint yet (Sprint Leave page or capacity sheet).
+  sm_dre:
+    kind: scrum
+    view: dre
+    title: Defect removal efficiency
+    tab: DRE
+    icon: "🛡️"
+    empty: No defects created in the period.
+  sm_cost:
+    kind: scrum
+    view: cost
+    title: Cost per story this sprint
+    tab: Cost
+    icon: "💲"
+    empty: No stories in the active sprint.
+    note: >-
+      Hours logged on each story and its sub-tasks, the AI-Used share and hours per point. Cost is shown
+      when cost.hourly_rate is set in scrum-master-metrics.yaml.
+  sm_ai:
+    kind: scrum
+    view: ai
+    title: AI adoption this month
+    tab: AI this month
+    icon: "🤖"
+    empty: No sub-tasks closed this month yet.
+
+  approvals:
+    kind: approvals
+    title: Approvals awaiting me
+    tab: Approvals
+    icon: "✍️"
+
+  pipeline:
+    kind: pipeline
+    title: Team pipeline
+    tab: Pipeline
+    icon: "🚦"
+
+  pipeline_health:
+    kind: health
+    title: Pipeline health
+    tab: Health
+    icon: "📈"
+
+lenses:
+  developer:
+    label: Developer
+    focus: the stories you are coding, their branches, and what is blocking the merge
+    roles: [developer, dev_team, engineer, ui_developer, api_developer, etl_developer, new_joiner]
+    panels: [my_sessions, learn_questions, my_commands, vacation_planner, my_work, my_reviews, branches_mine, defects_on_me, stale_work]
+    actions: [answers, delegations, observations, session_handovers]
+
+  tech_lead:
+    label: Tech Lead
+    focus: gates waiting on you, the review queue, branch hygiene and unanswered team questions
+    roles: [tech_lead, lead_developer, solution_lead, reviewer]
+    panels: [my_sessions, learn_questions, my_commands, vacation_planner, approvals, skill_config, role_config, gate_config, workbench_config, team_activity, sprint_workload, review_queue, demo_ready, demo_queue, specialty_defects, defect_rca, jira_hygiene, aging_questions, doc_questions, grooming, branches_all, my_work, kb_freshness, roster_health, pipeline, pipeline_health, roadmap, ontology, delivery_teams, change_confidence, framework_feedback, workbench_feedback, workbench_noticed, framework_changes, ti_overview, ti_usage, ti_cost, ti_prompts, ti_gaps, ti_wins, ti_learning, ti_checkins]
+    actions: [answers, delegations, observations, session_handovers]
+
+  architect:
+    label: Architect
+    focus: design decisions, cross-cutting risk and the technical debt queue
+    roles: [architect, solution_architect, principal_engineer]
+    # job roles from .devin/rules/role-routing.yaml resolve here through `dashboard_lens`
+    panels: [my_sessions, learn_questions, my_commands, vacation_planner, approvals, technical_debt, risks, kb_freshness, epics, aging_questions, my_work, pipeline, pipeline_health]
+    actions: [answers, delegations, observations, session_handovers]
+
+  qa:
+    label: QA
+    focus: what is queued for test, the defects you raised, and what is waiting on your retest
+    roles: [qa, qa_engineer, test_lead, tester, qa_lead, qa_staff]
+    panels: [my_sessions, learn_questions, my_commands, vacation_planner, approvals, test_queue, my_work, my_defects, retest_queue, observation_triage, defect_rca, pipeline, pipeline_health]
+    actions: [answers, delegations, observations, session_handovers]
+
+  automation:
+    label: Automation
+    focus: your automation tickets, the ones that stopped moving, your branches against the base, what is in test and the defects you raised
+    roles: [automation_engineer, automation_tester, sdet]
+    panels: [my_sessions, learn_questions, my_commands, vacation_planner, approvals, automation_queue, automation_stale, automation_branches, automation_team, test_queue, my_defects, retest_queue, defect_rca, my_work, pipeline, pipeline_health]
+    actions: [answers, delegations, observations, session_handovers]
+
+  uat:
+    label: UAT / business validator
+    focus: what is in UAT for you to confirm, and what came back fixed
+    roles: [uat, uat_user, business_validator, business_user, finance_user, uat_lead, uat_staff]
+    panels: [my_sessions, learn_questions, my_commands, vacation_planner, approvals, uat_queue, uat_fixed, my_defects, my_work]
+    actions: [answers, observations, session_handovers]
+
+  bsa:
+    label: BSA
+    focus: gates waiting on you, unrouted questions and stories that are not ready to estimate
+    roles: [bsa, business_analyst, bsa_lead]
+    panels: [my_sessions, learn_questions, my_commands, vacation_planner, approvals, backlog, unrouted_questions, doc_questions, grooming, awaiting_business_approval, kb_freshness, my_work, pipeline, pipeline_health, grooming_prep]
+    actions: [answers, delegations, observations, session_handovers]
+
+  po_office:
+    label: PO office
+    focus: sprint scope, decisions waiting on the PO office, and work that has stopped moving
+    roles: [product_owner, po, po_office]
+    panels: [my_sessions, learn_questions, my_commands, vacation_planner, approvals, team_activity, backlog, sprint_scope, demo_ready, demo_queue, specialty_defects, jira_hygiene, awaiting_business_approval, doc_questions, grooming, aging_work, epics, risk_register, grooming_prep, delivery_teams]
+    # The PO office tracks scope and decisions, not who is carrying how much: no workload,
+    # roster or pipeline panel, and the shared panels drop the assignee column. Who is
+    # loaded belongs to the tech lead, architect and delivery lead lenses. The Team activity tab
+    # shows here only to managers (its audience), who open on this lens.
+    columns:
+      sprint_scope: [key, type, summary, status, points, updated]
+      demo_ready: [key, type, summary, status, updated]
+      demo_queue: [key, type, summary, status, sprint, updated]
+      awaiting_business_approval: [key, type, summary, status, updated]
+      grooming: [key, type, summary, status, points, updated]
+      aging_work: [key, type, summary, status, sprint, updated]
+      epics: [key, type, summary, status, updated]
+    actions: [answers, delegations, observations, session_handovers]
+
+  delivery_lead:
+    label: Delivery lead
+    focus: sprint scope, who is carrying what, and work that has stopped moving
+    roles: [delivery_lead, programme_manager, lead, manager]
+    panels: [my_sessions, learn_questions, my_commands, vacation_planner, approvals, team_activity, sprint_workload, sprint_scope, aging_work, doc_questions, grooming, awaiting_business_approval, epics, roster_health, pipeline, pipeline_health]
+    actions: [answers, delegations, observations, session_handovers]
+
+  scrum_master:
+    label: Scrum Master
+    focus: what to raise at stand-up, cycle time, sprint commitment against capacity, DRE and AI adoption
+    roles: [scrum_master]
+    panels: [my_sessions, learn_questions, my_commands, sm_standup, sm_close, sm_cycle, sm_commitment, sm_leave, vacation_planner, unplanned_leave, sm_load, sm_dre, sm_ai, sm_cost, backlog, sprint_workload, sprint_scope, aging_work, observation_triage, specialty_defects, jira_hygiene, grooming]
+    actions: [answers, delegations, observations, session_handovers]
+
+  release:
+    label: Release manager
+    focus: promotion gates, what is ready to ship and what is being validated in production
+    roles: [release_manager, ops_release_manager, ops, release]
+    panels: [my_sessions, learn_questions, my_commands, vacation_planner, approvals, release_queue, prod_validation, my_work, pipeline, pipeline_health]
+    actions: [answers, delegations, observations, session_handovers]
+
+fallback_lens: developer

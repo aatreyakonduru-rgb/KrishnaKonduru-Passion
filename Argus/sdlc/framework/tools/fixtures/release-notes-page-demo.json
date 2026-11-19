@@ -1,0 +1,129 @@
+{
+ "sample": true,
+ "title": "Release notes: Sprint 26.20",
+ "label": "Release notes Sprint 26.20",
+ "lead": "What changed for users this sprint, in plain words. Review it, correct anything, and approve it to save and share.",
+ "tabs": [
+  {
+   "title": "Summary",
+   "blocks": [
+    {
+     "metrics": [
+      [
+       4,
+       "features delivered"
+      ],
+      [
+       1,
+       "still in testing"
+      ],
+      [
+       3,
+       "user groups affected"
+      ],
+      [
+       "Sprint 26.20",
+       "Sep 30 to Oct 13"
+      ]
+     ]
+    },
+    {
+     "title": "In short",
+     "bullets": [
+      "Care coordinators can override program thresholds directly in Acme Claims.",
+      "Analysts can filter Member Journey by program year instead of exporting to Excel."
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Feature by feature",
+   "blocks": [
+    {
+     "cards": [
+      {
+       "title": "Threshold override screen",
+       "fields": [
+        [
+         "Who it helps",
+         "Care coordinators"
+        ],
+        [
+         "What they can do",
+         "Coordinators override a threshold from the member record. Each change is saved with a reason and shows in the audit history."
+        ],
+        [
+         "Checked",
+         [
+          "An override is saved and shows on the member record",
+          "Every override writes an audit row"
+         ]
+        ],
+        [
+         "Approved by",
+         "Resource 17"
+        ],
+        [
+         "QA signed off",
+         "Oct 10"
+        ]
+       ]
+      },
+      {
+       "title": "Program year filter",
+       "fields": [
+        [
+         "Who it helps",
+         "Program analysts"
+        ],
+        [
+         "What they can do",
+         "A program year selector sits above Member Journey and the reports, and the choice carries across pages."
+        ],
+        [
+         "Checked",
+         [
+          "Choosing 2025 shows only 2025 members",
+          "The filter is kept when moving between pages"
+         ]
+        ],
+        [
+         "Approved by",
+         "Resource 16"
+        ],
+        [
+         "QA signed off",
+         "Oct 11"
+        ]
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Still in progress",
+   "blocks": [
+    {
+     "table": {
+      "head": [
+       "Feature",
+       "Where it is",
+       "Expected"
+      ],
+      "rows": [
+       [
+        "Contract change history export",
+        {
+         "pill": "In testing",
+         "kind": "warn"
+        },
+        "Sprint 26.21"
+       ]
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

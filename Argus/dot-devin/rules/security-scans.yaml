@@ -1,0 +1,64 @@
+# Security checks /implement runs before the PR, and /pr-readiness reads.
+# Tool: sdlc/framework/tools/security_scans.py. Secrets are read from the environment by
+# name only; they are never printed, written to evidence or committed.
+version: 1
+
+# The org's APM (org apm0000000-acme-risk-clinical-analytics-ui, service accounts ACME_SERVICE_TOKEN*).
+apm_id: APM0000000
+
+# What stops the PR. Only findings the change itself touches block unless block_pre_existing is true;
+# the rest are listed as warnings for the developer.
+blocking_severities: [CRITICAL, HIGH]
+block_pre_existing: false
+
+# Scan, fix, re-run the unit tests, scan again. Stop when clean; after this many rounds the rest goes
+# to the developer.
+max_fix_rounds: 3
+
+# Components in this repo, as they appear in the image names
+# (quay-<env>.acme.example/claims/crln-shared-<env>-img-<component>).
+components: [web, web-portal, web-admin, api, api-portal]
+
+checkmarx:
+  base_url: https://acme.cxone.cloud/api
+  token_env: checkmarx_Access_Token
+  project: claims-web
+  repo_url: https://git.acme.example/scm/acme/claims-web.git
+  scan_types: [sast, sca]
+  poll_seconds: 30
+  max_minutes: 60
+
+wiz:
+  auth_url: https://auth.app.wiz.io/oauth/token
+  api_url: https://api.us52.app.wiz.io/graphql
+  client_id_env: WIZ_CLIENT_ID
+  client_secret_env: WIZ_CLIENT_SECRET
+  max_pages: 40
+  # Always sent: without assetType Wiz returns virtual machines only.
+  asset_types: [BUCKET, CI_JOB, CI_WORKFLOW, COMPUTE_INSTANCE_GROUP, CONTAINER, CONTAINER_IMAGE, DATABASE,
+                DATA_WORKFLOW, DATA_WORKLOAD, DB_SERVER, ENDPOINT, IDE, KUBERNETES_CLUSTER, MAP_REDUCE_CLUSTER,
+                MESSAGING_SERVICE, NETWORK_ADDRESS, NETWORK_APPLIANCE, REPOSITORY, REPOSITORY_BRANCH, SERVERLESS,
+                VIRTUAL_MACHINE, VIRTUAL_MACHINE_IMAGE, WEB_SERVICE, WORKSTATION]
+
+govramp:
+  # The AccessControlGapRules workbook is an attachment on this Confluence page.
+  confluence_url: https://wiki.acme.example
+  page_id: "2183398266"
+  token_env: ACME_CONFLUENCE_TOKEN
+  # Confluence's chain ends in the WellPoint Internal Root CA, which is not in the system store. Save it once:
+  #   echo | openssl s_client -showcerts -connect wiki.acme.example:443 2>/dev/null \
+  #     | awk '/BEGIN CERT/{n++} n==3{print} /END CERT/&&n==3{exit}' > ~/.sdlc/wellpoint-root.pem
+  ca_file: ~/.sdlc/wellpoint-root.pem
+  required_columns: ["GovRAMP Control ID", "Plain Language Requirement"]
+  # Hybrid and Application rules need something from the application; the rest are enterprise processes.
+  layers: [Application, Hybrid]
+  columns:
+    id: GovRAMP Control ID
+    family: Control Family
+    name: Control Name
+    requirement: Plain Language Requirement
+    layer: Remediation Layer
+    design: Application Design Requirement
+    python: Python Implementation Steps
+    javascript: JavaScript/Node.js Implementation Steps
+    status: Status

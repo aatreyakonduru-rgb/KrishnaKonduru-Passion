@@ -1,0 +1,12 @@
+# Sample roster. Prompts use it to give each open question an owner by role.
+people:
+  - name: Pat Lee
+    roles: [product_owner]
+  - name: Sam Rivera
+    roles: [business_analyst]
+  - name: Jo Chen
+    roles: [tech_lead, security_lead]
+  - name: Alex Kim
+    roles: [database_engineer, etl_developer]
+  - name: Robin Shah
+    roles: [qa]

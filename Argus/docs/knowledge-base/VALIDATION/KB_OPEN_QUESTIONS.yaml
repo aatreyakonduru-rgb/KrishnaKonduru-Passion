@@ -1,0 +1,21 @@
+# Knowledge-base open questions: the registry behind /document-validation.
+# /document-validation adds a question here whenever the knowledge base cannot answer
+# something from its own sources; Argus's validation form is rendered from it.
+registry_id: "KB_OPEN_QUESTIONS"
+title: "Knowledge base validation questions"
+generated: "2026-10-05"
+sections:
+  - name: "Example (replace with your own)"
+    intro: >-
+      One made-up question so the form renders before your first /document-validation run.
+    questions:
+      - id: example_claim_status_owner
+        priority: "P3"
+        kb_doc: "docs/knowledge-base/README.md"
+        context: >-
+          Two documents name a different system as the owner of claim status.
+        question: "Which system owns claim status?"
+        why: "The knowledge base cannot say where a status change starts."
+        understanding: "We believe the claims service owns it (low confidence)."
+        proposed_answer: "The claims service owns claim status."
+        kb_effect: "The owner is written into the system map."

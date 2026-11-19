@@ -1,0 +1,7 @@
+# Empty until tools/kbgen/gen_link_graph.py builds it from your knowledge base and code.
+metadata:
+  name: Acme Claims link graph
+  generated: '2026-10-05'
+  generator: sdlc/framework/tools/kbgen/gen_link_graph.py
+nodes: {}
+edges: []

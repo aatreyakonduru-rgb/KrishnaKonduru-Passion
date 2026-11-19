@@ -1,0 +1,18 @@
+# Source of truth for the delivery teams. Render the readable copies with
+# python3 sdlc/framework/tools/delivery_teams.py
+about: 'Delivery teams: what each team''s application does, its Jira IT Team and board, its sprint cycle and
+  who does what. Each team stays ''to confirm'' until someone on that team signs it off.'
+updated: '2026-10-05'
+sources: []
+program_contacts: []
+teams:
+- key: ui
+  name: Acme Claims
+  it_team: Acme-Claims-Web
+  board:
+    id: 1
+    name: Acme Claims
+    type: scrum
+  status: to confirm
+  confirmed_by: null
+  people: []

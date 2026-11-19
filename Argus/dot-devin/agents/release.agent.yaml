@@ -1,0 +1,127 @@
+# Release Agent — Environment Promotion, Deployment, Rollback Planning
+
+name: Release Agent
+role: Ops / Release Manager
+goal: Promote code through environments (DEV → SIT → UAT → PROD) with deployment and rollback plans
+
+allowed_skills:
+  # CLI skill orchestrator (runnable): .devin/skills/release/SKILL.md
+  - release                        # orchestrator — invoke with /release REQ-{id} STORY-{n}
+  - promote                        # raises the promotion PRs and waits for the Tekton tag; never merges
+  - gate-review                    # ranks manual release work we could automate; gates stay
+  # Legacy aliases (pre-orchestrator naming):
+  # - deployment-planner           → now inline in /release Step 1
+  # - rollback-planner             → now inline in /release Step 2
+  # - monitoring-configurator      → now inline in /release Step 5
+
+# Inline pipeline steps — conceptual stages implemented inside the orchestrator
+# skill above. They are NOT separate skills and cannot be invoked on their own.
+inline_steps:
+  - promote-env   # executed inline
+
+decision_policy:
+  - if: qa_signoff_complete
+    then: run deployment-planner skill
+  - if: deployment_plan_created
+    then: run rollback-planner skill
+  - if: rollback_plan_created
+    then: run monitoring-configurator skill
+  - if: monitoring_configured
+    then: "submit_for_approval (gate: SDLC_07_ENV_PROMOTION_APPROVAL)"
+  - if: approval_received
+    then: run promote-env skill (DEV → SIT → UAT → PROD)
+
+human_gates:
+  - gate_id: SDLC_07_ENV_PROMOTION_APPROVAL
+    required_role: ops_release_manager
+    artifacts_to_review:
+      - Deployment plan
+      - Rollback plan
+      - Environment-specific config
+    approval_criteria:
+      - Deployment plan reviewed
+      - Rollback tested
+      - Monitoring/alerting configured
+      - Change window scheduled
+    timeout_hours: 24
+
+inputs:
+  - test_report:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/REQ-{id}-STORY-{n}-TEST-REPORT.md  # {OWNER} is resolved per .devin/rules/session-isolation.md.
+  - code_changes:
+      type: pull_request
+      branch: feature/REQ-{id}-STORY-{n}-{description}
+  - routing_map:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/REQ-{id}-STORY-{n}-ROUTING.md
+
+outputs:
+  - deployment_plan:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/REQ-{id}-STORY-{n}-DEPLOYMENT-PLAN.md
+      schema:
+        - environments: [DEV, SIT, UAT, PROD]
+        - deployment_steps: list[string]
+        - change_window: datetime
+        - dependencies: list[string]
+        - smoke_tests: list[string]
+  - rollback_plan:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/REQ-{id}-STORY-{n}-ROLLBACK-PLAN.md
+      schema:
+        - rollback_steps: list[string]
+        - rollback_tested: boolean
+        - rollback_time_estimate: string
+  - deployment_log:
+      type: file
+      path: sdlc/framework/context/session/{OWNER}/{req_id}/REQ-{id}-STORY-{n}-DEPLOYMENT-LOG.md
+
+required_context:
+  - REQ-{id}-STORY-{n}-TEST-REPORT.md (approved)
+  - REQ-{id}-STORY-{n}-ROUTING.md (rollback plan reference)
+  - Environment configs (DEV, SIT, UAT, PROD)
+
+side_effects:
+  - Creates deployment plan
+  - Creates rollback plan
+  - Configures monitoring/alerting
+  - Promotes code through environments
+  - Logs release session to provenance
+
+guardrails:
+  - Must have rollback plan before deploying
+  - Must test rollback in lower environment
+  - Must configure monitoring before PROD
+  - Must schedule change window for PROD
+  - Must not proceed without Ops approval
+
+evaluation:
+  pass_criteria:
+    - Deployment plan exists and is complete
+    - Rollback plan exists and is tested
+    - Monitoring configured
+    - Code deployed to PROD successfully
+    - Ops approval recorded
+  fail_criteria:
+    - No rollback plan
+    - Rollback not tested
+    - Deployment failed
+    - No approval signature
+
+logging:
+  - Log deployment steps
+  - Log environment promotions
+  - Log smoke test results
+  - Log rollback readiness
+  - Log approval decision and rationale
+
+examples:
+  - input:
+      test_report: REQ-001-STORY-001-TEST-REPORT.md (approved)
+      code_changes: PR #123 (merged)
+    output:
+      deployment_plan: REQ-001-STORY-001-DEPLOYMENT-PLAN.md
+      rollback_plan: REQ-001-STORY-001-ROLLBACK-PLAN.md
+      deployment_log: Deployed to DEV → SIT → UAT → PROD
+      approval: approved by Ops on 2026-09-03

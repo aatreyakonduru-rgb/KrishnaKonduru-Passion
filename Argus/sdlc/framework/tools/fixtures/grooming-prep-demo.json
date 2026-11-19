@@ -1,0 +1,21 @@
+{
+  "_comment": "Made-up stories for the Grooming prep tab; keys and names are fictional.",
+  "today": "2026-10-15",
+  "sprints": [
+    {"name": "Acme Claims Sprint 26.4.2(10/7-10/27)", "state": "active", "start": "2026-10-07"},
+    {"name": "Acme Claims Sprint 26.4.3(10/28-11/17)", "state": "future", "start": "2026-10-28"},
+    {"name": "Acme Claims Sprint 26.4.4(11/18-12/8)", "state": "future", "start": "2026-11-18"}
+  ],
+  "epics": [
+    {"key": "ACME-90001", "summary": "Contract Config - Bulk upload"},
+    {"key": "ACME-90002", "summary": "Scorecard export of contract measures"}
+  ],
+  "stories": [
+    {"key": "ACME-90101", "summary": "Contract Bulk Upload - DEV", "type": "Story", "status": "In Progress", "sprint": "Acme Claims Sprint 26.4.2(10/7-10/27)", "points": 8, "acceptance": "1. Upload a file", "labels": [], "parent": "ACME-90001", "reporter": "Sample Reporter", "assignee": "Sample Developer"},
+    {"key": "ACME-90102", "summary": "Contract Bulk Upload - SIT", "type": "Story", "status": "Open", "sprint": "", "points": 5, "acceptance": "1. Test the upload", "labels": [], "parent": "ACME-90001", "reporter": "Sample Reporter", "assignee": "Sample Tester"},
+    {"key": "ACME-90103", "summary": "Contract grid filters - DEV", "type": "Story", "status": "In Progress", "sprint": "Acme Claims Sprint 26.4.2(10/7-10/27)", "points": 5, "acceptance": "1. Filter by status", "labels": [], "parent": "ACME-90001", "reporter": "Sample Reporter", "assignee": "Sample Developer"},
+    {"key": "ACME-90104", "summary": "Scorecard measure export - DEV", "type": "Story", "status": "Open", "sprint": "Acme Claims Sprint 26.4.3(10/28-11/17)", "points": "", "acceptance": "", "labels": [], "parent": "ACME-90002", "reporter": "Sample Owner", "assignee": "Unassigned"},
+    {"key": "ACME-90105", "summary": "Contract history panel - DEV", "type": "Story", "status": "Open", "sprint": "Acme Claims Sprint 26.4.3(10/28-11/17)", "points": 21, "acceptance": "1. Show history", "labels": [], "parent": "ACME-90001", "reporter": "Sample Reporter", "assignee": "Sample Developer"},
+    {"key": "ACME-90106", "summary": "Template upload validation", "type": "Story", "status": "Refining", "sprint": "", "points": "", "acceptance": "TBD", "labels": ["needs_grooming"], "parent": "", "reporter": "Sample Reporter", "assignee": "Unassigned"}
+  ]
+}

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# git pre-commit: the same access rules as Devin's write hook, applied to every staged file, so a
+# change made with a shell command or outside Devin is checked too. Install once per checkout:
+#   cp .devin/hooks/git/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+set -uo pipefail
+
+root="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 1
+. "$root/.devin/hooks/lib/python.sh"
+output="$(sdlc_python "$root/sdlc/framework/tools/access_guard.py" staged 2>&1)"
+status=$?
+case "$status" in
+  0) exit 0 ;;
+  2) printf '%s\n' "$output" >&2; exit 1 ;;
+  *) printf 'ACCESS-BLOCK: access check failed to run (exit %s). %s\n' "$status" "$output" >&2; exit 1 ;;
+esac
