@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>EnvScribe User Manual</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:14px/1.6 Segoe UI,Arial,sans-serif;background:#0b1220;color:#d7deea}
+header{background:#111a2e;border-bottom:1px solid #1e2b47;padding:16px 28px}header h1{margin:0;font-size:20px}header p{margin:4px 0 0;color:#7f8fab;font-size:12px}
+nav.tabs{display:flex;flex-wrap:wrap;gap:4px;background:#111a2e;padding:0 20px;border-bottom:1px solid #1e2b47}
+nav.tabs a{padding:10px 14px;cursor:pointer;color:#7f8fab;border-bottom:2px solid transparent;user-select:none}
+nav.tabs a.on{color:#fff;border-bottom-color:#2563eb}
+main{padding:22px 28px;max-width:1040px}section{display:none}section.on{display:block}
+h2{font-size:18px;margin:4px 0 10px}h3{font-size:14px;margin:18px 0 6px;color:#9fc1ff}
+p,li{color:#c7d2e6}code{background:#1e2b47;padding:1px 5px;border-radius:3px;font:12px Consolas,monospace}
+pre{background:#070c16;border:1px solid #1e2b47;border-radius:6px;padding:10px 12px;font:12px/1.5 Consolas,monospace;color:#8fd6a0;overflow:auto}
+table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}th,td{border-bottom:1px solid #1e2b47;padding:6px 8px;text-align:left;vertical-align:top}th{color:#7f8fab;font-weight:600}
+.note{background:#1a2440;border-left:3px solid #2563eb;padding:8px 12px;border-radius:4px;margin:10px 0}
+.warn{background:#3a2a0c;border-left:3px solid #fbbf24;padding:8px 12px;border-radius:4px;margin:10px 0}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0}.flow span{background:#1e2b47;padding:6px 10px;border-radius:4px;font-size:12px}.flow b{color:#5b6b88}
+.pill{padding:1px 8px;border-radius:9px;font-size:11px;font-weight:700;background:#1e2b47;color:#9fb0cc}.ok{background:#0f3d2e;color:#5dd39e}.proposal{background:#3a2a0c;color:#fbbf24}
+</style></head><body>
+<header><h1>EnvScribe User Manual</h1><p>Read-only crawler that journals an engineering environment with evidence for every fact. Covers architecture, the 15 analysis features, the UI and viewer, settings, and the safety rules.</p></header>
+<nav class="tabs" id="tabs">
+ <a data-t="t1" class="on">Overview</a><a data-t="t2">Architecture</a><a data-t="t3">Features</a><a data-t="t4">Using the UI</a><a data-t="t5">Viewer</a><a data-t="t6">Settings</a><a data-t="t7">Safety and limits</a>
+</nav>
+<main>
+
+<section id="t1" class="on">
+<h2>Overview</h2>
+<p>EnvScribe reads the code, build files, API contracts, configuration, CI/CD, infrastructure definitions, database catalogs and documents of an engineering environment. It writes a <b>journal</b>: a set of Markdown and JSON files that describe what it found, where it found it, and when. The journal is packaged as a sealed zip that you can download and share after it passes its safety checks.</p>
+<p>The journal is designed for two uses:</p>
+<ul><li><b>Understanding:</b> what services exist, how they call each other, which tables and topics they touch, who owns them, and how each environment differs.</li>
+<li><b>Advice:</b> given a requirement, the Ask and Advise features return the cited facts that bear on it, plus a labeled PROPOSAL. Nothing is changed or executed.</li></ul>
+<h3>Core ideas</h3>
+<ul>
+<li><b>Read-only.</b> EnvScribe never writes to repositories, Jira, Confluence, Snowflake, clouds or clusters.</li>
+<li><b>Every fact is cited.</b> Each fact has a class, evidence (source and location), and an as-of time.</li>
+<li><b>Nothing is guessed.</b> Missing information is reported as "not found" or UNKNOWN. Conflicts are shown side by side, never resolved.</li>
+<li><b>Safe to share.</b> Secrets, personal data and internal hosts are removed before the zip is sealed, and the zip is re-checked after sealing.</li>
+</ul>
+<h3>Fact classes</h3>
+<table><tr><th>Class</th><th>Meaning</th></tr>
+<tr><td><span class="pill ok">OBSERVED</span></td><td>Seen directly in code or configuration.</td></tr>
+<tr><td>DERIVED</td><td>Computed from observed facts by a named rule (the rule is recorded).</td></tr>
+<tr><td>DOCUMENTED</td><td>Stated in a document. Not verified against code.</td></tr>
+<tr><td>DISCUSSED</td><td>Stated in a transcript. Content only; speakers are removed.</td></tr>
+<tr><td>LLM_DESCRIBED</td><td>Text written by a language model; must quote its evidence.</td></tr>
+<tr><td>UNKNOWN</td><td>Looked for and not established.</td></tr>
+</table>
+<div class="note">INFERRED is not a class. A statement that cannot be traced to evidence is not written.</div>
+</section>
+
+<section id="t2">
+<h2>Architecture</h2>
+<p>A run moves through fixed stages. Each stage is shown on the UI's progress strip.</p>
+<div class="flow"><span>Inventory</span><b>&rarr;</b><span>Code, build &amp; config</span><b>&rarr;</b><span>Documents</span><b>&rarr;</b><span>Connectors</span><b>&rarr;</b><span>Collate</span><b>&rarr;</b><span>Journal</span><b>&rarr;</b><span>Analysis (15 features)</span><b>&rarr;</b><span>Privacy sweep</span><b>&rarr;</b><span>Secret sweep</span><b>&rarr;</b><span>Seal &amp; zip</span><b>&rarr;</b><span>Verify zip</span></div>
+<h3>What each stage does</h3>
+<table><tr><th>Stage</th><th>Work</th></tr>
+<tr><td>Inventory</td><td>Lists the sources and skips what is excluded or unreadable. Records every skip in <code>registers/skips.md</code>.</td></tr>
+<tr><td>Code, build &amp; config</td><td>Scans source files (any language), build files (pom, gradle, npm, pip, go.mod, csproj), API contracts, configuration per environment, and CI/CD and infrastructure files.</td></tr>
+<tr><td>Documents</td><td>Reads PDF, DOCX, XLSX, PPTX, diagrams and transcripts <i>only if</i> they match an application found in the code. Images, video and audio are never read.</td></tr>
+<tr><td>Connectors</td><td>Read-only metadata from approved integrations (for example Bitbucket, Jira, Confluence) and database catalogs.</td></tr>
+<tr><td>Collate</td><td>Merges work packages in a fixed order and freezes the output. Every file is hashed.</td></tr>
+<tr><td>Journal</td><td>Writes the Markdown and JSON files, the facts store (<code>facts/all-facts.jsonl</code>) and the registers.</td></tr>
+<tr><td>Analysis</td><td>Runs the 15 features over the collated facts. A failing feature is reported in <code>coverage.md</code> and does not stop the run.</td></tr>
+<tr><td>Privacy &amp; secret sweeps</td><td>Scan every file. Automatic redaction is re-scanned; anything still present blocks the zip.</td></tr>
+<tr><td>Seal &amp; verify</td><td>Create the zip, record its checksums in <code>SEAL.json</code>, and rescan the sealed zip. Download is enabled only after this passes.</td></tr>
+</table>
+<h3>Components</h3>
+<table><tr><th>Part</th><th>Where</th></tr>
+<tr><td>Engine (stages, scanners, connectors)</td><td><code>scribe/</code></td></tr>
+<tr><td>Analysis features</td><td><code>scribe/features/</code>, one module each</td></tr>
+<tr><td>Sweeps and redaction</td><td><code>scribe/sweeps.py</code>, <code>scribe/redact.py</code></td></tr>
+<tr><td>Control API and UI</td><td><code>scribe/ui/app.py</code>, <code>scribe/ui/static/index.html</code></td></tr>
+<tr><td>Viewer</td><td><code>scribe/ui/static/viewer.html</code></td></tr>
+<tr><td>Agent wrapper (A2A)</td><td><code>envscribe_agent.py</code>, <code>a2a_factory.py</code>, <code>main.py</code></td></tr>
+</table>
+<h3>Resumable runs</h3>
+<p>Progress is recorded in an append-only file. If a run is stopped or crashes, resuming continues from the saved progress when the inputs and version match. Changing settings does not discard progress.</p>
+</section>
+
+<section id="t3">
+<h2>Features</h2>
+<p>The 15 analysis features run in the Analysis stage. Each writes a folder inside the zip, and <code>coverage.md</code> records its status for the run. The viewer's <b>Reports</b> tab lists them.</p>
+<table>
+<tr><th>#</th><th>Feature</th><th>What it does</th><th>Output</th></tr>
+<tr><td>1</td><td>Dependency and architecture graph</td><td>Links services to their APIs, tables and topics. Two services are linked only when a URL path matches exactly one other service's endpoint path; hosts are never used. Shows Mermaid and C4 views.</td><td><code>graph/</code></td></tr>
+<tr><td>2</td><td>Environment drift and run-to-run diff</td><td>Compares configuration across environments (DEV, SIT, UAT) in a matrix. Compares with the previous run when that run is on the same machine.</td><td><code>drift/</code></td></tr>
+<tr><td>3</td><td>SBOM and licenses</td><td>Lists declared components in CycloneDX and SPDX formats. Licenses are never guessed; an unknown license stays unknown. Vulnerability lookup is off unless enabled.</td><td><code>sbom/</code></td></tr>
+<tr><td>4</td><td>Service catalog</td><td>Exports a Backstage <code>catalog-info.yaml</code> per service, and a CMDB CSV and JSON. The owner is a team or <code>unknown</code>.</td><td><code>catalog/</code></td></tr>
+<tr><td>5</td><td>Scorecards and risk flags</td><td>Scores each service and raises flags such as <code>no_contract</code>, <code>no_ci</code> and <code>no_tests</code>, each with its evidence.</td><td><code>scorecards/</code></td></tr>
+<tr><td>6</td><td>Living docs</td><td>Drafts architecture, runbook and ADR pages. Every page is labeled as a draft.</td><td><code>docs-generated/</code></td></tr>
+<tr><td>7</td><td>Data lineage</td><td>Parses SQL in the code to show which services read and write which tables. Uses the database catalog when present.</td><td><code>lineage/</code></td></tr>
+<tr><td>8</td><td>Hybrid search</td><td>Ask uses keyword and similarity ranking together. Results must pass a relevance threshold, or the answer is "not found".</td><td>UI and <code>/api/ask</code></td></tr>
+<tr><td>9</td><td>Change impact and PR draft</td><td>For a requirement, lists the files, consumers, environments and teams the journal links to it, and drafts PR text. Suggest-only, labeled PROPOSAL.</td><td>UI and <code>/api/impact</code></td></tr>
+<tr><td>10</td><td>API contract diff</td><td>Compares each API with its snapshot from the previous run, and compares different contract files that declare the same API. Reports breaking changes.</td><td><code>contracts/changes.md</code></td></tr>
+<tr><td>11</td><td>Migration and cloud readiness</td><td>Classifies each service as refactor, rehost or replatform, using its dependencies and flags.</td><td><code>readiness/</code></td></tr>
+<tr><td>12</td><td>Git-history secret scan</td><td>Scans commit history for leaked secrets. Reports the file, the short commit ID and the detector only. Never reports the value, the message, the author or the email.</td><td><code>git-history/</code></td></tr>
+<tr><td>13</td><td>Live cloud and Kubernetes inventory</td><td>Read-only listing through your logged-in CLIs, compared with the infrastructure code. Opt-in.</td><td><code>live/</code></td></tr>
+<tr><td>14</td><td>Runtime correlation</td><td>Compares the static graph with an APM service-map export you provide (JSON or CSV). Opt-in.</td><td><code>runtime/</code></td></tr>
+<tr><td>15</td><td>Ownership (teams only)</td><td>Maps owners from CODEOWNERS and similar files. Reports teams only; individuals and ambiguous owners are omitted and counted.</td><td><code>ownership/</code></td></tr>
+</table>
+<div class="warn">Features 13 (live cloud), 14 (runtime), the OSV lookup in feature 3, and the Snowflake and Postgres catalogs have been tested only with fixtures and the bundled sample. They have not been run against real systems yet.</div>
+<h3>Turning features off</h3>
+<p>Put the feature name in <code>disabled_features</code> (Setup tab or <code>targets.yaml</code>). The feature's row in <code>coverage.md</code> then reads "disabled in settings".</p>
+</section>
+
+<section id="t4">
+<h2>Using the UI</h2>
+<p>Open <code>http://127.0.0.1:8090</code> after starting EnvScribe. The screen has a top bar, a mission-control area, and a side panel with four tabs.</p>
+<h3>Start a run</h3>
+<ol>
+<li>Open <b>Setup</b> and enter the folders or repositories to crawl (one per line) and the environments in scope.</li>
+<li>Optionally press <b>Dry-run estimate</b> to see how many repositories, packages and units will be read.</li>
+<li>Press <b>Start run</b>. The progress strip, KPIs, sweep checklists and activity feed update as the run moves.</li>
+<li>When both sweeps show clean and the gate reads OPEN, <b>Download zip</b> is enabled.</li>
+</ol>
+<h3>Top bar</h3>
+<table><tr><th>Control</th><th>Effect</th></tr>
+<tr><td>Pause / Resume</td><td>Pauses between work packages. Resume continues from saved progress.</td></tr>
+<tr><td>Cancel</td><td>Stops the run. The partial zip is labeled partial and still goes through both sweeps.</td></tr>
+<tr><td>Download zip</td><td>Enabled only when the zip gate is OPEN.</td></tr>
+<tr><td>Viewer</td><td>Opens the zip viewer in a new page.</td></tr>
+<tr><td>Exit</td><td>Cancels any active run, then stops the server.</td></tr>
+</table>
+<h3>Zip gate</h3>
+<p>The gate shows OPEN only when both sweeps passed, the sealed zip was rescanned clean, and the run is complete or labeled partial. When it is BLOCKED, the reason is shown. Findings are listed by type and location; values are never shown.</p>
+<h3>Integrations tab</h3>
+<p>Lists the systems discovered from your environment variables and tool profiles, with a read-only verification status. Tick the systems you approve. Unclassified items are reported and never used.</p>
+<h3>Upload tab</h3>
+<p>Drop documents here. Each file is checked: images, video and audio are not read; macro-enabled or legacy Office files are quarantined; files that do not match an application in the code are listed without being read. You can choose "Read anyway" for a file you trust.</p>
+<h3>Ask tab</h3>
+<p>Two boxes:</p>
+<ul>
+<li><b>Ask the journal.</b> Answers cite the facts they come from, or say "not found". It never answers from general knowledge.</li>
+<li><b>Impact of a change.</b> Lists the files, consumers, environments and teams the journal links to a requirement, with a draft PR text. Labeled <span class="proposal">PROPOSAL</span>; nothing is changed.</li>
+</ul>
+</section>
+
+<section id="t5">
+<h2>Viewer</h2>
+<p>Open <code>http://127.0.0.1:8090/viewer</code>, or use <b>Viewer</b> on the main screen. Pick a zip from the list, or use <b>Open zip from disk</b> to load one from another run or machine.</p>
+<table><tr><th>Tab</th><th>What you see</th></tr>
+<tr><td>Files</td><td>Every file in the zip, grouped by folder. Markdown is rendered, including tables. Mermaid diagrams are shown as their source with a note, because the viewer does not draw diagrams.</td></tr>
+<tr><td>Reports</td><td>One row per analysis feature, with its status from <code>coverage.md</code> and a link to its files.</td></tr>
+<tr><td>Facts</td><td>Search every fact by text, kind or class. Each fact shows its evidence and its as-of time.</td></tr>
+<tr><td>Graph</td><td>The architecture graph. Filter by a service, table or topic name, or by edge type. Click a node to see each connection with its class, rule and evidence. Dashed lines are DOCUMENTED claims.</td></tr>
+</table>
+<div class="note">The seal panel at the top shows the label (complete or partial), the file count and the seal time. Check it before sharing a zip.</div>
+</section>
+
+<section id="t6">
+<h2>Settings</h2>
+<p>Every setting appears in the Setup tab. Changes take effect on the next run and are saved to <code>targets.yaml</code>. Credentials are never entered in the UI; they come from environment variables or secret mounts.</p>
+<table>
+<tr><th>Setting</th><th>Default</th><th>Meaning</th></tr>
+<tr><td>Output folder</td><td><code>./envscribe-out</code></td><td>Where the journal, zips and history are written.</td></tr>
+<tr><td>Repos / folders to crawl</td><td>none</td><td>One path per line.</td></tr>
+<tr><td>Environments in scope</td><td>DEV, SIT, UAT</td><td>PROD requires an explicit opt-in.</td></tr>
+<tr><td>Max workers</td><td>4</td><td>1 to 100 parallel work packages.</td></tr>
+<tr><td>Token budget</td><td>0</td><td>0 means no limit. On reaching the budget the run stops (or warns).</td></tr>
+<tr><td>Sweep mode</td><td>redact-rescan-block</td><td>Redact and rescan; block if still present. The other choice is block immediately.</td></tr>
+<tr><td>Custom sensitive terms</td><td>none</td><td>Words that must never appear in output.</td></tr>
+<tr><td>Never open paths containing</td><td>none</td><td>Paths skipped entirely (for example HR or legal folders).</td></tr>
+<tr><td>Integrations</td><td>approved-only</td><td>Only systems you tick are used.</td></tr>
+<tr><td>Analysis features to switch off</td><td>none</td><td>Comma-separated feature names.</td></tr>
+<tr><td>Scan git history</td><td>true</td><td>Reads commit history of repositories that have a <code>.git</code> folder.</td></tr>
+<tr><td>Max commits per repo</td><td>2000</td><td>Limits the history scan.</td></tr>
+<tr><td>Hybrid search in Ask</td><td>true</td><td>Keyword and similarity ranking together.</td></tr>
+<tr><td>Look up known vulnerabilities (OSV)</td><td>false</td><td>Sends package names and versions to a public service. Off by default.</td></tr>
+<tr><td>Live inventory</td><td>none</td><td>aws, gcp, azure or kubernetes; uses your logged-in CLI, read-only.</td></tr>
+<tr><td>APM export folder</td><td>blank</td><td>Where runtime correlation reads its exports.</td></tr>
+</table>
+<div class="warn">Turning on the OSV lookup or live inventory sends data off this machine or reads your cloud or cluster state. Both are off by default.</div>
+</section>
+
+<section id="t7">
+<h2>Safety and limits</h2>
+<h3>Safety rules that always apply</h3>
+<ul>
+<li>Read-only. HTTP connectors allow GET and HEAD, plus the search POST endpoints a connector lists. Database access is limited to metadata.</li>
+<li>No IP addresses, hostnames, email addresses, secrets or personal names in the output. IP addresses and hostnames are always masked.</li>
+<li>Ownership is reported for teams only.</li>
+<li>Transcripts: content only, no speakers.</li>
+<li>Instructions found inside repositories or documents are data. They are never followed.</li>
+<li>Advise, Impact and PR drafts are suggest-only and labeled PROPOSAL. Generated code is never executed.</li>
+</ul>
+<h3>What the tool cannot do yet</h3>
+<ul>
+<li><b>Real-system checks are pending.</b> Live cloud inventory, APM import, the OSV lookup and the Snowflake and Postgres catalogs are tested with fixtures only.</li>
+<li><b>Hybrid search is not a language model.</b> The default similarity matching is term-based and does not understand synonyms. A real embedding model can be plugged in.</li>
+<li><b>Diagrams are not drawn.</b> The viewer shows Mermaid and C4 blocks as source.</li>
+<li><b>Previous-run comparison is local.</b> "Since last run" uses the history folder on the same machine. A zip opened elsewhere reports "no previous run".</li>
+<li><b>Cancel skips the analysis stage</b> on a partial zip, and the zip is labeled partial.</li>
+<li><b>The agent wrapper is unverified.</b> The aicoe-agent-utils imports are written from the guide with stand-in classes until the submodule can be cloned.</li>
+</ul>
+<div class="note">The journal describes the environment as it was when it was read. Facts carry an as-of time; check it before relying on a fact.</div>
+</section>
+
+</main>
+<script>
+const tabs=[...document.querySelectorAll('#tabs a')];
+tabs.forEach(a=>a.onclick=()=>{tabs.forEach(x=>x.classList.remove('on'));a.classList.add('on');document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===a.dataset.t));window.scrollTo(0,0)});
+</script>
+</body></html>

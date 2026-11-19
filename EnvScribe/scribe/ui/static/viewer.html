@@ -17,12 +17,15 @@ table{width:100%;border-collapse:collapse}td,th{padding:5px 6px;border-bottom:1p
 .fact{background:#111a2e;border:1px solid #1e2b47;border-radius:6px;padding:8px 10px;margin-bottom:6px}.fact pre{margin:4px 0 0;white-space:pre-wrap;word-break:break-word;color:#9fb0cc;font:11px Consolas,monospace}
 .bar{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}.muted{color:#7f8fab}
 #gsvg{width:100%;height:68vh;background:#0e1628;border:1px solid #1e2b47;border-radius:6px}#ginfo{margin-top:8px;font-size:12px}.doc pre.code{background:#0e1628;border:1px solid #1e2b47;border-radius:4px;padding:6px 8px;margin:6px 0;overflow:auto}
+.doc table{width:auto;margin:8px 0;font:12px Segoe UI,Arial,sans-serif}.doc th,.doc td{border:1px solid #1e2b47;padding:4px 8px}.doc .diag{color:#7f8fab;font-size:11px;margin:2px 0 0}
+.rrow{display:flex;justify-content:space-between;gap:10px;padding:7px 4px;border-bottom:1px solid #1e2b47}.rrow a{color:#7fb0ff;cursor:pointer}.rrow small{color:#7f8fab;display:block}
 </style></head><body>
 <div class="top"><b>EnvScribe Viewer</b><span class="pill" id="seal">no zip</span><span class="sp"></span>
 <select id="zipSel"></select><button class="btn g" id="bOpen">Open zip from disk…</button><input type="file" id="fi" accept=".zip" style="display:none">
 <a class="btn g" href="/">Back to run</a><button class="btn r" id="bExit">Exit</button></div>
 <div class="main"><div class="nav" id="nav"><span class="muted">Select a zip.</span></div>
-<div class="view"><div class="tabs"><a class="on" id="tFile">Files</a><a id="tFacts">Facts</a><a id="tGraph">Graph</a></div>
+<div class="view"><div class="tabs"><a class="on" id="tFile">Files</a><a id="tReports">Reports</a><a id="tFacts">Facts</a><a id="tGraph">Graph</a></div>
+<div id="vReports" style="display:none"><div class="muted">One row per analysis feature. Status comes from coverage.md in the zip; the folder links open its files.</div><div id="rlist"></div></div>
 <div id="vFile"><div class="muted" id="path"></div><div class="doc" id="doc">Open <code>index.md</code> from the list to start.</div></div>
 <div id="vFacts" style="display:none"><div class="bar"><input id="fq" placeholder="search facts (text)" style="flex:1;min-width:200px"><select id="fk"><option value="">all kinds</option></select><select id="fc"><option value="">all classes</option></select><button class="btn" id="bF">Search</button></div>
 <div class="muted" id="fsum"></div><div id="flist"></div></div>
@@ -36,17 +39,34 @@ function dirOf(p){const i=p.lastIndexOf("/");return i<0?"":p.slice(0,i+1)}
 function resolve(base,rel){const parts=(dirOf(base)+rel).split("/"),out=[];for(const s of parts){if(s===".."){out.pop()}else if(s&&s!==".")out.push(s)}return out.join("/")}
 function inline(s){return esc(s).replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>")
  .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,(m,t,h)=>/^[a-z][a-z0-9+.-]*:|^\/\//i.test(h)?t:`<a data-h="${h.split("#")[0]}">${t}</a>`)}
-function md(text){let fence=false,buf=[],out=[];for(const l of text.split("\n")){
- if(l.startsWith("```")){if(fence){out.push(`<pre class="code">${esc(buf.join("\n"))}</pre>`);buf=[]}fence=!fence;continue}
- if(fence){buf.push(l);continue}let m;out.push((m=l.match(/^(#{1,3})\s+(.*)/))?`<h${m[1].length}>${inline(m[2])}</h${m[1].length}>`:inline(l))}
+function cells(l){return l.trim().replace(/^\||\|$/g,"").split("|").map(c=>c.trim())}
+function md(text){let fence=false,fenceLang="",buf=[],out=[],lines=text.split("\n");
+ for(let i=0;i<lines.length;i++){const l=lines[i];
+  if(l.startsWith("```")){if(fence){const code=`<pre class="code">${esc(buf.join("\n"))}</pre>`;out.push(fenceLang==="mermaid"?`<div class="diag">Mermaid diagram (source; this viewer does not draw diagrams)</div>${code}`:code);buf=[]}else{fenceLang=l.slice(3).trim().toLowerCase()}fence=!fence;continue}
+  if(fence){buf.push(l);continue}
+  // pipe table: header row, then a |---| separator row
+  if(/^\s*\|.*\|\s*$/.test(l)&&i+1<lines.length&&/^\s*\|[\s:|-]+\|\s*$/.test(lines[i+1])){
+   const head=cells(l);const rows=[];let j=i+2;while(j<lines.length&&/^\s*\|.*\|\s*$/.test(lines[j])){rows.push(cells(lines[j]));j++}
+   out.push("<table><tr>"+head.map(c=>`<th>${inline(c)}</th>`).join("")+"</tr>"+rows.map(r=>"<tr>"+r.map(c=>`<td>${inline(c)}</td>`).join("")+"</tr>").join("")+"</table>");i=j-1;continue}
+  let m;out.push((m=l.match(/^(#{1,3})\s+(.*)/))?`<h${m[1].length}>${inline(m[2])}</h${m[1].length}>`:inline(l))}
  if(buf.length)out.push(`<pre class="code">${esc(buf.join("\n"))}</pre>`);return out.join("\n")}
 async function load(path){try{const r=await api(`/api/viewer/file?zip=${encodeURIComponent(Z)}&path=${encodeURIComponent(path)}`);CUR=path;
  $("path").textContent=path;$("doc").innerHTML=path.endsWith(".md")?md(r.text):esc(r.text);
  document.querySelectorAll(".nav a").forEach(a=>a.classList.toggle("on",a.dataset.p===path));showTab("File");$("doc").parentElement.scrollTop=0;
  $("doc").querySelectorAll("a[data-h]").forEach(a=>a.onclick=()=>{const t=resolve(path,a.dataset.h);if(FILES.some(f=>f.path===t))load(t)})}
  catch(e){$("path").textContent=path;$("doc").textContent=e.detail||"error"}}
-function showTab(t){for(const x of ["File","Facts","Graph"]){$("v"+x).style.display=t===x?"":"none";$("t"+x).classList.toggle("on",t===x)}}
+function showTab(t){for(const x of ["File","Reports","Facts","Graph"]){$("v"+x).style.display=t===x?"":"none";$("t"+x).classList.toggle("on",t===x)}}
 $("tFile").onclick=()=>showTab("File");$("tFacts").onclick=()=>{showTab("Facts");if(!$("flist").innerHTML)searchFacts()};
+// ---- Reports: one row per analysis feature. [coverage.md key, label, folder in the zip]; the key matches the "**key**:" line the orchestrator writes ----
+const FEATURE_ROWS=[["ownership","Ownership (teams only)","ownership"],["lineage","Data lineage","lineage"],["graph","Architecture graph","graph"],["sbom","SBOM and licenses","sbom"],["scorecards","Scorecards and risk flags","scorecards"],["catalog","Service catalog","catalog"],["drift","Environment drift","drift"],["contract diff","API contract diff","contracts"],["readiness","Migration and cloud readiness","readiness"],["living docs","Generated living docs","docs-generated"],["git history","Git-history secret scan","git-history"],["live cloud","Live cloud and Kubernetes inventory","live"],["runtime","Runtime correlation","runtime"]];
+$("tReports").onclick=()=>{showTab("Reports");renderReports()};
+async function renderReports(){if(!Z){$("rlist").innerHTML='<span class="muted">Select a zip.</span>';return}
+ let cov={};try{const r=await api(`/api/viewer/file?zip=${encodeURIComponent(Z)}&path=coverage.md`);for(const l of r.text.split("\n")){const m=l.match(/^- \*\*(.+?)\*\*: (.*)$/);if(m)cov[m[1].toLowerCase()]=m[2]}}catch(e){}
+ const rows=FEATURE_ROWS.map(([key,label,dir])=>{const files=FILES.filter(f=>f.path.startsWith(dir+"/")).map(f=>f.path);
+  const status=cov[key]||"not in coverage.md";
+  const link=files.length?`<a data-p="${esc(files[0])}">open</a>`:'<span class="muted">no files</span>';
+  return `<div class="rrow"><div><b>${esc(label)}</b><small>${esc(status)}</small></div><div>${link} <span class="muted">${files.length} file(s)</span></div></div>`}).join("");
+ $("rlist").innerHTML=rows;$("rlist").querySelectorAll("a[data-p]").forEach(a=>a.onclick=()=>{showTab("File");load(a.dataset.p)})}
 // ---- Graph: reads graph/graph.json from the zip; force layout drawn as SVG, no external libraries ----
 let G=null,GN=[],GE=[];
 const NS="http://www.w3.org/2000/svg",COL={service:"#2563eb",table:"#0f9d73",database:"#0f9d73",topic:"#d97706",external:"#6b7280",image:"#8b5cf6",api:"#0ea5e9",documented:"#a3a3a3"};
