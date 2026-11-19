@@ -107,7 +107,7 @@ Fact classes: OBSERVED, DERIVED (records its rule), DOCUMENTED, DISCUSSED, LLM_D
 ## Setup
 
 ```powershell
-git submodule add https://github.ibm.com/AI-CoE/aicoe-agent-utils.git   # needs credentials
+git submodule add <internal aicoe-agent-utils URL> aicoe-agent-utils   # needs credentials; URL kept out of this repo
 git submodule update --init --recursive
 python -m venv venv; .\venv\Scripts\Activate.ps1
 pip install -r requirements.txt

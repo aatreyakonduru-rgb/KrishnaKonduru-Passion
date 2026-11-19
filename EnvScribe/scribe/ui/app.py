@@ -202,6 +202,14 @@ def create_app(settings_path: str = "targets.yaml", on_exit=None) -> FastAPI:
         from ..features import impact
         return impact.propose(journal_index(), q)
 
+    @app.get("/api/advise")
+    def advise_route(q: str):
+        """Suggest-only Advise: grounded, cited context from the hybrid index plus a PROPOSAL. Writes nothing; no LLM is called here."""
+        if not q.strip():
+            raise HTTPException(400, "empty requirement")
+        from .. import knowledge
+        return knowledge.advise(journal_index(), q)
+
     # ---- Viewer: read-only browsing of sealed output zips (the run's own, or one uploaded) ----
     def viewer_zips() -> dict[str, Path]:
         out = Path(S().output_dir).resolve()

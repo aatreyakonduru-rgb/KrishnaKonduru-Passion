@@ -85,6 +85,35 @@ def test_ask_not_found_does_not_guess(client):
     assert r2["found"] is True and r2["citations"]
 
 
+def test_advise_needs_a_journal_and_a_requirement(client):
+    c, _ = client
+    assert c.get("/api/advise", params={"q": "add a field to Alpha"}).status_code == 404
+    c.post("/api/run/start")
+    wait_done(c)
+    assert c.get("/api/advise", params={"q": "   "}).status_code == 400
+
+
+def test_advise_is_grounded_labeled_suggest_only(client):
+    c, _ = client
+    c.post("/api/run/start")
+    wait_done(c)
+    r = c.get("/api/advise", params={"q": "change the Alpha class"}).json()
+    assert r["insufficient_information"] is False
+    assert r["proposal"]["label"].startswith("PROPOSAL")
+    assert r["proposal"]["diff"] is None and "llm_draft_verified" not in r["proposal"]
+    cites = [item["citation"] for items in r["grounded_context"].values() for item in items]
+    assert cites and all(" L" in x or "/" in x for x in cites)
+
+
+def test_advise_says_insufficient_when_nothing_matches(client):
+    c, _ = client
+    c.post("/api/run/start")
+    wait_done(c)
+    r = c.get("/api/advise", params={"q": "migrate the quantum flux capacitor"}).json()
+    assert r["insufficient_information"] is True and r["proposal"] is None
+    assert "Nothing in the journal" in r["message"]
+
+
 def test_cancel_endpoint_without_run_is_404(client):
     c, _ = client
     assert c.post("/api/run/cancel").status_code == 404

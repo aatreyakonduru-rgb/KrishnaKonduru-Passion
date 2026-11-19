@@ -1,3 +1,3 @@
-[submodule "aicoe-agent-utils"]
-	path = aicoe-agent-utils
-	url = https://github.ibm.com/AI-CoE/aicoe-agent-utils.git
+# The aicoe-agent-utils submodule (path: aicoe-agent-utils) is added locally with its
+# internal URL, which is kept out of this public repo:
+#   git submodule add <internal aicoe-agent-utils URL> aicoe-agent-utils
