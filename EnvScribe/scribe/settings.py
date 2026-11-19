@@ -20,6 +20,20 @@ DEFAULT_IGNORES = ["node_modules", ".git", "dist", "build", "target", "__pycache
 MAX_WORKERS_CAP = 100
 
 
+def _to_bool(value, default: bool) -> bool:
+    if isinstance(value, bool):
+        return value
+    if value is None or (isinstance(value, str) and not value.strip()):
+        return default
+    return str(value).strip().lower() in ("1", "true", "yes", "on")
+
+
+def _to_list(value) -> list:
+    if isinstance(value, str):
+        return [x.strip() for x in value.replace("\n", ",").split(",") if x.strip()]
+    return list(value or [])
+
+
 def _to_int(value, default: int, lo: int = 0, hi: int | None = None) -> int:
     """Blank / None / invalid -> default. Clamped to [lo, hi]."""
     try:
@@ -53,11 +67,29 @@ class Settings:
     max_file_bytes: int = 2_000_000
     llm_provider: str = "none"                                 # none | watsonx | ollama (summaries optional)
     package_size: int = 200                                    # units per work package
+    # ---- feature pack (all read-only; outputs pass both sweeps) ----
+    disabled_features: list[str] = field(default_factory=list)  # names from scribe.features.FEATURES to switch off
+    vuln_lookup: bool = False                                  # OSV lookup sends package names+versions to a public service; off by default
+    scan_git_history: bool = True                              # reads `git log -p` of repos that have .git; reports type/file/commit only
+    git_history_max_commits: int = 2000
+    cloud_inventory: list[str] = field(default_factory=list)   # any of: aws, gcp, azure, kubernetes (uses the CLI login already on this VM)
+    runtime_dir: str = ""                                      # APM service-map exports (JSON/CSV); defaults to <output_dir>/runtime-maps
+    db_catalogs: list[dict] = field(default_factory=list)      # [{engine: snowflake|postgres, label, database, schemas: []}] metadata-only
+    semantic_search: bool = True                               # hybrid BM25 + local semantic matching for Ask
 
     def __post_init__(self) -> None:
         self.max_workers = _to_int(self.max_workers, 4, 1, MAX_WORKERS_CAP)
         self.token_budget = _to_int(self.token_budget, 0, 0)
         self.package_size = _to_int(self.package_size, 200, 1)
+        self.git_history_max_commits = _to_int(self.git_history_max_commits, 2000, 1, 100_000)
+        for name in ("vuln_lookup", "scan_git_history", "semantic_search"):
+            setattr(self, name, _to_bool(getattr(self, name), name == "scan_git_history" or name == "semantic_search"))
+        self.disabled_features = _to_list(self.disabled_features)
+        self.cloud_inventory = [x.lower() for x in _to_list(self.cloud_inventory)]
+
+    @property
+    def runtime_maps(self) -> str:
+        return self.runtime_dir or str(Path(self.output_dir) / "runtime-maps")
 
     @property
     def unlimited_tokens(self) -> bool:

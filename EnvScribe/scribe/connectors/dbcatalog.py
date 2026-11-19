@@ -75,6 +75,26 @@ def snowflake_runner() -> Callable[[str], list[tuple]]:
     return run
 
 
+def postgres_runner() -> Callable[[str], list[tuple]]:
+    """Open a Postgres connection from standard PG* environment variables (psycopg 3 or psycopg2). Metadata queries only."""
+    try:
+        import psycopg as driver  # type: ignore
+    except ImportError:
+        import psycopg2 as driver  # type: ignore
+    conn = driver.connect(connect_timeout=15, options="-c default_transaction_read_only=on")
+    conn.autocommit = True
+
+    def run(sql: str):
+        check_sql(sql)
+        cur = conn.cursor()
+        try:
+            cur.execute(sql)
+            return cur.fetchall()
+        finally:
+            cur.close()
+    return run
+
+
 def rds_inventory(describe: Callable[[], list[dict]]) -> list[dict]:
     """Instance metadata from the AWS API (describe-db-instances). Endpoint hosts are dropped; only engine/version/class are kept."""
     facts = []

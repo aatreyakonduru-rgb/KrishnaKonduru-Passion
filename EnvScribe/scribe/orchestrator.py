@@ -12,7 +12,8 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-from . import SCANNER_VERSION, analyses, collate as collator, journal, sweeps
+from . import SCANNER_VERSION, analyses, collate as collator, features, journal, sweeps
+from .connectors import dbcatalog
 from .connectors.catalog import CATALOG, collect as connector_collect
 from .connectors.discovery import discover, verify_all
 from .docs.extractors import classify_type
@@ -25,7 +26,7 @@ from .settings import Settings
 from .util import append_jsonl, atomic_write, now_iso, read_jsonl, write_jsonl
 from .worker import make_packages, run_package
 
-STAGES = ["inventory", "code-build-config", "documents", "connectors", "collate", "journal", "privacy-sweep", "secret-sweep", "seal-zip", "verify-zip"]
+STAGES = ["inventory", "code-build-config", "documents", "connectors", "collate", "journal", "analysis", "privacy-sweep", "secret-sweep", "seal-zip", "verify-zip"]
 
 
 class Cancelled(Exception):
@@ -191,9 +192,32 @@ class Run:
         self.state["as_of"] = {"min": coll["as_of_min"], "max": coll["as_of_max"], "collated_at": coll["collated_at"]}
         self._stage("journal", "done")
         self._check()
+        # ---- analysis feature pack (graph, lineage, SBOM, scorecards, catalog, drift, contract diff, readiness, docs, git history, live cloud, runtime)
+        self._stage("analysis", "running")
+        self._analysis(journal_root, coll, links, cov)
+        self._stage("analysis", "done")
+        self._check()
         # ---- sweeps -> seal -> verify
         self._finish_output(journal_root, label="complete")
         self.state["status"] = "complete" if self.state["gate"]["open"] else "blocked"
+
+    def _analysis(self, journal_root: Path, coll: dict, links: list[dict], cov: dict):
+        """Run enabled features over the collated facts, add their output to the journal, then save the run snapshot for the next diff."""
+        ctx = features.Ctx(settings=self.s, run_id=self.run_id, out=self.out, journal=journal_root, facts=list(coll["facts"]),
+                           repos=dict(self._repos()), redactor=self.redactor, collated_at=coll["collated_at"], event=self.event)
+        res = features.run_all(ctx)
+        features.write_outputs(journal_root, res)
+        # new facts join facts/all-facts.jsonl so Ask, the viewer and Advise see them
+        write_jsonl(journal_root / "facts" / "all-facts.jsonl", coll["facts"] + links + res["facts"])
+        cv = journal_root / "coverage.md"
+        lines = [f"- **{k}**: {v}" for k, v in sorted(res["coverage"].items())]
+        lines.append(f"- **analysis outputs masked / facts dropped by gates**: {res['masked_lines']} line(s) / {res['dropped_facts']} fact(s)")
+        atomic_write(cv, cv.read_text(encoding="utf-8").rstrip("\n") + "\n\n## Analysis features\n\n" + "\n".join(lines) + "\n")
+        try:
+            features.save_history(self.out, self.run_id, ctx)
+        except Exception as exc:
+            self.event("history_failed", error=type(exc).__name__)
+        self.state["analysis"] = {"facts": len(res["facts"]), "files": len(res["files"]), "coverage": res["coverage"]}
 
     def _finish_output(self, journal_root: Path, label: str):
         s = self.s
@@ -320,19 +344,31 @@ class Run:
         for r in rows:
             if r["status"] == "verified" and r["system"] in CATALOG and CATALOG[r["system"]].collectors:
                 facts += connector_collect(CATALOG[r["system"]], {}, audit=self.audit)
+        facts += self._db_catalogs()
         return facts, rows, d["unclassified"]
 
+    def _db_catalogs(self) -> list[dict]:
+        """Metadata-only catalogs listed in settings.db_catalogs. Credentials come from the environment; failures become UNKNOWN facts."""
+        facts: list[dict] = []
+        for spec in self.s.db_catalogs:
+            if not isinstance(spec, dict):
+                continue
+            engine, label = str(spec.get("engine", "")).lower(), str(spec.get("label") or spec.get("engine") or "db")
+            try:
+                runner = {"snowflake": dbcatalog.snowflake_runner, "postgres": dbcatalog.postgres_runner}[engine]()
+                self.audit("db_catalog", engine=engine, label=label)
+                facts += dbcatalog.collect_catalog(engine, label, runner, str(spec.get("database") or ""), spec.get("schemas") or None)
+            except Exception as exc:
+                self.event("db_catalog_failed", engine=engine, error=type(exc).__name__)
+                facts.append(make_fact("unknown", f"db-catalog:{label}", {"reason": f"catalog not read: {type(exc).__name__}", "system": engine}, "UNKNOWN",
+                                       [ev(f"{engine}:{label}", "catalog")], "db_catalog"))
+        return facts
+
     def _ownership(self):
-        out = []
-        for name, root in self._repos():
-            for rel in ("CODEOWNERS", ".github/CODEOWNERS", "docs/CODEOWNERS", ".bitbucket/CODEOWNERS"):
-                p = Path(root) / rel
-                if p.is_file():
-                    for line in p.read_text(encoding="utf-8", errors="replace").splitlines():
-                        parts = line.split("#")[0].split()
-                        if len(parts) >= 2:
-                            out += [(name, parts[0], o) for o in parts[1:]]
-        return analyses.ownership([], out)
+        """Teams only. Individuals and ambiguous owners are omitted (see features/ownership.py)."""
+        from .features import ownership as own
+        rows, _ = own.collect(dict(self._repos()), self.s.exclude_sources)
+        return analyses.ownership([], [(r["repo"], r["pattern"], r["owner"]) for r in rows])
 
     def _coverage(self, coll, intake, integrations) -> dict:
         by = {}

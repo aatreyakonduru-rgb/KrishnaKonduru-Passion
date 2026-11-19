@@ -1,4 +1,4 @@
-python-dotenv>=1.0.0
+﻿python-dotenv>=1.0.0
 httpx>=0.28.1
 fastapi>=0.122.0
 uvicorn>=0.34.0
@@ -9,9 +9,11 @@ pypdf>=4.0.0
 python-docx>=1.1.0
 openpyxl>=3.1.0
 python-pptx>=1.0.0
+sqlglot>=25.0.0
 -e ./aicoe-agent-utils[agent]
 # Optional, install on demand:
 #   OCR for scanned PDFs (local only; also needs the tesseract binary): pytesseract pillow pymupdf
 #   Snowflake catalog:  snowflake-connector-python
-#   AWS RDS inventory:  boto3
+#   Postgres catalog:   psycopg[binary]
+#   Live cloud inventory (feature 13) uses the aws, gcloud, az and kubectl CLIs if installed and logged in; no Python package needed
 #   AgentOps:           pip install aicoe-agent-utils[agentops]

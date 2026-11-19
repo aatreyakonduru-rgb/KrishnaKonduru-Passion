@@ -82,8 +82,11 @@ def scan_contract(repo: str, rel: str, text: str) -> list[dict]:
                             "OBSERVED", [ev(src, f"L{_line(text, path)}", f"{path}: {verb}")], "contract"))
                 schemas = (doc.get("components") or {}).get("schemas") or doc.get("definitions") or {}
                 for name, sch in schemas.items():
-                    props = sorted((sch or {}).get("properties", {}).keys()) if isinstance(sch, dict) else []
-                    out.append(make_fact("api_schema", f"schema:{name}", {"name": name, "properties": props, "repo": repo, "path": rel},
+                    pmap = (sch or {}).get("properties", {}) if isinstance(sch, dict) else {}
+                    props = sorted(pmap.keys()) if isinstance(pmap, dict) else []
+                    types = {k: str((v or {}).get("type") or ("ref" if "$ref" in (v or {}) else "")) for k, v in pmap.items() if isinstance(v, dict)} if isinstance(pmap, dict) else {}
+                    req = sorted(str(x) for x in (sch or {}).get("required", []) if isinstance(x, str)) if isinstance(sch, dict) else []
+                    out.append(make_fact("api_schema", f"schema:{name}", {"name": name, "properties": props, "types": types, "required": req, "repo": repo, "path": rel},
                                          "OBSERVED", [ev(src, f"L{_line(text, name)}", name)], "contract"))
             elif isinstance(doc, dict) and "asyncapi" in doc:
                 for ch, spec in (doc.get("channels") or {}).items():

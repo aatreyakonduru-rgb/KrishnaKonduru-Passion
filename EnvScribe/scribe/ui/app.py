@@ -178,13 +178,29 @@ def create_app(settings_path: str = "targets.yaml", on_exit=None) -> FastAPI:
         atomic_write(dp, json.dumps(cur, indent=2))
         return cur[name]
 
-    @app.get("/api/ask")
-    def ask(q: str):
-        r = holder["run"]
+    def journal_index() -> knowledge.Index:
         jd = Path(S().output_dir) / "journal"
         if not jd.exists():
             raise HTTPException(404, "no journal yet")
-        return knowledge.ask(knowledge.Index.from_journal(jd), q)
+        if S().semantic_search:
+            try:
+                from ..features.semantic import HybridIndex
+                return HybridIndex.from_journal(jd)
+            except Exception:   # hybrid search is an enhancement; plain BM25 still answers
+                pass
+        return knowledge.Index.from_journal(jd)
+
+    @app.get("/api/ask")
+    def ask(q: str):
+        return knowledge.ask(journal_index(), q)
+
+    @app.get("/api/impact")
+    def impact_route(q: str):
+        """Suggest-only change impact + PR draft text for a requirement. Reads the journal; writes nothing; no LLM is called here."""
+        if not q.strip():
+            raise HTTPException(400, "empty requirement")
+        from ..features import impact
+        return impact.propose(journal_index(), q)
 
     # ---- Viewer: read-only browsing of sealed output zips (the run's own, or one uploaded) ----
     def viewer_zips() -> dict[str, Path]:

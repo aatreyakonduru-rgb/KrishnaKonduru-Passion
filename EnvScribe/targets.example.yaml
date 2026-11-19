@@ -13,3 +13,15 @@ sweep_mode: redact-rescan-block  # redact-rescan-block | block
 aliases: {}                      # payments-api: [payment-svc, PAYHUB]
 exclude_sources: []              # path substrings that are never opened (HR, legal)
 custom_terms: []
+
+# ---- Analysis features (all optional; defaults shown) ----
+disabled_features: []            # any of: ownership, lineage, graph, sbom, scorecards, catalog, drift, contract_diff, readiness, livedocs, gitscan, cloudinv, runtime
+scan_git_history: true           # reads commit history of crawled repos for leaked secrets; reports location only, never the value
+git_history_max_commits: 2000    # per repo
+semantic_search: true            # hybrid (keyword + vector) search in Ask / Impact
+vuln_lookup: false               # true sends package names + versions (nothing else) to api.osv.dev
+cloud_inventory: []              # any of: aws, gcp, azure, kubernetes. Uses CLIs already logged in on this machine; list/describe/get only
+runtime_dir: ""                  # folder with APM service-map exports (JSON/CSV). Blank = <output_dir>/runtime-maps
+db_catalogs: []                  # metadata only (schemas, tables, columns); credentials come from the environment, never from this file
+#  - {engine: postgres, label: orders-uat, database: orders, schemas: [public]}
+#  - {engine: snowflake, label: dwh-uat, database: DWH_UAT}

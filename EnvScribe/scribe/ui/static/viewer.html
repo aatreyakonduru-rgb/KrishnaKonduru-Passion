@@ -16,15 +16,18 @@ select,input{padding:6px;background:#0b1220;color:#d7deea;border:1px solid #2837
 table{width:100%;border-collapse:collapse}td,th{padding:5px 6px;border-bottom:1px solid #1e2b47;text-align:left;vertical-align:top}th{color:#7f8fab}
 .fact{background:#111a2e;border:1px solid #1e2b47;border-radius:6px;padding:8px 10px;margin-bottom:6px}.fact pre{margin:4px 0 0;white-space:pre-wrap;word-break:break-word;color:#9fb0cc;font:11px Consolas,monospace}
 .bar{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}.muted{color:#7f8fab}
+#gsvg{width:100%;height:68vh;background:#0e1628;border:1px solid #1e2b47;border-radius:6px}#ginfo{margin-top:8px;font-size:12px}.doc pre.code{background:#0e1628;border:1px solid #1e2b47;border-radius:4px;padding:6px 8px;margin:6px 0;overflow:auto}
 </style></head><body>
 <div class="top"><b>EnvScribe Viewer</b><span class="pill" id="seal">no zip</span><span class="sp"></span>
 <select id="zipSel"></select><button class="btn g" id="bOpen">Open zip from disk…</button><input type="file" id="fi" accept=".zip" style="display:none">
 <a class="btn g" href="/">Back to run</a><button class="btn r" id="bExit">Exit</button></div>
 <div class="main"><div class="nav" id="nav"><span class="muted">Select a zip.</span></div>
-<div class="view"><div class="tabs"><a class="on" id="tFile">Files</a><a id="tFacts">Facts</a></div>
+<div class="view"><div class="tabs"><a class="on" id="tFile">Files</a><a id="tFacts">Facts</a><a id="tGraph">Graph</a></div>
 <div id="vFile"><div class="muted" id="path"></div><div class="doc" id="doc">Open <code>index.md</code> from the list to start.</div></div>
 <div id="vFacts" style="display:none"><div class="bar"><input id="fq" placeholder="search facts (text)" style="flex:1;min-width:200px"><select id="fk"><option value="">all kinds</option></select><select id="fc"><option value="">all classes</option></select><button class="btn" id="bF">Search</button></div>
-<div class="muted" id="fsum"></div><div id="flist"></div></div></div></div>
+<div class="muted" id="fsum"></div><div id="flist"></div></div>
+<div id="vGraph" style="display:none"><div class="bar"><input id="gq" placeholder="filter: service, table or topic name (shows it and its direct neighbours)" style="flex:1;min-width:200px"><select id="gt"><option value="">all edge types</option></select><button class="btn" id="bG">Apply</button></div>
+<div class="muted" id="gsum"></div><svg id="gsvg" xmlns="http://www.w3.org/2000/svg"></svg><div id="ginfo" class="muted">Click a node to see its connections, with the rule and evidence behind each one. Dashed lines are DOCUMENTED claims, not verified against code.</div></div></div></div>
 <script>
 const $=id=>document.getElementById(id),api=(p,o)=>fetch(p,o).then(r=>r.ok?r.json():r.json().then(e=>{throw e}));
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -33,15 +36,50 @@ function dirOf(p){const i=p.lastIndexOf("/");return i<0?"":p.slice(0,i+1)}
 function resolve(base,rel){const parts=(dirOf(base)+rel).split("/"),out=[];for(const s of parts){if(s===".."){out.pop()}else if(s&&s!==".")out.push(s)}return out.join("/")}
 function inline(s){return esc(s).replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>")
  .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,(m,t,h)=>/^[a-z][a-z0-9+.-]*:|^\/\//i.test(h)?t:`<a data-h="${h.split("#")[0]}">${t}</a>`)}
-function md(text){return text.split("\n").map(l=>{let m;if(m=l.match(/^(#{1,3})\s+(.*)/))return`<h${m[1].length}>${inline(m[2])}</h${m[1].length}>`;return inline(l)}).join("\n")}
+function md(text){let fence=false,buf=[],out=[];for(const l of text.split("\n")){
+ if(l.startsWith("```")){if(fence){out.push(`<pre class="code">${esc(buf.join("\n"))}</pre>`);buf=[]}fence=!fence;continue}
+ if(fence){buf.push(l);continue}let m;out.push((m=l.match(/^(#{1,3})\s+(.*)/))?`<h${m[1].length}>${inline(m[2])}</h${m[1].length}>`:inline(l))}
+ if(buf.length)out.push(`<pre class="code">${esc(buf.join("\n"))}</pre>`);return out.join("\n")}
 async function load(path){try{const r=await api(`/api/viewer/file?zip=${encodeURIComponent(Z)}&path=${encodeURIComponent(path)}`);CUR=path;
  $("path").textContent=path;$("doc").innerHTML=path.endsWith(".md")?md(r.text):esc(r.text);
  document.querySelectorAll(".nav a").forEach(a=>a.classList.toggle("on",a.dataset.p===path));showTab("File");$("doc").parentElement.scrollTop=0;
  $("doc").querySelectorAll("a[data-h]").forEach(a=>a.onclick=()=>{const t=resolve(path,a.dataset.h);if(FILES.some(f=>f.path===t))load(t)})}
  catch(e){$("path").textContent=path;$("doc").textContent=e.detail||"error"}}
-function showTab(t){$("vFile").style.display=t==="File"?"":"none";$("vFacts").style.display=t==="Facts"?"":"none";$("tFile").classList.toggle("on",t==="File");$("tFacts").classList.toggle("on",t==="Facts")}
+function showTab(t){for(const x of ["File","Facts","Graph"]){$("v"+x).style.display=t===x?"":"none";$("t"+x).classList.toggle("on",t===x)}}
 $("tFile").onclick=()=>showTab("File");$("tFacts").onclick=()=>{showTab("Facts");if(!$("flist").innerHTML)searchFacts()};
-async function openZip(name){Z=name;try{const t=await api("/api/viewer/tree?zip="+encodeURIComponent(name));FILES=t.files;
+// ---- Graph: reads graph/graph.json from the zip; force layout drawn as SVG, no external libraries ----
+let G=null,GN=[],GE=[];
+const NS="http://www.w3.org/2000/svg",COL={service:"#2563eb",table:"#0f9d73",database:"#0f9d73",topic:"#d97706",external:"#6b7280",image:"#8b5cf6",api:"#0ea5e9",documented:"#a3a3a3"};
+function el(n,a,t){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);if(t!=null)e.textContent=t;return e}
+$("tGraph").onclick=async()=>{showTab("Graph");if(G||!Z)return;
+ if(!FILES.some(f=>f.path==="graph/graph.json")){$("gsum").textContent="This zip has no graph/graph.json (analysis features may be switched off).";return}
+ try{const r=await api(`/api/viewer/file?zip=${encodeURIComponent(Z)}&path=graph%2Fgraph.json`);G=JSON.parse(r.text);
+  const types=[...new Set(G.edges.map(e=>e.type))].sort();$("gt").innerHTML='<option value="">all edge types</option>'+types.map(t=>`<option>${esc(t)}</option>`).join("");drawGraph()}
+ catch(e){$("gsum").textContent=(e&&e.detail)||"could not read graph.json"}};
+$("bG").onclick=()=>G&&drawGraph();$("gq").onkeydown=e=>{if(e.key==="Enter"&&G)drawGraph()};
+function drawGraph(){const q=$("gq").value.trim().toLowerCase(),ty=$("gt").value,MAX=250;
+ let es=G.edges.filter(e=>!ty||e.type===ty),ids=new Set(G.nodes.map(n=>n.id));
+ if(q){const hit=new Set(G.nodes.filter(n=>(n.label||"").toLowerCase().includes(q)||n.id.toLowerCase().includes(q)).map(n=>n.id));
+  es=es.filter(e=>hit.has(e.from)||hit.has(e.to));ids=new Set([...hit,...es.flatMap(e=>[e.from,e.to])])}
+ else{const deg={};es.forEach(e=>{deg[e.from]=(deg[e.from]||0)+1;deg[e.to]=(deg[e.to]||0)+1});ids=new Set(Object.keys(deg))}
+ let nodes=G.nodes.filter(n=>ids.has(n.id));let capped=false;
+ if(nodes.length>MAX){capped=true;nodes=nodes.sort((a,b)=>(a.type==="service"?0:1)-(b.type==="service"?0:1)).slice(0,MAX)}
+ const keep=new Set(nodes.map(n=>n.id));es=es.filter(e=>keep.has(e.from)&&keep.has(e.to));
+ $("gsum").textContent=`${nodes.length} node(s), ${es.length} edge(s)`+(capped?` (capped at ${MAX}; use the filter to narrow)`:"")+(G.truncated_edges?`; ${G.truncated_edges} edge(s) were left out of graph.json to keep it small`:"");
+ const svg=$("gsvg"),W=svg.clientWidth||900,H=svg.clientHeight||520;svg.innerHTML="";
+ const idx={};GN=nodes.map((n,i)=>{const a=2*Math.PI*i/Math.max(nodes.length,1);const o={n,x:W/2+Math.cos(a)*W/3,y:H/2+Math.sin(a)*H/3,vx:0,vy:0};idx[n.id]=o;return o});
+ GE=es.map(e=>({e,a:idx[e.from],b:idx[e.to]}));
+ for(let it=0;it<220;it++){const k=0.9-it/320;
+  for(let i=0;i<GN.length;i++)for(let j=i+1;j<GN.length;j++){const a=GN[i],b=GN[j];let dx=a.x-b.x,dy=a.y-b.y,d2=dx*dx+dy*dy||1;const f=2600/d2,d=Math.sqrt(d2);a.vx+=dx/d*f;a.vy+=dy/d*f;b.vx-=dx/d*f;b.vy-=dy/d*f}
+  GE.forEach(({a,b})=>{const dx=b.x-a.x,dy=b.y-a.y,d=Math.sqrt(dx*dx+dy*dy)||1,f=(d-110)*0.02;a.vx+=dx/d*f;a.vy+=dy/d*f;b.vx-=dx/d*f;b.vy-=dy/d*f});
+  GN.forEach(o=>{o.vx+=(W/2-o.x)*0.004;o.vy+=(H/2-o.y)*0.004;o.x=Math.max(30,Math.min(W-30,o.x+o.vx*k));o.y=Math.max(20,Math.min(H-20,o.y+o.vy*k));o.vx*=0.6;o.vy*=0.6})}
+ GE.forEach(({e,a,b})=>{const l=el("line",{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:e.class==="DOCUMENTED"?"#8a8a8a":"#4b6aa8","stroke-width":1.3,"stroke-dasharray":e.class==="DOCUMENTED"?"5 4":""});l.appendChild(el("title",{},`${e.type} (${e.class})`));svg.appendChild(l)});
+ GN.forEach(o=>{const g=el("g",{style:"cursor:pointer"});g.appendChild(el("circle",{cx:o.x,cy:o.y,r:o.n.type==="service"?9:6,fill:COL[o.n.type]||"#6b7280",stroke:"#0b1220"}));
+  g.appendChild(el("text",{x:o.x+11,y:o.y+4,fill:"#d7deea","font-size":11},o.n.label||o.n.id));g.onclick=()=>nodeInfo(o.n);svg.appendChild(g)})}
+function nodeInfo(n){const es=G.edges.filter(e=>e.from===n.id||e.to===n.id);const by=Object.fromEntries(G.nodes.map(x=>[x.id,x.label||x.id]));
+ $("ginfo").innerHTML=`<b>${esc(n.label||n.id)}</b> <span class="pill">${esc(n.type)}</span><table><tr><th>Connection</th><th>Class</th><th>Rule</th><th>Evidence</th></tr>`+
+  es.slice(0,60).map(e=>`<tr><td>${esc(by[e.from])} → ${esc(by[e.to])}<br><span class="muted">${esc(e.type)} · ${e.count} site(s)</span></td><td><span class="pill">${esc(e.class)}</span></td><td>${esc(e.rule||"")}</td><td>${esc((e.evidence||[]).slice(0,2).join("; "))}</td></tr>`).join("")+"</table>"+(es.length>60?`<div class="muted">${es.length-60} more not shown</div>`:"")}
+async function openZip(name){Z=name;G=null;$("gsvg").innerHTML="";$("gsum").textContent="";try{const t=await api("/api/viewer/tree?zip="+encodeURIComponent(name));FILES=t.files;
  $("seal").textContent=t.seal?`${t.seal.label} · ${t.seal.files} files · sealed ${t.seal.sealed_at}`:"no SEAL.json";$("seal").className="pill "+(t.seal?(t.seal.label==="complete"?"ok":"warn"):"");
  const groups={};t.files.forEach(f=>{const d=f.path.includes("/")?f.path.split("/")[0]:"(root)";(groups[d]=groups[d]||[]).push(f)});
  $("nav").innerHTML=Object.entries(groups).map(([g,fs])=>`<h4>${esc(g)}</h4>`+fs.map(f=>`<a data-p="${esc(f.path)}" title="${esc(f.path)}">${esc(f.path.includes("/")?f.path.slice(g.length+1):f.path)}</a>`).join("")).join("");
