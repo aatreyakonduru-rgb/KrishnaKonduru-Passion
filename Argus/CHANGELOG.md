@@ -17,8 +17,7 @@ Changes to the framework as a whole. The knowledge-base prompt kit keeps its own
 - `dot-devin/agents/implement.agent.yaml`: `decision_policy` follows the steps in the `implement` skill; `coding_patterns` applies only when a change touches ETL or SQL.
 
 ### Known gaps
-- CI has not run on GitHub; nothing has been measured on Ubuntu.
-- Hook tests, prompt-kit tests and the full framework unit tests fail in part on Windows and are report-only in CI.
+- On GitHub Actions, every check passed on Ubuntu (run 44656808736). Hook tests, prompt-kit tests and the full framework unit tests fail in part on Windows and only report there.
 - Skills that mention Cloud or Local (for example the Snowflake login guidance) do not read `runtime_env` yet.
 
 ## 2.4.102926
