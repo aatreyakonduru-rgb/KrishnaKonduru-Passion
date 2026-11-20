@@ -62,6 +62,9 @@ import backlog  # noqa: E402
 import poker_room  # noqa: E402
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "tools"))
+import kb_scan  # noqa: E402
+import runtime_env  # noqa: E402
+import sandbox_fallback  # noqa: E402
 import question_subtask as qs  # noqa: E402
 import workbench_config  # noqa: E402
 import observer  # noqa: E402
@@ -4484,6 +4487,7 @@ class Handler(BaseHTTPRequestHandler):
                     "scopes": {k: v for k, v in JQL.items()}, "stages": STAGES,
                     "people": load_people(), "default_jira_user": DEFAULT_JIRA_USER, "can_switch": can_switch_user(),
                     "stage_labels": STAGE_LABELS, "gates": load_gates(), "session_link": DEVIN_APP,
+                    "sandbox": dict(SANDBOX),
                     "product": PRODUCT, "workbench_short": WORKBENCH_SHORT, "project": PROJECT, "kb": team.KB,
                     "docs": team.DOCS, "can_build_copy": can_build_copy(), "automation": team.AUTOMATION,
                 })
@@ -4505,6 +4509,8 @@ class Handler(BaseHTTPRequestHandler):
                                         "unsent": len(OBSERVER.unsent())})
             if p == "/api/doctor":
                 return self._send(200, {"checks": doctor.run(ROOT, self.updater, self.devin)})
+            if p == "/api/kb-scan":
+                return self._send(200, kb_scan.run(ROOT, team.KB, manifest=False, check=True))
             if p == "/api/me":
                 return self._send(200, self._whoami(q.get("user", ""), q.get("role", "")))
             if p in ("/dashboard", "/actions"):
@@ -4881,6 +4887,13 @@ class Handler(BaseHTTPRequestHandler):
                     found += self.devin.list_sessions(tag)
                 added = self.store.adopt(found, email)
                 return self._send(200, {"seen": len(found), "added": added})
+            if p == "/api/kb-scan":
+                done = kb_scan.run(ROOT, team.KB)
+                if done.get("error"):
+                    return self._send(400, {"error": done["error"]})
+                # what the page shows is the state after writing; `written` says what this click changed
+                return self._send(200, dict(kb_scan.run(ROOT, team.KB, manifest=False, check=True),
+                                            written=done["written"], skipped=done["skipped"]))
             if p == "/api/key":
                 key = (body.get("key") or "").strip()
                 if not re.match(r"^[A-Za-z0-9_.:-]{20,300}$", key):
@@ -5336,6 +5349,33 @@ def can_switch_user():
     return not DEFAULT_JIRA_USER or DEFAULT_JIRA_USER.upper() in team.ACT_AS
 
 
+SANDBOX = {"on": False, "why": ""}  # what /api/config tells the page: the made-up company is in use, or why not
+
+
+def use_sandbox_when_nothing_is_set_up():
+    """First run with no Jira token, no Devin key and no Jira address: use the made-up company instead of showing
+    errors everywhere. Never when a credential is set (a wrong one must show its error) or off a PC; see
+    tools/sandbox_fallback.py. Sets SANDBOX for the page and points the Jira calls at the sandbox server."""
+    global JIRA_HOST, JIRA, JIRA_BROWSE
+    verdict = sandbox_fallback.decide(os.environ, runtime_env.detect()["runtime"], JIRA_TOKEN_ENV,
+                                      os.environ.get("DEVIN_API_KEY") or saved_devin_key())
+    SANDBOX.update(on=False, why=verdict["why"])
+    if not verdict["use"]:
+        return
+    try:
+        info = sandbox_fallback.ensure(sandbox_fallback.default_folder(STATE_DIR), ROOT, team.PROFILE)
+    except RuntimeError as exc:
+        SANDBOX["why"] = "the sandbox could not start: %s" % exc
+        print("Argus: " + SANDBOX["why"])
+        return
+    os.environ.update(info["env"])
+    JIRA_HOST = info["url"]
+    JIRA, JIRA_BROWSE = JIRA_HOST + "/rest", JIRA_HOST + "/browse/"
+    SANDBOX.update(sandbox_fallback.public(info, verdict["why"]))
+    print("Argus: %s. Using the SANDBOX (a made-up company) at %s; nothing real is read or written. "
+          "Set SDLC_SANDBOX_FALLBACK=off to stop this." % (verdict["why"], info["url"]))
+
+
 def set_default_user(who):
     """Resolve --user to the roster's Jira username; an unknown person leaves the page asking."""
     global DEFAULT_JIRA_USER
@@ -5572,6 +5612,7 @@ def main():
         return cloud_stories(args.cloud_stories, args.user, args.req)
     if args.cloud_dashboard:
         return cloud_dashboard(args.user, args.lens, actions=args.actions)
+    use_sandbox_when_nothing_is_set_up()
     set_default_user(args.user)
     Handler.store = Store()
     Handler.devin = make_devin()

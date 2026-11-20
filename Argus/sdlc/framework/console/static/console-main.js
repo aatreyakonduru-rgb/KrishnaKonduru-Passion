@@ -276,8 +276,37 @@ function showHealth(h) {
   bar.hidden = !bad.length;
   if (!$("pcView").hidden) { renderPcSetup(); }
 }
+// First run with nothing set up: Argus is using the made-up company. Say so on every screen, so no one mistakes it for real data.
+function showSandbox(c) {
+  var s = c.sandbox || {}, bar = $("sandboxBar");
+  if (!bar) { return; }
+  bar.hidden = !s.on;
+  bar.innerHTML = s.on ? "<b>SANDBOX: made-up data.</b> " + esc(s.why || "") + ". Jira and Confluence here are a sample company at " + esc(s.url) +
+    "; nothing real is read or written. To use your own, set the Jira token and a Devin key and start Argus again (or set SDLC_SANDBOX_FALLBACK=off)." : "";
+}
+// Build a first knowledge base from the repository Argus is in: routes, tables, dependencies, layout, with file and line.
+function kbScanView(r) {
+  var box = $("kbScan");
+  if (!box) { return; }
+  var c = r.counts || {}, stale = (r.stale || []).length, present = (r.unchanged || []).length;
+  box.innerHTML = '<p><b>Knowledge base from this repository.</b> ' + (r.error ? esc(r.error) :
+    (present && !stale ? "Up to date with the code (" + (c.endpoints || 0) + " endpoints, " + (c.tables || 0) + " tables, " + (c.ui_routes || 0) + " UI routes)." :
+     stale && present ? esc(stale + " file(s) differ from the code now.") : "Not built yet. It reads the code in this repo; nothing leaves this PC.")) +
+    ' Written to <code>' + esc(r.folder || "") + '</code>.</p><button type="button" class="a-btn a-btn--outline" id="kbScanBtn">' +
+    (present ? "Rebuild from the code" : "Build from this repo") + "</button> <span id=\"kbScanMsg\" class=\"c-muted\"></span>";
+  $("kbScanBtn").addEventListener("click", function () {
+    $("kbScanMsg").textContent = "Reading the code…";
+    api("POST", "/api/kb-scan", {}).then(function (res) {
+      kbScanView(res);
+      var n = (res.written || []).length;
+      $("kbScanMsg").textContent = n ? "Wrote " + n + " file(s)." : "Nothing changed.";
+    }, function (e) { $("kbScanMsg").textContent = e.message; });
+  });
+}
 api("GET", "/api/config").then(function (c) {
   state.cfg = c; themeName();
+  showSandbox(c);
+  api("GET", "/api/kb-scan").then(kbScanView, function () {});
   applyPcMode(c);
   if (!c.devin_configured) { $("welcomeWarn").insertAdjacentHTML("beforeend", '<p class="c-err">No Devin API key yet. Open <b>Test on my PC</b> (top) and paste it once; it is kept in ' + esc((c.pc && c.pc.key_store) || "DEVIN_API_KEY") + ".</p>"); }
   showHealth(c.integrations); api("GET", "/api/health?fresh=1").then(showHealth, function () {});

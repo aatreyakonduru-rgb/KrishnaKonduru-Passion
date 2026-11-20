@@ -59,6 +59,7 @@
     <button type="button" class="w-nav__btn w-exit" id="exitBtn" title="End your open Devin Cloud sessions and close Argus">Exit</button>
   </header>
   <div id="healthBar" class="w-healthbar" role="status" hidden></div>
+  <div id="sandboxBar" class="w-sandbox" role="status" hidden></div>
   <div id="tpBanner" class="tp-banner" hidden></div>
   <div id="framedBar" class="w-framed" role="status" hidden><span><b>Argus is open inside the Devin page.</b> Each run you start is a new Devin session, and the Devin page switches to it, taking Argus with it. Open Argus in its own tab and it stays where you are.</span><a class="a-btn a-btn--primary w-sync" id="framedOpen" href="/" target="_blank" rel="noopener">Open in its own tab</a><button type="button" class="w-fold" id="framedClose" title="Hide until the next run starts" aria-label="Hide">×</button></div>
   <aside class="w-panel" id="sidePanel" aria-label="Side panel" hidden><div class="w-panel__bar"><b id="spTitle"></b><a id="spNew" class="a-btn a-btn--outline w-sync" target="_blank" rel="noopener">Open in a new tab</a><button type="button" class="a-btn a-btn--outline w-sync" id="spClose">Close</button></div><iframe id="spFrame" title="Side panel"></iframe></aside>
@@ -109,6 +110,7 @@
       <div id="welcome" class="c-welcome">
         <div id="today" class="w-today" aria-live="polite"></div>
         <div id="welcomeWarn"></div>
+        <div id="kbScan" class="w-kbscan"></div>
       </div>
 
       <div id="storyView" hidden>
