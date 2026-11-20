@@ -29,6 +29,8 @@ lets the action through, so every failure path exits 2.
   broken check would stop every shell command and the git hooks still run at commit.
 - `pii-guard.sh` blocks common SSN, DOB, and raw member-ID patterns.
 - `no-hardcoded-secrets.sh` blocks common AWS key, password, and token patterns.
+- `runtime-context.sh` (SessionStart) tells the agent whether it is in Devin Cloud or Devin Local
+  (`tools/runtime_env.py`). It only informs; it never blocks, and any failure lets the session start.
 
 Bash is required (Linux, macOS, or Git Bash). The previous PowerShell
 implementations are available in git history. The four file and prompt guards fail closed: missing content
@@ -36,7 +38,9 @@ or an unexpected error blocks the action (see `lib/content.sh`).
 
 Shell commands are not checked for the files they change. `git/pre-commit` applies the same access rules
 to every staged file, so changes made with a shell command or outside Devin are checked at
-commit time (access only, not PII or secrets). Git does not install hooks
+commit time. `git/pre-commit` and `git/pre-push` also scan the added lines for secrets and PII with
+`sdlc/framework/tools/content_scan.py` (same patterns as the two guards above; fails closed). Files
+under `tests/` or `fixtures/` and lines that carry `argus:allow` are skipped. Git does not install hooks
 from the repository. In Devin Cloud the repo blueprint installs a small stub for each of the
 three git hooks that runs the copy in `.devin/hooks/git/` when the checked-out branch has one.
 On any other checkout copy them once:

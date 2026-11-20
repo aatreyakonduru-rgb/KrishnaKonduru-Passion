@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# git pre-commit: the same access rules as Devin's write hook, applied to every staged file, so a
-# change made with a shell command or outside Devin is checked too. Install once per checkout:
+# git pre-commit: the same access rules as Devin's write hook, applied to every staged file, plus a
+# secrets and PII scan of the added lines, so a change made with a shell command or outside Devin is
+# checked too. Install once per checkout:
 #   cp .devin/hooks/git/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
 set -uo pipefail
 
@@ -9,7 +10,17 @@ root="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 1
 output="$(sdlc_python "$root/sdlc/framework/tools/access_guard.py" staged 2>&1)"
 status=$?
 case "$status" in
-  0) exit 0 ;;
+  0) ;;
   2) printf '%s\n' "$output" >&2; exit 1 ;;
   *) printf 'ACCESS-BLOCK: access check failed to run (exit %s). %s\n' "$status" "$output" >&2; exit 1 ;;
+esac
+
+# Secrets and PII in the lines being committed. The in-agent hooks only watch file tools; this also
+# covers shell edits and other editors. Fails closed: a scan that cannot run blocks the commit.
+output="$(sdlc_python "$root/sdlc/framework/tools/content_scan.py" staged 2>&1)"
+status=$?
+case "$status" in
+  0) exit 0 ;;
+  2) printf '%s\n' "$output" >&2; exit 1 ;;
+  *) printf 'CONTENT-BLOCK: content scan failed to run (exit %s). %s\n' "$status" "$output" >&2; exit 1 ;;
 esac

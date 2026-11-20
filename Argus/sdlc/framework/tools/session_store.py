@@ -58,17 +58,16 @@ def now():
 
 
 def load_config():
-    try:
-        with open(CONFIG_PATH, encoding="utf-8") as fh:
-            return json.load(fh)
-    except (OSError, ValueError):
-        return {}
+    """config.json, plus config.cloud.json when running in Devin Cloud, plus config.local.json (runtime_env)."""
+    import runtime_env
+    return runtime_env.effective_config(root=ROOT)
 
 
 def strategy():
-    return os.environ.get("SDLC_SESSION_STRATEGY") or (
+    value = os.environ.get("SDLC_SESSION_STRATEGY") or (
         load_config().get("session_state", {}).get("storage_strategy", "auto")
     )
+    return "repo" if value == "repository" else value  # config.cloud.json says "repository"
 
 
 def local_home():

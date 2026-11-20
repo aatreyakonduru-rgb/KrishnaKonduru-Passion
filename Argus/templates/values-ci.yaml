@@ -1,0 +1,44 @@
+# Values for CI: a different made-up company, so the leftover-Acme check and prompt lint mean something. Fill it in and pass it with
+#   python3 install.py --target <your repo> --values mine.yaml
+# or load it in the window. Secrets are never in this file: only the names of the Devin secrets.
+product_name: Zephyr Orders
+company_name: Zephyr Corp
+email_domain: "@zephyr.example"
+devin_host: zephyr.devinenterprise.com
+jira_host: jira.zephyr.example
+jira_project: ZEPH
+jira_token_env: ZEPHYR_JIRA_TOKEN
+wiki_host: wiki.zephyr.example
+wiki_space: ZEPHYRWIKI
+confluence_token_env: ZEPHYR_CONFLUENCE_TOKEN
+git_host: git.zephyr.example
+repo_slug: ZEPH/orders-web
+deploy_slug: ZEPH/orders-deploy
+qa_repo_slug: ZEPH/orders-qa
+work_branch: feature/devin-sdlc
+# where the framework goes in your repo
+sdlc_dir: sdlc
+kb_dir: docs/knowledge-base
+settings:
+  tech_lead: {name: "Roe, Jane", email: jane.roe@zephyr.example, jira_user: jroe}
+  it_team: Zephyr-Orders-Web
+  jira_statuses:
+    review: [In Review]
+    qa: [Ready for QA, In QA]
+    uat: [Business Review]
+    release: [Ready for Release]
+  jira_fields: {story_points: customfield_10001, sprint: customfield_10002, acceptance: customfield_10003,
+                it_team: customfield_10004, epic_link: customfield_10010}
+  confluence_parent: "100000"
+  pages:
+    roster: Zephyr Orders Team Roster
+    sprint_leave: Zephyr Orders Sprint Leave
+    demo_recordings: Zephyr Orders Demo Recordings
+    user_manual: Zephyr Orders Devin Cloud User Manual
+  environments:
+    - {name: dev, app_branch: develop, deploy_branch: develop, values: dev, gate: SDLC_05}
+    - {name: sit, app_branch: sit, deploy_branch: sit, values: sit, gate: SDLC_06}
+    - {name: uat, app_branch: uat, deploy_branch: uat, values: uat, gate: SDLC_06}
+    - {name: prod, app_branch: master, deploy_branch: master, values: prod, gate: SDLC_07}
+  kb_source_dirs: [api, web]
+  etl_repo_slug: ""

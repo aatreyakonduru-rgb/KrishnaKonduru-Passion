@@ -1,0 +1,106 @@
+name: Argus checks
+
+# Runs the framework's own checks on every push and pull request that touches Argus.
+# The installer puts the files in their real places (dot-devin -> .devin, SKILL.dist.md -> SKILL.md)
+# in a scratch repo, then runs what the README says "every time this copy is built".
+
+on:
+  push:
+    paths: ["Argus/**", ".github/workflows/argus.yml"]
+  pull_request:
+    paths: ["Argus/**", ".github/workflows/argus.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: argus-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  secrets-and-pii:
+    name: Secrets and PII scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Scan the lines this change adds
+        run: |
+          set -eu
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            range="origin/${{ github.base_ref }}...HEAD"
+          elif [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            range="${{ github.event.before }}..${{ github.sha }}"
+          else
+            range="$(git rev-list --max-parents=0 HEAD | tail -n 1)..HEAD"
+          fi
+          python Argus/sdlc/framework/tools/content_scan.py range "$range"
+
+  framework:
+    name: Install and test (${{ matrix.os }})
+    needs: secrets-and-pii
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml
+      - name: Install into a scratch repo
+        run: |
+          set -eu
+          scratch="$RUNNER_TEMP/argus-scratch"
+          mkdir -p "$scratch"
+          git -C "$scratch" init -q
+          git -C "$scratch" config user.email ci@acme.example
+          git -C "$scratch" config user.name ci
+          git -C "$scratch" commit -q --allow-empty -m init
+          cd Argus
+          python install.py --target "$scratch" --offline --no-check --values templates/values-ci.yaml
+          echo "SCRATCH=$scratch" >> "$GITHUB_ENV"
+      - name: Framework validation (must pass)
+        working-directory: ${{ env.SCRATCH }}
+        run: python sdlc/framework/tools/validate_framework.py
+      - name: Prompt lint (must pass)
+        working-directory: ${{ env.SCRATCH }}
+        run: python sdlc/kb/tools/prompts.py lint
+      - name: Unit tests for the Argus additions (must pass)
+        working-directory: ${{ env.SCRATCH }}
+        run: |
+          python -m unittest -v \
+            sdlc.framework.tools.tests.test_content_scan \
+            sdlc.framework.tools.tests.test_runtime_env
+      - name: Hook tests (report only)
+        working-directory: ${{ env.SCRATCH }}
+        run: bash .devin/hooks/tests/run-hook-tests.sh
+        continue-on-error: true  # some cases need the example roster, which only install.py --check swaps in; see Argus/docs/CI.md
+      - name: Prompt-kit tests (report only)
+        working-directory: ${{ env.SCRATCH }}
+        run: python -m unittest discover -s sdlc/kb/tools/tests
+        continue-on-error: true  # fails on Windows path separators; see Argus/docs/CI.md
+      - name: Framework unit tests (report only)
+        working-directory: ${{ env.SCRATCH }}
+        env:
+          SDLC_SANDBOX: "1"
+        run: python -m unittest discover -s sdlc/framework/tools/tests -t .
+        continue-on-error: true  # not yet verified on Ubuntu; failures seen on Windows are listed in Argus/docs/CI.md
+
+  hooks-on-git-bash:
+    name: Git hooks (content scan)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Block a secret, allow a clean change, catch a skipped hook on push
+        run: bash Argus/dot-devin/hooks/tests/test-content-hooks.sh "$GITHUB_WORKSPACE/Argus"

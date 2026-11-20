@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # git pre-push: a Product Owner or BSA (may change the knowledge base, not code) may push only
 # knowledge-base files, and every commit must carry their Approved-by stamp, so their pull request
-# is knowledge-base only. Everyone else passes; the pre-commit check already covered their files.
+# is knowledge-base only. Everyone else passes the access check; every push is also scanned for secrets\n# and PII in the lines it adds (content_scan.py), so a commit made with the hook missing is still caught.
 # The base is origin/<repo.kb_branch in .devin/rules/sdlc-profile.json>.
 # Install once per checkout (the repo blueprint does this in Devin Cloud):
 #   cp .devin/hooks/git/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push
@@ -9,7 +9,7 @@ set -uo pipefail
 
 root="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 1
 . "$root/.devin/hooks/lib/python.sh"
-while read -r _local_ref local_sha _remote_ref _remote_sha || [ -n "${local_sha:-}" ]; do
+while read -r _local_ref local_sha _remote_ref remote_sha || [ -n "${local_sha:-}" ]; do
   case "$local_sha" in *[!0]*) ;; *) continue ;; esac
   output="$(sdlc_python "$root/sdlc/framework/tools/access_guard.py" pr-check --head "$local_sha" 2>&1)"
   status=$?
@@ -17,6 +17,18 @@ while read -r _local_ref local_sha _remote_ref _remote_sha || [ -n "${local_sha:
     0) ;;
     2) printf '%s\n' "$output" >&2; exit 1 ;;
     *) printf 'ACCESS-BLOCK: pull request check failed to run (exit %s). %s\n' "$status" "$output" >&2; exit 1 ;;
+  esac
+  # Secrets and PII in every line this push adds (a new branch has no remote sha: compare to the merge base).
+  case "$remote_sha" in
+    *[!0]*) range="$remote_sha..$local_sha" ;;
+    *) base="$(git merge-base "$local_sha" origin/HEAD 2>/dev/null || git rev-list --max-parents=0 "$local_sha" | tail -n 1)"; range="$base..$local_sha" ;;
+  esac
+  output="$(sdlc_python "$root/sdlc/framework/tools/content_scan.py" range "$range" 2>&1)"
+  status=$?
+  case "$status" in
+    0) ;;
+    2) printf '%s\n' "$output" >&2; exit 1 ;;
+    *) printf 'CONTENT-BLOCK: content scan failed to run (exit %s). %s\n' "$status" "$output" >&2; exit 1 ;;
   esac
 done
 exit 0
