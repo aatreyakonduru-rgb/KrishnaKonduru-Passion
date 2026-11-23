@@ -1,0 +1,40 @@
+# Sample Bitbucket Pipelines file: a Metis impact comment on every pull request (Bitbucket Cloud).
+# Copy the step into the bitbucket-pipelines.yml of the SOURCE repository whose pull requests you want commented.
+#
+# NEEDS YOUR BITBUCKET TO VERIFY. This sample and tools/bb_pr.py follow the Bitbucket REST documentation and were tested only
+# against a fake server. Run it on a test pull request first.
+#
+# What it does: reads the changed files of the PR, finds the KB objects, pages and open questions they touch, and prints one
+# comment. It POSTS only when the repository variable METIS_BB_POST is "true"; otherwise it is a dry run and the comment is only
+# shown in the pipeline log. A second push updates the same comment (marker line) instead of adding another. Metis comments only;
+# it never approves, merges or changes the PR.
+#
+# Repository variables (Repository settings > Pipelines > Repository variables):
+#   METIS_BB_TOKEN   secured. A repository or workspace access token with permission to read and comment on pull requests.
+#   METIS_BB_POST    "true" to post for real. Leave unset for a dry run.
+#   METIS_HOME       where the Metis plugin is checked out in the pipeline (see the clone step below)
+#   METIS_KB         where the KB folder is checked out (the folder that holds .metis/kb-profile.yaml)
+# Bitbucket supplies BITBUCKET_PR_ID, BITBUCKET_WORKSPACE and BITBUCKET_REPO_SLUG itself.
+# The profile needs `bitbucket.token_env: METIS_BB_TOKEN` and `bitbucket.source_repo: <repo name used in the KB's [E: repo/path:line] tags>`.
+# For Bitbucket Server / Data Center, Pipelines is not available: run `python tools/bb_pr.py comment <KB> --pr <ID>` from your own CI
+# with METIS_BB_FLAVOR=server, METIS_BB_BASE_URL, METIS_BB_PROJECT and METIS_BB_REPO set.
+
+image: python:3.12
+
+pipelines:
+  pull-requests:
+    '**':
+      - step:
+          name: Metis impact comment
+          script:
+            - pip install pyyaml
+            # Fetch the plugin and the KB. Replace these two lines with however your team stores them.
+            - git clone --depth 1 "https://x-token-auth:${METIS_BB_TOKEN}@bitbucket.org/${BITBUCKET_WORKSPACE}/metis-plugin.git" /tmp/metis
+            - git clone --depth 1 "https://x-token-auth:${METIS_BB_TOKEN}@bitbucket.org/${BITBUCKET_WORKSPACE}/team-kb.git" /tmp/kb
+            - export METIS_HOME=/tmp/metis METIS_KB=/tmp/kb
+            - |
+              if [ "$METIS_BB_POST" = "true" ]; then
+                python "$METIS_HOME/tools/bb_pr.py" ci "$METIS_KB" --post
+              else
+                python "$METIS_HOME/tools/bb_pr.py" ci "$METIS_KB"
+              fi

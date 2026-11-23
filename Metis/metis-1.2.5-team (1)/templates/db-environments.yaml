@@ -1,0 +1,20 @@
+# Databases Mētis documents, per environment. `metis-setup` fills this in from the approved tech stack and the team's
+# answers; nothing here is guessed. An environment can have any number of databases, of any type, and each database
+# any number of schemas. Environment names: letters, digits and _ only (dev, sit, uat, prod).
+reference_environment: "<env the full database documents are built from>"
+environments:
+  "<env>":
+    docs_dir: ""                       # sub-folder of db_docs for this environment's snapshot; empty = environments/<env>
+    databases:
+      - label: "<short name, same in every environment, used in query ids, e.g. PCMS>"
+        engine: "<snowflake | postgresql | schema-files>"
+        database: "<database name in this environment>"
+        schemas: []                    # empty = every schema the read-only role can see
+        warehouse: ""                  # Snowflake only
+        connection: "<Devin connection or secret name the read-only role uses>"
+      # A database with no live connection: read CREATE TABLE statements from schema files in a repo.
+      # - label: "<name>"
+      #   engine: schema-files
+      #   database: "<database name>"
+      #   repo: "<repo name>"
+      #   paths: ["db/schema/*.sql"]

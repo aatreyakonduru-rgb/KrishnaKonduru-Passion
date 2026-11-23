@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CVBC KB - Visualization gallery</title>
+<style>
+:root{--p:#5009b5;--pm:#6428dc;--pl:#794cff;--pale:#ebe4ff;--sky:#c2e8ff;--teal:#00bbaa;--ok:#53b1a3;--warn:#f3c246;--err:#d90026;--slate:#5b6770;
+--bg:#f5f5f7;--card:#fff;--ink:#231e33;--sub:#5b6770;--line:#d9d6e3;--grid:#eeeaf7}
+[data-theme=dark]{--bg:#16131f;--card:#1f1b2b;--ink:#ece8f7;--sub:#a59fb8;--line:#3a3450;--grid:#2a2539;--pale:#2d2547}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:13px/1.4 "Segoe UI",system-ui,-apple-system,Arial,sans-serif;overflow:hidden}
+header{background:#fff;color:#231e33;border-bottom:2px solid #5009b5}
+[data-theme=dark] header{background:#1f1b2b;color:#ece8f7}
+.r1{display:flex;align-items:center;gap:10px;padding:4px 12px;height:30px}
+.r1 b{font-size:14px;font-weight:600;white-space:nowrap}.r1 .sp{flex:1}.r1 small{opacity:.85}
+.logo{width:20px;height:20px}
+.grp{background:transparent;border:1px solid rgba(255,255,255,.45);color:#fff;border-radius:12px;padding:2px 12px;cursor:pointer;font:inherit}
+.grp.on{background:#fff;color:var(--p);font-weight:600}
+.r2{display:flex;gap:2px;padding:0 12px;height:28px;align-items:flex-end;overflow-x:auto}
+.tab{background:rgba(255,255,255,.12);border:0;color:#fff;padding:5px 10px;border-radius:6px 6px 0 0;cursor:pointer;font:inherit;white-space:nowrap}
+.tab.on{background:var(--bg);color:var(--p);font-weight:600}[data-theme=dark] .tab.on{color:#c9b5ff}
+.tog{background:rgba(255,255,255,.15);border:0;color:#fff;border-radius:10px;padding:2px 10px;cursor:pointer;font:inherit}
+.cap{display:flex;gap:14px;align-items:baseline;padding:7px 16px 3px}
+.cap h2{margin:0;font-size:15px;color:var(--p);white-space:nowrap}[data-theme=dark] .cap h2{color:#c9b5ff}
+.cap p{margin:0;color:var(--sub);flex:1;text-align:justify}.cap .use{white-space:nowrap;font-size:12px;color:var(--teal);font-weight:600}
+.ctl{display:flex;gap:8px;align-items:center;padding:0 16px 4px;min-height:24px;flex-wrap:wrap}
+.ctl select,.ctl button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;padding:2px 8px;cursor:pointer}
+.ctl .chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--sub);cursor:pointer;user-select:none}
+.ctl .chip i{width:10px;height:10px;border-radius:50%;display:inline-block}.ctl .chip.off{opacity:.35}
+#stage{position:absolute;left:10px;right:10px;bottom:22px;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+#stage svg{display:block;width:100%;height:100%}
+footer{position:absolute;bottom:3px;left:16px;right:16px;font-size:11px;color:var(--sub);display:flex;justify-content:space-between}
+#tip{position:fixed;pointer-events:none;background:var(--card);color:var(--ink);border:1px solid var(--line);border-left:3px solid var(--p);border-radius:6px;padding:6px 9px;font-size:12px;max-width:380px;box-shadow:0 4px 14px rgba(0,0,0,.15);display:none;z-index:9}
+text{fill:var(--ink);font-family:inherit}.sub{fill:var(--sub)}.lbl{font-size:11px}
+.cards{display:grid;gap:10px;padding:12px;height:100%;overflow:auto;align-content:start}
+.card{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;border-top:4px solid var(--p)}
+.card h3{margin:0 0 4px;font-size:14px;color:var(--p)}[data-theme=dark] .card h3{color:#c9b5ff}
+.card .d{color:var(--sub);font-size:12px;margin-bottom:6px;text-align:justify}
+.chips{display:flex;flex-wrap:wrap;gap:4px}.chips span{background:var(--pale);border-radius:10px;padding:1px 8px;font-size:11.5px}
+.chips span b{color:var(--p);margin-right:4px}[data-theme=dark] .chips span b{color:#c9b5ff}
+.bar{height:7px;border-radius:4px;background:var(--grid);margin:2px 0 6px;overflow:hidden}.bar i{display:block;height:100%;border-radius:4px}
+.kv{display:flex;justify-content:space-between;font-size:12px;color:var(--sub)}
+@keyframes dash{to{stroke-dashoffset:-24}}.flow{stroke-dasharray:6 6;animation:dash 1.2s linear infinite}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+@media print{header,.ctl{display:none}#stage{position:static;height:90vh}}
+#zbar{position:fixed;right:14px;bottom:34px;z-index:20;display:flex;flex-direction:column;gap:4px}#zbar button{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--p);font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.12)}#zbar button:hover{background:var(--pale)}[data-n]:hover{filter:brightness(1.15)}
+</style>
+<style>
+header{background:#fff;color:#231e33;border-bottom:2px solid #5009b5}
+[data-theme=dark] header{background:#1f1b2b;color:#ece8f7}
+.r1{display:grid;grid-template-columns:1fr auto 1fr;height:28px;padding:0 12px;border-bottom:1px solid var(--line)}
+.r1 .hl{display:flex;align-items:center;gap:8px}.plogo{height:18px}.pt{font-size:11px;letter-spacing:2px;color:var(--sub);white-space:nowrap}
+.r1 b{color:var(--p);font-size:13px}[data-theme=dark] .r1 b{color:#c9b5ff}.r1 small{justify-self:end;color:var(--sub);opacity:1}
+.r2{display:flex;align-items:center;gap:8px;height:30px;padding:0 12px}#groups{display:flex;gap:4px;flex-shrink:0;white-space:nowrap}#tabs{display:flex;flex:1;min-width:0;height:100%;overflow-x:auto;scrollbar-width:thin}.r2 .sp{flex:1}
+.grp{border:1px solid var(--line);color:var(--sub);padding:1px 10px}.grp.on{background:var(--p);color:#fff;border-color:var(--p)}
+.tab{background:none;color:var(--sub);border-radius:0;border-bottom:3px solid transparent;padding:5px 10px}
+.tab:hover{background:rgba(90,98,117,.06)}.tab.on{background:none;color:var(--p);border-bottom-color:var(--p)}
+.tog{background:none;border:1px solid var(--line);color:var(--sub)}
+.cap,footer{display:none!important}
+#stage{left:0;right:0;bottom:0;border-radius:0;border-left:0;border-right:0;overflow:auto}
+#zbar{left:252px!important;right:auto!important;bottom:12px!important;flex-direction:row!important}
+.r2{display:none!important}
+#side{position:fixed;left:0;bottom:0;width:240px;background:var(--card);border-right:1px solid var(--line);overflow-y:auto;overflow-x:hidden;z-index:4;box-sizing:border-box;padding:10px 0 12px;font-size:12.5px}
+#side .sg{font-size:10.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--sub);padding:12px 16px 4px}
+#side .sv{display:block;width:100%;text-align:left;background:none;border:0;border-left:3px solid transparent;border-radius:0;padding:5px 16px 5px 13px;color:var(--ink,#231e33);cursor:pointer;font:inherit}
+#side .sv:hover{background:var(--pale)}#side .sv.on{border-left-color:var(--p);background:var(--pale);color:var(--p);font-weight:600}
+#side #find{box-sizing:border-box;margin:0 12px 4px!important;width:calc(100% - 24px)!important;color:inherit!important;background:var(--bg,#f5f5f5)!important;border:1px solid var(--line)!important}
+#side .ft{display:flex;justify-content:space-between;align-items:center;padding:12px 16px 0;border-top:1px solid var(--line);margin-top:10px}
+#info,#ctl{margin-left:240px}#stage{left:240px!important}
+#info{padding:6px 16px!important}#ctl{min-height:34px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}#ctl{padding-left:16px}
+</style><style>.r1{display:none!important}</style></head>
+<body>
+<header>
+ <div class="r1"><div class="hl"><span class="pt">CVBC KNOWLEDGE BASE</span></div>
+  <b>KB visualization gallery</b><small id="asof"></small></div>
+ <div class="r2"><span id="groups"></span><span id="tabs"></span><button class="tog" id="theme">Dark</button></div>
+ <svg style="display:none"><g id="lg-dots"></g></svg>
+</header>
+<div class="cap"><h2 id="t"></h2><p id="d"></p><span class="use" id="u"></span></div>
+<div class="ctl" id="ctl"></div>
+<div id="stage"></div>
+<footer><span id="src"></span><span>Built by Argus from the CVBC KB</span></footer>
+<div id="tip"></div>
+
+<script>const DATA={"objects": [], "rels": [], "objTables": {}, "endpoints": [], "screens": [], "jobs": [], "systems": [], "states": [], "metrics": [], "rules": [], "processes": [], "phrases": {}, "chains": [], "lineage": [], "modTables": {}, "counts": {}, "lgCounts": {}, "lgTriples": [], "hubs": [], "pack": {}, "sub": {}, "stories": [], "testScreens": [], "tableTest": [], "arc": {}, "G": {}, "cat": {}, "flow": {}, "gates": [], "lenses": [], "panels": {}, "kb": {}, "sources": {}};const DATA_ASOF="03 Nov 2026";
+
+const NS="http://www.w3.org/2000/svg";
+const C={object:"#5009b5",screen:"#00bbaa",endpoint:"#794cff",table:"#e8912d",job:"#53b1a3",system:"#d90026",file:"#5b6770",test:"#2f80ed",story:"#e05aa0",column:"#b9a6e8",chain:"#f3c246",metric:"#8e44ad",process:"#16a085",phrase:"#c0392b"};
+const NICE={object:"Business object",screen:"Screen",endpoint:"API call",table:"Table",job:"ETL job",system:"Outside system",file:"Code file",test:"Test",story:"Jira story",column:"Column",chain:"Impact chain",metric:"Metric",process:"Process",phrase:"Business phrase"};
+const PAL=["#5009b5","#00bbaa","#e8912d","#794cff","#d90026","#53b1a3","#2f80ed","#e05aa0","#f3c246","#5b6770","#8e6bd8","#1d8f86"];
+const $=s=>document.querySelector(s);
+function S(tag,a,p){const e=document.createElementNS(NS,tag);for(const k in a||{})e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
+function H(tag,a,p,html){const e=document.createElement(tag);for(const k in a||{})e.setAttribute(k,a[k]);if(html!=null)e.innerHTML=html;if(p)p.appendChild(e);return e}
+function T(p,x,y,s,a){const t=S("text",Object.assign({x,y},a||{}),p);t.textContent=s;return t}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const tip=$("#tip");
+function tipOn(el,html){el.addEventListener("mousemove",e=>{tip.innerHTML=typeof html=="function"?html():html;tip.style.display="block";const w=tip.offsetWidth;tip.style.left=Math.min(e.clientX+14,innerWidth-w-8)+"px";tip.style.top=(e.clientY+14)+"px"});el.addEventListener("mouseleave",()=>tip.style.display="none")}
+function short(s,n){s=String(s);return s.length>n?s.slice(0,n-1)+"…":s}
+function nice(id){return id.replace(/^[a-z]+:/,"")}
+function stageBox(){const s=$("#stage");return{w:s.clientWidth,h:s.clientHeight}}
+function svgRoot(){const{w,h}=stageBox();const s=S("svg",{viewBox:`0 0 ${w} ${h}`});$("#stage").appendChild(s);zoomable(s,w,h);return{s,w,h}}
+function zoomable(svg,w,h){if(svg._z)return;let vb=[0,0,w,h],drag=null;const set=()=>svg.setAttribute("viewBox",vb.join(" "));
+ svg._z={k(f){const cx=vb[0]+vb[2]/2,cy=vb[1]+vb[3]/2;vb=[cx-vb[2]*f/2,cy-vb[3]*f/2,vb[2]*f,vb[3]*f];set()},reset(){vb=[0,0,w,h];set()}};
+ svg.addEventListener("wheel",e=>{e.preventDefault();const r=svg.getBoundingClientRect(),mx=vb[0]+(e.clientX-r.left)/r.width*vb[2],my=vb[1]+(e.clientY-r.top)/r.height*vb[3],k=e.deltaY>0?1.12:1/1.12;vb=[mx-(mx-vb[0])*k,my-(my-vb[1])*k,vb[2]*k,vb[3]*k];set()},{passive:false});
+ svg.addEventListener("mousedown",e=>{if(e.target.closest(".drag"))return;drag=[e.clientX,e.clientY,vb[0],vb[1]]});
+ addEventListener("mouseup",()=>drag=null);
+ svg.addEventListener("mousemove",e=>{if(!drag)return;const r=svg.getBoundingClientRect();vb[0]=drag[2]-(e.clientX-drag[0])*vb[2]/r.width;vb[1]=drag[3]-(e.clientY-drag[1])*vb[3]/r.height;set()});}
+function legend(types,p,x,y,vertical){let i=0;types.forEach(t=>{const g=S("g",{transform:vertical?`translate(${x},${y+i*16})`:`translate(${x+i},${y})`},p);S("circle",{cx:5,cy:-4,r:5,fill:C[t]||t},g);const tx=T(g,14,0,NICE[t]||t,{class:"lbl sub"});i+=vertical?1:(tx.getComputedTextLength?tx.getComputedTextLength()+30:90)})}
+function ctl(){return $("#ctl")}
+function selectCtl(label,opts,cb,val){const c=ctl();H("span",{class:"chip"},c,label);const s=H("select",{},c);opts.forEach(o=>{const op=H("option",{value:o[0]},s,esc(o[1]));if(o[0]==val)op.selected=true});s.onchange=()=>cb(s.value);return s}
+function btn(label,cb){const b=H("button",{},ctl(),label);b.onclick=cb;return b}
+let TIMERS=[];function every(ms,f){TIMERS.push(setInterval(f,ms))}function later(ms,f){TIMERS.push(setTimeout(f,ms))}
+let RAF=0;function loop(f){const g=t=>{if(f(t)!==false)RAF=requestAnimationFrame(g)};RAF=requestAnimationFrame(g)}
+function force(nodes,links,w,h,o){o=Object.assign({rep:900,len:60,str:.04,grav:.012,iter:300,col:0},o||{});
+ nodes.forEach((n,i)=>{if(n.x==null){const a=i*2.4,r=10+Math.sqrt(i)*18;n.x=w/2+r*Math.cos(a);n.y=h/2+r*Math.sin(a)}n.vx=0;n.vy=0});
+ const idx=new Map(nodes.map(n=>[n.id,n]));const L=links.map(l=>[idx.get(l.s),idx.get(l.t),l]).filter(l=>l[0]&&l[1]);
+ function tick(alpha){for(let i=0;i<nodes.length;i++){const a=nodes[i];for(let j=i+1;j<nodes.length;j++){const b=nodes[j];let dx=a.x-b.x,dy=a.y-b.y,d2=dx*dx+dy*dy+.01;if(d2>90000)continue;let f=o.rep*alpha/d2;const mr=(a.r||4)+(b.r||4)+o.col;if(o.col&&d2<mr*mr)f+=alpha*.5*(mr-Math.sqrt(d2))/Math.sqrt(d2);a.vx+=dx*f;a.vy+=dy*f;b.vx-=dx*f;b.vy-=dy*f}}
+  L.forEach(([a,b,l])=>{const dx=b.x-a.x,dy=b.y-a.y,d=Math.sqrt(dx*dx+dy*dy)||1,k=(d-(l.len||o.len))*o.str*alpha/d;a.vx+=dx*k;a.vy+=dy*k;b.vx-=dx*k;b.vy-=dy*k});
+  nodes.forEach(n=>{if(n.fx!=null){n.x=n.fx;n.y=n.fy;return}n.vx+=(w/2-n.x)*o.grav*alpha*(n.gx||1);n.vy+=(h/2-n.y)*o.grav*alpha*(n.gy||1);if(n.tx!=null){n.vx+=(n.tx-n.x)*.08*alpha;n.vy+=(n.ty-n.y)*.08*alpha}n.vx*=.6;n.vy*=.6;n.x+=n.vx;n.y+=n.vy;const m=(n.r||4)+4;n.x=Math.max(m,Math.min(w-m,n.x));n.y=Math.max(m,Math.min(h-m,n.y))})}
+ for(let k=0;k<o.iter;k++)tick(1-k/o.iter*0.8);return{tick,L}}
+function dragNode(g,n,redraw,svg){g.classList.add("drag");g.style.cursor="grab";g.addEventListener("mousedown",e=>{e.stopPropagation();const r=svg.getBoundingClientRect(),vb=svg.viewBox.baseVal;const mv=ev=>{n.x=vb.x+(ev.clientX-r.left)/r.width*vb.width;n.y=vb.y+(ev.clientY-r.top)/r.height*vb.height;n.fx=n.x;n.fy=n.y;redraw()};const up=()=>{removeEventListener("mousemove",mv);removeEventListener("mouseup",up)};addEventListener("mousemove",mv);addEventListener("mouseup",up)})}
+function travel(p,path,color,dur,r){const c=S("circle",{r:r||2.6,fill:color},p);const m=S("animateMotion",{dur:(dur||2.4)+"s",repeatCount:"indefinite",path:path,begin:(-Math.random()*(dur||2.4))+"s"},c);return c}
+function arcPath(cx,cy,r0,r1,a0,a1){const p=(r,a)=>[cx+r*Math.cos(a-Math.PI/2),cy+r*Math.sin(a-Math.PI/2)];const big=a1-a0>Math.PI?1:0;const[a,b,c,d]=[p(r1,a0),p(r1,a1),p(r0,a1),p(r0,a0)];return`M${a}A${r1},${r1} 0 ${big} 1 ${b}L${c}A${r0},${r0} 0 ${big} 0 ${d}Z`}
+function squarify(items,x,y,w,h){const tot=items.reduce((a,b)=>a+b.v,0);const out=[];let rest=items.slice().sort((a,b)=>b.v-a.v);
+ function worst(row,s){const sum=row.reduce((a,b)=>a+b.a,0),mx=Math.max(...row.map(r=>r.a)),mn=Math.min(...row.map(r=>r.a));return Math.max(s*s*mx/(sum*sum),sum*sum/(s*s*mn))}
+ const area=w*h;rest.forEach(r=>r.a=r.v/tot*area);let row=[];
+ while(rest.length){const s=Math.min(w,h),c=rest[0];if(!row.length||worst(row.concat([c]),s)<=worst(row,s)){row.push(c);rest.shift()}else{lay();row=[]}}if(row.length)lay();return out;
+ function lay(){const sum=row.reduce((a,b)=>a+b.a,0);if(w>=h){const rw=sum/h;let yy=y;row.forEach(r=>{const rh=r.a/rw;out.push(Object.assign({},r,{x,y:yy,w:rw,h:rh}));yy+=rh});x+=rw;w-=rw}else{const rh=sum/w;let xx=x;row.forEach(r=>{const rw=r.a/rh;out.push(Object.assign({},r,{x:xx,y,w:rw,h:rh}));xx+=rw});y+=rh;h-=rh}}}
+function pack(rs,cx,cy){const nodes=rs.map((r,i)=>({id:i,r:r,x:cx+Math.cos(i*2.4)*Math.sqrt(i)*r,y:cy+Math.sin(i*2.4)*Math.sqrt(i)*r}));
+ for(let k=0;k<260;k++){for(let i=0;i<nodes.length;i++){const a=nodes[i];a.x+=(cx-a.x)*.02;a.y+=(cy-a.y)*.02;for(let j=i+1;j<nodes.length;j++){const b=nodes[j];let dx=b.x-a.x,dy=b.y-a.y,d=Math.sqrt(dx*dx+dy*dy)||.1,m=a.r+b.r+1.5;if(d<m){const f=(m-d)/d/2;a.x-=dx*f;a.y-=dy*f;b.x+=dx*f;b.y+=dy*f}}}}
+ let R=0;nodes.forEach(n=>R=Math.max(R,Math.hypot(n.x-cx,n.y-cy)+n.r));return{nodes,R}}
+function heat(v,mx){const t=mx?Math.sqrt(v/mx):0;return v?`rgba(80,9,181,${.12+.85*t})`:"transparent"}
+function curve(x1,y1,x2,y2){const mx=(x1+x2)/2;return`M${x1},${y1}C${mx},${y1} ${mx},${y2} ${x2},${y2}`}
+function sankey(p,cols,links,w,h,o){o=o||{};const pad=o.pad||6,nw=o.nw||12,top=o.top||30,bot=o.bot||14;const byId={};
+ cols.forEach((col,ci)=>{const x=o.x0!=null?o.x0+ci*(w-o.x0-o.x1)/(cols.length-1):40+ci*(w-80-nw-(o.right||160))/(cols.length-1);col.forEach(n=>{n.x=x;n.ci=ci;n.in=0;n.out=0;byId[n.id]=n})});
+ links.forEach(l=>{byId[l.s].out+=l.v;byId[l.t].in+=l.v});
+ let k=Infinity;cols.forEach(col=>{const tot=col.reduce((a,n)=>a+Math.max(n.in,n.out,n.min||0),0);k=Math.min(k,(h-top-bot-pad*(col.length-1))/tot)});
+ cols.forEach(col=>{let y=top;const tot=col.reduce((a,n)=>a+Math.max(n.in,n.out,n.min||0)*k,0)+pad*(col.length-1);y=top+(h-top-bot-tot)/2;col.forEach(n=>{n.h=Math.max(2,Math.max(n.in,n.out,n.min||0)*k);n.y=y;n.so=0;n.to=0;y+=n.h+pad})});
+ const lg=S("g",{},p);const els=[];
+ links.slice().sort((a,b)=>byId[a.t].y-byId[b.t].y).forEach(l=>{const a=byId[l.s],b=byId[l.t],t=l.v*k,y1=a.y+a.so+t/2,y2=b.y+b.to+t/2;a.so+=t;b.to+=t;
+  const pth=S("path",{d:curve(a.x+nw,y1,b.x,y2),fill:"none",stroke:l.c||a.c||"#794cff","stroke-opacity":.32,"stroke-width":Math.max(1,t)},lg);pth._l=l;els.push(pth);if(l.tip)tipOn(pth,l.tip)});
+ const ng=S("g",{},p);Object.values(byId).forEach(n=>{const r=S("rect",{x:n.x,y:n.y,width:nw,height:n.h,rx:2,fill:n.c||"#5009b5"},ng);if(n.tip)tipOn(r,n.tip);
+  const right=n.ci<cols.length-1||o.labelRight;const t=T(ng,right?n.x+nw+4:n.x-4,n.y+n.h/2+4,n.l,{class:"lbl","text-anchor":right?"start":"end"});if(n.h<9&&!o.allLabels)t.setAttribute("opacity",n.h<4?0:.7);n.el=r;n.tel=t});
+ return{byId,els}}
+
+const GR=DATA.G,GI=new Map(GR.ids.map((k,i)=>[k,i])),GADJ=GR.ids.map(()=>[]);GR.e.forEach(([a,b,v])=>{GADJ[a].push([b,v,1]);GADJ[b].push([a,v,0])});
+const VERB={reads:["reads","read by"],writes:["writes","written by"],calls:["calls","called by"],covers:["covers","covered by"],checks:["checks","checked by"],changed:["changed","changed by"],names:["names","named in"],part_of:["part of","has"],handled_by:["handled by","handles"],page:["page","page of"],related_table:["related table","related to"],stored_in:["stored in","stores"],feeds:["feeds","fed by"],joins:["joins","joined with"],documents:["documents","documented by"],tested_by:["tested by","tests"],tested_on:["tested on","test target of"]};
+function gLabel(i){const k=GR.ids[i],t=k.split(":")[0],inf=GR.info[i]||{};let l=inf.label||nice(k);if(t=="screen")l=route(nice(k));if(t=="test")l=inf.scenario||nice(k).split("@").pop();if(t=="file")l=nice(k).split("/").slice(-2).join("/");return l}
+let DSTACK=[],DFILT=null;
+function drill(id){const i=GI.get(id);if(i==null)return;DSTACK.push(i);DFILT=null;drawDrill()}
+function drawDrill(){let ov=$("#drill");if(!ov){ov=H("div",{id:"drill",style:"position:absolute;inset:0;background:var(--card);z-index:5;display:flex;flex-direction:column"},$("#stage"))}ov.innerHTML="";
+ const i=DSTACK[DSTACK.length-1],k=GR.ids[i],t=k.split(":")[0],inf=GR.info[i]||{};
+ const bar=H("div",{style:"display:flex;gap:6px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--line);flex-wrap:wrap;font-size:12px"},ov);
+ const close=H("button",{class:"grp",style:"color:var(--p);border-color:var(--line)"},bar,"Close");close.onclick=()=>{DSTACK=[];ov.remove()};
+ DSTACK.forEach((j,n)=>{if(n)H("span",{class:"sub"},bar,"›");const b=H("a",{href:"javascript:void 0",style:`color:${C[GR.ids[j].split(":")[0]]};font-weight:${n==DSTACK.length-1?700:400}`},bar,esc(short(gLabel(j),34)));b.onclick=()=>{DSTACK=DSTACK.slice(0,n+1);DFILT=null;drawDrill()}});
+ const groups={};GADJ[i].forEach(([j,v,out])=>{const tt=GR.ids[j].split(":")[0],vb=GR.verbs[v],key=`${(VERB[vb]||[vb,vb])[out?0:1]}|${tt}`;(groups[key]=groups[key]||new Map()).set(j,1)});
+ const keys=Object.keys(groups).sort((a,b)=>groups[b].size-groups[a].size);
+ const body=H("div",{style:"flex:1;display:flex;min-height:0"},ov),side=H("div",{style:"width:270px;overflow:auto;padding:10px;border-right:1px solid var(--line)"},body);
+ H("div",{style:`font-weight:700;font-size:14px;color:${C[t]}`},side,esc(gLabel(i)));H("div",{class:"sub",style:"font-size:11.5px;margin:2px 0 8px;word-break:break-all"},side,`${NICE[t]} · ${esc(nice(k))}${inf.app?` · module ${esc(inf.app)}`:""}${inf.risk?` · ${esc(inf.risk)} risk`:""}`);
+ const all=H("div",{style:`padding:3px 6px;border-radius:6px;cursor:pointer;${!DFILT?"background:var(--pale)":""}`},side,`<b>Everything linked</b> <span class="sub">(${GADJ[i].length})</span>`);all.onclick=()=>{DFILT=null;drawDrill()};
+ keys.forEach(g=>{const[vb,tt]=g.split("|");const r=H("div",{style:`padding:3px 6px;border-radius:6px;cursor:pointer;display:flex;gap:6px;align-items:center;${DFILT==g?"background:var(--pale)":""}`},side,`<i style="width:9px;height:9px;border-radius:50%;background:${C[tt]}"></i><span style="flex:1">${vb} · ${NICE[tt]}</span><b>${groups[g].size}</b>`);r.onclick=()=>{DFILT=g;drawDrill()}});
+ if(!keys.length)H("div",{class:"sub"},side,"Nothing else is linked to this in the graph.");
+ H("div",{class:"sub",style:"font-size:11px;margin-top:10px"},side,"Click any dot to go one level deeper. Use the trail at the top to go back.");
+ const box=H("div",{style:"flex:1;position:relative"},body);const{width:w,height:h}=box.getBoundingClientRect();const s=S("svg",{viewBox:`0 0 ${w} ${h}`,style:"width:100%;height:100%"},box);zoomable(s,w,h);
+ const show=(DFILT?[DFILT]:keys),cap=DFILT?160:Math.max(6,Math.floor(90/Math.max(1,show.length))),cx=w/2,cy=h/2,R=Math.min(w,h)/2-70;
+ const items=[];show.forEach(g=>{const L=[...groups[g].keys()];L.slice(0,cap).forEach(j=>items.push({j,g}));if(L.length>cap)items.push({more:L.length-cap,g})});
+ const n=items.length,lg=S("g",{},s);let gi=-1,last=null;
+ items.forEach((it,q)=>{const a=(q+.5)/n*Math.PI*2-Math.PI/2,rr=n>60?R*(q%2?1:.82):R,x=cx+rr*Math.cos(a),y=cy+rr*Math.sin(a),tt=it.g.split("|")[1];const d=`M${cx},${cy}L${x},${y}`;S("path",{d,stroke:C[tt],"stroke-opacity":.3},lg);if(q%3==0)travel(lg,d,C[tt],2.4,2.2);
+  if(it.g!=last){gi++;last=it.g;const la=a,lx=cx+(R+48)*Math.cos(la),ly=cy+(R+48)*Math.sin(la);if(!DFILT&&show.length>1)T(s,lx,ly,it.g.split("|")[0]+" · "+NICE[tt],{"text-anchor":Math.cos(la)<0?"end":"start","font-size":10.5,"font-weight":700,style:`fill:${C[tt]}`})}
+  const c=S("circle",{cx:x,cy:y,r:it.more?11:6,fill:it.more?"var(--card)":C[tt],stroke:C[tt],"stroke-width":2,style:"cursor:pointer"},s);
+  if(it.more){T(s,x,y+4,"+"+it.more,{"text-anchor":"middle","font-size":9,"font-weight":700});c.onclick=()=>{DFILT=it.g;drawDrill()};tipOn(c,`${it.more} more: click to see them all`)}
+  else{const nb=GADJ[it.j].length;tipOn(c,`<b>${esc(gLabel(it.j))}</b><br>${NICE[tt]} · ${nb} links · click to drill in`);c.onclick=()=>{DSTACK.push(it.j);DFILT=null;drawDrill()};
+   if(n<=70){const fl=Math.cos(a)<0,deg=a*180/Math.PI;T(s,x+(fl?-9:9),y+3,short(gLabel(it.j),26),{"font-size":n>36?9:10,"text-anchor":fl?"end":"start",transform:n>16?`rotate(${fl?deg+180:deg},${x},${y})`:"",style:"pointer-events:none"})}}});
+ S("circle",{cx,cy,r:42,fill:C[t]},s);T(s,cx,cy,short(gLabel(i),12),{"text-anchor":"middle","font-weight":700,"font-size":10,style:"fill:#fff"});T(s,cx,cy+14,`${GADJ[i].length} links`,{"text-anchor":"middle","font-size":10,style:"fill:#fff;opacity:.85"});
+ location.hash=G0+"-"+(I0+1)+"~"+encodeURIComponent(k)}
+let DOWN=null;document.addEventListener("mousedown",e=>DOWN=[e.clientX,e.clientY]);
+document.addEventListener("click",e=>{const el=e.target.closest("[data-n]");if(!el||e.target.closest("#drill"))return;if(DOWN&&Math.hypot(e.clientX-DOWN[0],e.clientY-DOWN[1])>4)return;tip.style.display="none";DSTACK=[];drill(el.dataset.n)});
+function dn(el,id){if(GI.has(id)){el.dataset.n=id;el.style.cursor="pointer"}return el}
+
+const O={};(function(){
+ const ep=DATA.endpoints, scr=DATA.screens, jobs=DATA.jobs, sys=DATA.systems;
+ const epById=Object.fromEntries(ep.map(e=>[e.id,e]));
+ DATA.objects.forEach(o=>{const t=new Set(DATA.objTables[o.id]||[]);o.t=[...t];
+  o.eps=ep.filter(e=>e.r.concat(e.w).some(x=>t.has(x)));o.apps=[...new Set(o.eps.map(e=>e.app))];
+  const es=new Set(o.eps.map(e=>e.id));o.scr=scr.filter(s=>s.eps.some(x=>es.has(x))||s.tables.some(x=>t.has(x)));
+  o.jobs=jobs.filter(j=>j.r.concat(j.w).some(x=>t.has(x)));o.sys=sys.filter(s=>s.tables.some(x=>t.has(x)))});
+ O.obj=DATA.objects; O.col=Object.fromEntries(DATA.objects.map((o,i)=>[o.id,PAL[i]]));
+})();
+const route=r=>r=="/"?"Home":r.split("/").filter(Boolean).slice(-2).join(" › ");
+const VIEWS=[];function V(g,name,desc,use,f){VIEWS.push({g,name,desc,use,f})}
+
+V("ont","Concept web","The seven business objects, the tables that hold them and how they relate. Drag a circle to move it; dots run along each business relationship.","Intro slide, live demo",()=>{
+ const{s,w,h}=svgRoot();zoomable(s,w,h);const nodes=[],links=[],seen={};
+ O.obj.forEach(o=>{nodes.push({id:o.id,l:o.label,r:24,c:O.col[o.id],k:"o",o});o.t.forEach(t=>{if(!seen[t]){seen[t]={id:"t:"+t,l:t,r:5,c:"#e8912d",k:"t",by:[]};nodes.push(seen[t])}seen[t].by.push(o.label);links.push({s:o.id,t:"t:"+t,len:70})})});
+ const rel=[];DATA.rels.forEach(r=>{if(r.fo&&r.to&&r.fo!=r.to){links.push({s:r.fo,t:r.to,len:220,rel:r});rel.push(r)}});
+ DATA.rels.forEach(r=>{if(!r.fo&&r.to&&seen[r.ft])rel.push(Object.assign({},r,{fo:"t:"+r.ft}));});
+ const sim=force(nodes,links,w,h,{rep:1400,len:80,iter:400,col:6,grav:.05});
+ const lg=S("g",{},s),dg=S("g",{},s),ng=S("g",{},s);
+ function draw(){lg.innerHTML="";dg.innerHTML="";sim.L.forEach(([a,b,l])=>{const isR=!!l.rel;const d=isR?`M${a.x},${a.y}Q${(a.x+b.x)/2+(b.y-a.y)*.15},${(a.y+b.y)/2-(b.x-a.x)*.15} ${b.x},${b.y}`:`M${a.x},${a.y}L${b.x},${b.y}`;
+   const p=S("path",{d,fill:"none",stroke:isR?"#5009b5":"#c9bfe0","stroke-width":isR?2.2:1,"stroke-opacity":isR?.75:.8},lg);
+   if(isR){tipOn(p,`<b>${esc(l.rel.name)}</b><br>${esc(l.rel.card)}`);travel(dg,d,"#00bbaa",3,3.2);const m=T(lg,(a.x+b.x)/2+(b.y-a.y)*.08,(a.y+b.y)/2-(b.x-a.x)*.08,short(l.rel.name,34),{class:"lbl sub","text-anchor":"middle","font-size":10})}});
+  nodes.forEach(n=>{n.g.setAttribute("transform",`translate(${n.x},${n.y})`)})}
+ nodes.forEach(n=>{n.g=S("g",{},ng);S("circle",{r:n.r,fill:n.c,"fill-opacity":n.k=="o"?.92:.85,stroke:"#fff","stroke-width":2},n.g);
+  if(n.k=="o"){T(n.g,0,n.r+14,n.l,{"text-anchor":"middle","font-weight":600,"font-size":12});T(n.g,0,4,n.o.t.length,{"text-anchor":"middle",fill:"#fff","font-size":12,"font-weight":700,style:"fill:#fff"})}
+  tipOn(n.g,n.k=="o"?`<b>${esc(n.l)}</b><br>Also called: ${esc(n.o.aliases.join(", "))}<br>${n.o.t.length} tables, ${n.o.eps.length} API calls, ${n.o.scr.length} screens`:`<b>${esc(n.l)}</b><br>Holds: ${esc(n.by.join(", "))}`);dragNode(n.g,n,draw,s);dn(n.g,n.k=="o"?"object:"+n.o.id:"table:"+n.l)});
+ draw();
+ const L=S("g",{},s);[["Business object","#5009b5"],["Table","#e8912d"],["Business relationship","#00bbaa"]].forEach((x,i)=>{S("circle",{cx:20,cy:20+i*17,r:5,fill:x[1]},L);T(L,30,24+i*17,x[0],{class:"lbl sub"})});});
+
+V("ont","Layer cake","How each business object travels through the layers: the screens people use, the API modules behind them, the object, and the outside systems that send or take its data. Width is the number of links.","Architecture overview",()=>{
+ const{s,w,h}=svgRoot();const cols=[[],[],[],[]],links=[],id={};
+ const add=(ci,k,l,c,tip)=>{if(!id[k]){id[k]={id:k,l,c,tip};cols[ci].push(id[k])}return id[k]};
+ O.obj.forEach(o=>{add(2,"o:"+o.id,o.label,O.col[o.id],`<b>${esc(o.label)}</b><br>${o.t.length} tables`)});
+ const sa={},ao={},os={};
+ O.obj.forEach(o=>{const es=new Set(o.eps.map(e=>e.id));o.eps.forEach(e=>{ao[e.app+"|"+o.id]=(ao[e.app+"|"+o.id]||0)+1});
+  DATA.screens.forEach(sc=>{sc.eps.forEach(x=>{if(es.has(x)){const e=O.obj&&DATA.endpoints.find(y=>y.id==x);if(e)sa[sc.route+"|"+e.app]=(sa[sc.route+"|"+e.app]||0)+1}})});
+  o.sys.forEach(sy=>{os[o.id+"|"+sy.id]=(os[o.id+"|"+sy.id]||0)+sy.tables.filter(t=>o.t.includes(t)).length})});
+ Object.entries(ao).sort().forEach(([k,v])=>{const[a,o]=k.split("|");add(1,"a:"+a,a,"#794cff",`<b>API module ${esc(a)}</b>`);links.push({s:"a:"+a,t:"o:"+o,v,c:O.col[o],tip:`${esc(a)} → ${esc(o)}: ${v} API calls`})});
+ Object.entries(sa).sort().forEach(([k,v])=>{const[r,a]=k.split("|");if(!id["a:"+a])return;add(0,"s:"+r,route(r),"#00bbaa",`<b>Screen ${esc(r)}</b>`);links.push({s:"s:"+r,t:"a:"+a,v,c:"#00bbaa",tip:`${esc(route(r))} calls ${v} ${esc(a)} APIs`})});
+ Object.entries(os).forEach(([k,v])=>{const[o,y]=k.split("|");const sy=DATA.systems.find(x=>x.id==y);add(3,"y:"+y,(sy.dir=="in"?"In: ":"Out: ")+short(sy.name,30),sy.dir=="in"?"#53b1a3":"#d90026",`<b>${esc(sy.name)}</b><br>${esc(sy.sys||"")}`);links.push({s:"o:"+o,t:"y:"+y,v:Math.max(1,v),c:O.col[o],tip:`${esc(o)} ↔ ${esc(sy.name)}`})});
+ cols[1].sort((a,b)=>a.l.localeCompare(b.l));
+ const sk=sankey(s,cols,links,w,h,{top:34,right:190,nw:12});
+ ["Screens","API modules","Business objects","Outside systems"].forEach((t,i)=>T(s,cols[i][0]?cols[i][0].x:0,18,t,{"font-weight":600,fill:"#5009b5",style:"fill:var(--p)"}));
+ Object.values(sk.byId).forEach(n=>{n.el.style.cursor="pointer";if(/^o:/.test(n.id))dn(n.el,"object:"+n.id.slice(2));if(/^y:/.test(n.id))dn(n.el,"system:"+n.id.slice(2));n.el.addEventListener("mouseenter",()=>sk.els.forEach(p=>p.setAttribute("stroke-opacity",(p._l.s==n.id||p._l.t==n.id)?.75:.06)));n.el.addEventListener("mouseleave",()=>sk.els.forEach(p=>p.setAttribute("stroke-opacity",.32)))})});
+
+V("ont","Radial focus","Pick one business object. Rings move outward from the object: its tables, then the API modules and ETL jobs that use them, then the screens and outside systems.","Deep dive on one object",()=>{
+ let cur=O.obj[0].id;selectCtl("Object",O.obj.map(o=>[o.id,o.label]),v=>{cur=v;draw()},cur);
+ const auto=btn("Play all",()=>{let i=0;clearInterval(auto._t);auto._t=setInterval(()=>{cur=O.obj[++i%O.obj.length].id;$("#ctl select").value=cur;draw()},3500);TIMERS.push(auto._t)});
+ function draw(){$("#stage").innerHTML="";const{s,w,h}=svgRoot();const o=O.obj.find(x=>x.id==cur),cx=w/2,cy=h/2+6,R=Math.min(w,h)/2-40;
+  const rings=[[o.t.map(t=>({l:t,c:"#e8912d",tp:"Table",n:"table:"+t}))],[o.apps.map(a=>({l:a,c:"#794cff",tp:"API module"})),o.jobs.map(j=>({l:j.id,c:"#53b1a3",tp:"ETL job",n:"job:"+j.id}))],[o.scr.map(x=>({l:route(x.route),c:"#00bbaa",tp:"Screen",n:"screen:"+x.route})),o.sys.map(x=>({l:x.name,c:"#d90026",tp:"Outside system",n:"system:"+x.id}))]];
+  [.3,.62,.95].forEach((f,i)=>S("circle",{cx,cy,r:R*f,fill:"none",stroke:"var(--line)","stroke-dasharray":"3 5"},s));
+  const g=S("g",{},s);let prev=[{x:cx,y:cy}];
+  rings.forEach((ring,ri)=>{const items=ring.flat(),r=R*[.3,.62,.95][ri],pts=[];items.forEach((it,i)=>{const a=(i+.5)/items.length*Math.PI*2-Math.PI/2,x=cx+r*Math.cos(a),y=cy+r*Math.sin(a);pts.push({x,y});
+   const par=prev[Math.floor(i/items.length*prev.length)];const d=`M${par.x},${par.y}L${x},${y}`;S("path",{d,stroke:it.c,"stroke-opacity":.35,fill:"none"},g);if(ri==0||i%2==0)travel(g,d,it.c,2+ri,2.4);
+   const c=S("circle",{cx:x,cy:y,r:ri==0?7:6,fill:it.c,stroke:"#fff","stroke-width":1.5},s);tipOn(c,`<b>${esc(it.l)}</b><br>${it.tp}`);if(it.n)dn(c,it.n);
+   const deg=a*180/Math.PI,flip=Math.cos(a)<0;if(items.length<60){const t=T(s,x+(flip?-10:10),y+4,short(it.l,ri==2?28:24),{class:"lbl","text-anchor":flip?"end":"start","font-size":items.length>36?9:10.5,transform:items.length>18?`rotate(${flip?deg+180:deg},${x},${y})`:""})}});prev=pts.length?pts:prev});
+  S("circle",{cx,cy,r:38,fill:O.col[o.id]},s);T(s,cx,cy+4,o.label,{"text-anchor":"middle","font-weight":700,style:"fill:#fff","font-size":12});
+  const L=S("g",{},s);[["Table","#e8912d"],["API module","#794cff"],["ETL job","#53b1a3"],["Screen","#00bbaa"],["Outside system","#d90026"]].forEach((x,i)=>{S("circle",{cx:20,cy:20+i*17,r:5,fill:x[1]},L);T(L,30,24+i*17,x[0],{class:"lbl sub"})});
+  T(s,w-16,22,`${o.t.length} tables · ${o.apps.length} API modules · ${o.jobs.length} ETL jobs · ${o.scr.length} screens · ${o.sys.length} outside systems`,{"text-anchor":"end",class:"sub"})}
+ draw()});
+
+V("ont","Shared ground (chord)","Which business objects are touched by the same API calls. A thick ribbon means many calls work on both objects at once, so a change to one is likely to affect the other.","Change-impact talk",()=>{
+ const{s,w,h}=svgRoot();const n=O.obj.length,M=O.obj.map(a=>O.obj.map(b=>a===b?0:a.eps.filter(e=>b.eps.includes(e)).length));
+ const tot=M.map(r=>r.reduce((x,y)=>x+y,0)),all=tot.reduce((a,b)=>a+b,0),gap=.04,cx=w/2,cy=h/2,R=Math.min(w,h)/2-60;let a=0;const arcs=[];
+ O.obj.forEach((o,i)=>{const span=(Math.PI*2-gap*n)*tot[i]/all;arcs.push({a0:a,a1:a+span,o});a+=span+gap});
+ const sub=arcs.map(x=>x.a0);const rg=S("g",{},s);
+ const pos=(i,v)=>{const ar=arcs[i];const start=sub[i];const end=start+(ar.a1-ar.a0)*v/tot[i];sub[i]=end;return[start,end]};
+ const P=a=>[cx+R*.96*Math.cos(a-Math.PI/2),cy+R*.96*Math.sin(a-Math.PI/2)];
+ for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){const v=M[i][j];if(!v)continue;const[a0,a1]=pos(i,v),[b0,b1]=pos(j,v);
+  const d=`M${P(a0)}A${R*.96},${R*.96} 0 0 1 ${P(a1)}Q${cx},${cy} ${P(b0)}A${R*.96},${R*.96} 0 0 1 ${P(b1)}Q${cx},${cy} ${P(a0)}Z`;
+  const p=S("path",{d,fill:O.col[O.obj[i].id],"fill-opacity":.45,stroke:"#fff","stroke-width":.5},rg);p._ij=[i,j];tipOn(p,`<b>${esc(O.obj[i].label)} ↔ ${esc(O.obj[j].label)}</b><br>${v} API calls touch both`)}
+ arcs.forEach((ar,i)=>{const p=S("path",{d:arcPath(cx,cy,R,R+16,ar.a0,ar.a1),fill:O.col[ar.o.id]},s);p.style.cursor="pointer";
+  p.onmouseenter=()=>rg.querySelectorAll("path").forEach(q=>q.setAttribute("fill-opacity",q._ij.includes(i)?.8:.05));p.onmouseleave=()=>rg.querySelectorAll("path").forEach(q=>q.setAttribute("fill-opacity",.45));
+  const m=(ar.a0+ar.a1)/2,x=cx+(R+26)*Math.cos(m-Math.PI/2),y=cy+(R+26)*Math.sin(m-Math.PI/2);T(s,x,y+4,ar.o.label,{"text-anchor":Math.sin(m)<0?"end":"start","font-weight":600})})});
+
+V("ont","Sunburst of the ontology","Everything the ontology holds, from the centre out: layer, kind of thing, then groups. Slice size is scaled so small groups stay visible; hover for the real count.","KB scope slide",()=>{
+ const{s,w,h}=svgRoot();const c=DATA.counts;const byArea={};DATA.metrics.forEach(m=>byArea[m.area]=(byArea[m.area]||0)+1);const byApp={};DATA.endpoints.forEach(e=>byApp[e.app]=(byApp[e.app]||0)+1);
+ const rk={};DATA.rules.forEach(r=>rk[r.kind]=(rk[r.kind]||0)+1);
+ const tree={l:"CVBC ontology",k:[{l:"Business",c:"#5009b5",k:[{l:"Business objects",v:7,k:O.obj.map(o=>({l:o.label,v:1}))},{l:"Relationships",v:DATA.rels.length},{l:"Value lists",v:DATA.states.length,k:DATA.states.map(x=>({l:x.name,v:1}))},{l:"Rules",v:DATA.rules.length,k:Object.entries(rk).map(([l,v])=>({l:l.replace(/_/g," "),v}))},{l:"Processes",v:DATA.processes.length},{l:"Metrics",v:DATA.metrics.length,k:Object.entries(byArea).map(([l,v])=>({l,v}))},{l:"Business phrases",v:DATA.phrases}]},
+  {l:"Data",c:"#e8912d",k:[{l:"Tables",v:c.tables},{l:"Finance tables",v:c.finance},{l:"ETL jobs",v:c.jobs},{l:"Job reads/writes",v:c.job_io},{l:"Column lineage",v:c.lineage},{l:"Joins in code",v:c.code_joins},{l:"Outside systems",v:DATA.systems.length}]},
+  {l:"Application",c:"#00bbaa",k:[{l:"Screens",v:c.screens},{l:"API calls",v:c.endpoints,k:Object.entries(byApp).map(([l,v])=>({l,v}))}]},
+  {l:"Impact",c:"#d90026",k:[{l:"Impact chains",v:DATA.chains.length,k:DATA.chains.map(x=>({l:x.name,v:1}))}]},{l:"Open questions",c:"#f3c246",k:[{l:"Questions",v:c.questions}]}]};
+ const sz=n=>n.k?n.k.reduce((a,b)=>a+sz(b),0):Math.sqrt(n.v||1)*3+1;
+ const cx=w/2,cy=h/2,R=Math.min(w,h)/2-20,rr=[0,.2,.42,.72,1].map(x=>x*R);
+ function walk(n,a0,a1,d,col){const C=n.c||col;if(d>0){const p=S("path",{d:arcPath(cx,cy,rr[d-1]+(d==1?40:2),rr[d],a0+.003,a1-.003),fill:C,"fill-opacity":1-d*.2,stroke:"var(--card)"},s);
+   const real=n.v!=null?n.v:(n.k||[]).reduce((a,b)=>a+(b.v||0),0);tipOn(p,`<b>${esc(n.l)}</b><br>${real.toLocaleString()} item${real==1?"":"s"}`);
+   const m=(a0+a1)/2,rm=(rr[d-1]+rr[d])/2,x=cx+rm*Math.cos(m-Math.PI/2),y=cy+rm*Math.sin(m-Math.PI/2);if((a1-a0)*rm>(d==4?11:24)){let deg=m*180/Math.PI-90;if(deg>90)deg-=180;T(s,x,y+3,short(n.l,d==4?18:20),{"text-anchor":"middle","font-size":d==1?12:10,transform:d>1?`rotate(${deg},${x},${y})`:"",style:"fill:#fff","font-weight":d==1?700:400})}}
+  if(n.k){let a=a0;const tot=sz(n);n.k.forEach(k=>{const span=(a1-a0)*sz(k)/tot;walk(k,a,a+span,d+1,C);a+=span})}}
+ walk(tree,0,Math.PI*2,0,"#5009b5");T(s,cx,cy-2,"CVBC",{"text-anchor":"middle","font-weight":700,"font-size":16,fill:"#5009b5",style:"fill:var(--p)"});T(s,cx,cy+14,"ontology",{"text-anchor":"middle",class:"sub"})});
+
+V("ont","Mind map","The ontology as a tree you can open and close. Click a node to fold or unfold it; the first level shows the five layers, the next the kinds of things, then examples.","Walkthrough on a call",()=>{
+ const c=DATA.counts;const mk=function mk(l,arr,f){return ({l,k:arr.slice(0,10).map(f).concat(arr.length>10?[mk(`+ ${arr.length-10} more`,arr.slice(10),f)]:[])})};
+ const tree={l:"CVBC ontology",k:[{l:"Business",k:[mk("Business objects",O.obj,o=>({l:o.label})),mk("Relationships",DATA.rels,r=>({l:r.name})),mk("Value lists",DATA.states,x=>({l:x.name})),mk("Processes",DATA.processes,p=>({l:short(p.name,44)})),mk("Metrics",DATA.metrics,m=>({l:m.label}))]},
+  {l:"Data",k:[mk("ETL jobs",DATA.jobs,j=>({l:j.id})),mk("Outside systems",DATA.systems,x=>({l:x.name})),{l:`Tables (${c.tables})`},{l:`Column lineage (${c.lineage})`}]},
+  {l:"Application",k:[mk("Screens",DATA.screens,x=>({l:route(x.route)})),{l:`API calls (${c.endpoints})`}]},{l:"Impact",k:[mk("Impact chains",DATA.chains,x=>({l:x.name}))]},{l:`Open questions (${c.questions})`}]};
+ (function fold(n,d){if(n.k){if(d>=2)n.c=true;n.k.forEach(k=>fold(k,d+1))}})(tree,0);
+ function draw(){$("#stage").innerHTML="";const{s,w,h}=svgRoot();zoomable(s,w,h);let leaf=0;
+  (function lay(n,d){n.d=d;if(n.k&&!n.c){n.k.forEach(k=>lay(k,d+1));n.y=(n.k[0].y+n.k[n.k.length-1].y)/2}else n.y=leaf++})(tree,0);
+  const dmax=4,dx=(w-200)/dmax,dy=Math.min(26,(h-30)/Math.max(1,leaf));const off=(h-dy*(leaf-1))/2;
+  (function dr(n){const x=30+n.d*dx,y=off+n.y*dy;if(n.k&&!n.c)n.k.forEach(k=>{const kx=30+k.d*dx,ky=off+k.y*dy;S("path",{d:curve(x,y,kx,ky),fill:"none",stroke:PAL[k.d%PAL.length],"stroke-opacity":.5,"stroke-width":Math.max(1,4-k.d)},s);dr(k)});
+   const g=S("g",{transform:`translate(${x},${y})`,style:n.k?"cursor:pointer":""},s);S("circle",{r:n.k?6:3.5,fill:n.c?"var(--card)":PAL[n.d%PAL.length],stroke:PAL[n.d%PAL.length],"stroke-width":2},g);
+   T(g,10,4,n.l+(n.c?`  (${n.k.length})`:""),{"font-size":n.d==0?14:n.d==1?13:11.5,"font-weight":n.d<2?600:400});if(n.k)g.onclick=()=>{n.c=!n.c;draw()}})(tree)}
+ btn("Open all",()=>{(function f(n){n.c=false;(n.k||[]).forEach(f)})(tree);draw()});btn("Close all",()=>{(function f(n,d){if(n.k){n.c=d>=1;n.k.forEach(k=>f(k,d+1))}})(tree,0);draw()});draw()});
+
+V("ont","Screen × object grid","Which screens work with which business objects. The darker the cell, the more of the object's tables the screen reads or writes through its API calls.","Testing scope, onboarding",()=>{
+ const{s,w,h}=svgRoot();const epT=Object.fromEntries(DATA.endpoints.map(e=>[e.id,e.r.concat(e.w)]));
+ const rows=DATA.screens.map(sc=>{const ts=new Set(sc.tables);sc.eps.forEach(x=>(epT[x]||[]).forEach(t=>ts.add(t)));return{l:route(sc.route),r:sc.route,v:O.obj.map(o=>o.t.filter(t=>ts.has(t)).length)}});
+ const mx=Math.max(...rows.flatMap(r=>r.v)),L=200,top=60,cw=(w-L-30)/O.obj.length,ch=(h-top-14)/rows.length;
+ O.obj.forEach((o,j)=>{T(s,L+j*cw+cw/2,top-30,o.label,{"text-anchor":"middle","font-weight":600});S("rect",{x:L+j*cw+4,y:top-20,width:cw-8,height:5,rx:2,fill:O.col[o.id]},s)});
+ rows.forEach((r,i)=>{T(s,L-10,top+i*ch+ch/2+4,r.l,{"text-anchor":"end",class:"lbl"});r.v.forEach((v,j)=>{const x=L+j*cw,y=top+i*ch;const c=S("rect",{x:x+2,y:y+2,width:cw-4,height:ch-4,rx:4,fill:v?heat(v,mx):"var(--grid)"},s);
+  if(v)T(s,x+cw/2,y+ch/2+4,v,{"text-anchor":"middle","font-size":11,style:v/mx>.4?"fill:#fff":""});tipOn(c,`<b>${esc(r.r)}</b> × <b>${esc(O.obj[j].label)}</b><br>${v} of ${O.obj[j].t.length} tables`)})})});
+
+V("ont","Value boards","The coded values the business uses (request types, stages, statuses) and what each code means, one board per value list.","Glossary handout",()=>{
+ const d=H("div",{class:"cards",style:"grid-template-columns:repeat(auto-fill,minmax(330px,1fr))"},$("#stage"));
+ DATA.states.forEach((x,i)=>{const c=H("div",{class:"card",style:`border-top-color:${PAL[i%PAL.length]}`},d);H("h3",{},c,esc(x.name));H("div",{class:"d"},c,esc(x.desc));const ch=H("div",{class:"chips"},c);x.values.forEach(([k,v])=>H("span",{title:esc(v)},ch,`<b>${esc(k)}</b>${esc(short(v,46))}`))})});
+
+V("ont","Metric bubbles","The 30 business metrics grouped by area (shared savings, spend, membership and so on). Hover a bubble for what the metric means.","Business audience",()=>{
+ const{s,w,h}=svgRoot();const areas={};DATA.metrics.forEach(m=>(areas[m.area]=areas[m.area]||[]).push(m));const keys=Object.keys(areas).sort((a,b)=>areas[b].length-areas[a].length);
+ const r=Math.min(w,h)/18;const groups=keys.map(k=>{const p=pack(areas[k].map(()=>r),0,0);return{k,p,R:p.R+14}});const outer=pack(groups.map(g=>g.R),w/2,h/2+8);
+ const sc=Math.min(1,(Math.min(w,h)/2-16)/outer.R);
+ groups.forEach((g,i)=>{const n=outer.nodes[i],gx=w/2+(n.x-w/2)*sc,gy=h/2+8+(n.y-h/2-8)*sc,col=PAL[i%PAL.length];S("circle",{cx:gx,cy:gy,r:g.R*sc,fill:col,"fill-opacity":.1,stroke:col,"stroke-opacity":.5},s);
+  T(s,gx,gy-g.R*sc+13,g.k,{"text-anchor":"middle","font-weight":700,"font-size":11.5,fill:col,style:`fill:${col}`});
+  g.p.nodes.forEach((m,j)=>{const x=gx+m.x*sc,y=gy+m.y*sc+6,mt=areas[g.k][j];const c=S("circle",{cx:x,cy:y,r:r*sc,fill:col,"fill-opacity":.85,style:`animation:pulse ${3+j%3}s ease-in-out infinite`},s);tipOn(c,`<b>${esc(mt.label)}</b><br>${esc(mt.means)}`);
+   const words=mt.label.split(" ");const lines=words.length>2?[words.slice(0,Math.ceil(words.length/2)).join(" "),words.slice(Math.ceil(words.length/2)).join(" ")]:[mt.label];lines.forEach((ln,k)=>T(s,x,y+4+(k-(lines.length-1)/2)*11,short(ln,16),{"text-anchor":"middle","font-size":9.5,style:"fill:#fff;pointer-events:none"}))})})});
+
+V("ont","Object fact cards","One card per business object: what people call it, its main table and key, and how far it reaches into tables, API calls, screens, ETL jobs and outside systems.","Exec summary, handout",()=>{
+ const d=H("div",{class:"cards",style:"grid-template-columns:repeat(auto-fill,minmax(360px,1fr))"},$("#stage"));const mx={t:0,eps:0,scr:0,jobs:0,sys:0};O.obj.forEach(o=>{for(const k in mx)mx[k]=Math.max(mx[k],o[k].length)});
+ O.obj.forEach(o=>{const c=H("div",{class:"card",style:`border-top-color:${O.col[o.id]}`},d);dn(c,"object:"+o.id);H("h3",{},c,esc(o.label));H("div",{class:"d"},c,`Main table <b>${esc(o.table||"-")}</b>${o.key?`, key ${esc(o.key)}`:""}${o.types?`, ${o.types} types`:""}`);
+  const ch=H("div",{class:"chips",style:"margin-bottom:8px"},c);o.aliases.forEach(a=>H("span",{},ch,esc(a)));
+  [["t","Tables","#e8912d"],["eps","API calls","#794cff"],["scr","Screens","#00bbaa"],["jobs","ETL jobs","#53b1a3"],["sys","Outside systems","#d90026"]].forEach(([k,l,col])=>{H("div",{class:"kv"},c,`<span>${l}</span><b>${o[k].length}</b>`);H("div",{class:"bar"},c,`<i style="width:${o[k].length/mx[k]*100}%;background:${col}"></i>`)})})});
+
+const SUB=DATA.sub;const ROUTE=r=>route(r);
+function lgNodes(types){const keep=new Set(types);const nodes=SUB.nodes.filter(n=>keep.has(n.t)).map(n=>Object.assign({},n));const id=new Set(nodes.map(n=>n.id));return{nodes,edges:SUB.edges.filter(e=>id.has(e[0])&&id.has(e[1]))}}
+const lab=n=>n.t=="screen"?ROUTE(nice(n.id)):n.t=="endpoint"?nice(n.id).replace(/^(GET|POST|PUT|DELETE|PATCH) \/api\//,"$1 "):n.l;
+
+V("lg","Network","The link graph itself: screens, API calls, tables, ETL jobs, outside systems and business objects, each line copied from a source. Scroll to zoom, drag to pan, drag a dot to move it, click a type below to hide it.","Live demo, 'wow' slide",()=>{
+ const types=["object","screen","endpoint","table","job","system"],on=new Set(types);types.forEach(t=>{const c=H("span",{class:"chip"},ctl(),`<i style="background:${C[t]}"></i>${NICE[t]}`);c.onclick=()=>{on.has(t)?on.delete(t):on.add(t);c.classList.toggle("off");vis()}});
+ const{s,w,h}=svgRoot();zoomable(s,w,h);const{nodes,edges}=lgNodes(types);const deg={};edges.forEach(e=>{deg[e[0]]=(deg[e[0]]||0)+1;deg[e[1]]=(deg[e[1]]||0)+1});
+ nodes.forEach(n=>{n.r=Math.min(14,2.5+Math.sqrt(deg[n.id]||1)*.9);if(n.t=="object")n.r=13});
+ const ed=edges.filter(e=>!(e[2]=="reads"&&deg[e[1]]>40&&Math.random()<.55));
+ const sim=force(nodes,ed.map(e=>({s:e[0],t:e[1],len:e[2]=="calls"?40:70})),w,h,{rep:420,str:.03,grav:.02,iter:260});
+ const lg=S("g",{},s),ng=S("g",{},s);const lines=sim.L.map(([a,b,l])=>{const p=S("line",{stroke:C[a.t],"stroke-opacity":.18},lg);return[p,a,b]});
+ nodes.forEach(n=>{n.g=S("circle",{r:n.r,fill:C[n.t],stroke:"var(--card)","stroke-width":1},ng);tipOn(n.g,()=>`<b>${esc(lab(n))}</b><br>${NICE[n.t]} · ${deg[n.id]||0} links`);dragNode(n.g,n,draw,s);dn(n.g,n.id);
+  n.g.addEventListener("mouseenter",()=>lines.forEach(([p,a,b])=>p.setAttribute("stroke-opacity",a===n||b===n?.85:.05)));n.g.addEventListener("mouseleave",()=>lines.forEach(([p])=>p.setAttribute("stroke-opacity",.18)));
+  if(n.t=="object"||n.t=="system"){n.tl=T(ng,0,0,short(n.l,26),{"font-size":10.5,"font-weight":600})}});
+ function draw(){lines.forEach(([p,a,b])=>{p.setAttribute("x1",a.x);p.setAttribute("y1",a.y);p.setAttribute("x2",b.x);p.setAttribute("y2",b.y)});nodes.forEach(n=>{n.g.setAttribute("cx",n.x);n.g.setAttribute("cy",n.y);if(n.tl){n.tl.setAttribute("x",n.x+n.r+3);n.tl.setAttribute("y",n.y+4)}})}
+ function vis(){nodes.forEach(n=>{const v=on.has(n.t);n.g.style.display=v?"":"none";if(n.tl)n.tl.style.display=v?"":"none"});lines.forEach(([p,a,b])=>p.style.display=on.has(a.t)&&on.has(b.t)?"":"none")}
+ let k=0;loop(()=>{if(k++<120){sim.tick(.25);draw()}else return false});draw();T(s,w-14,20,`${nodes.length} items · ${ed.length} links shown (of ${DATA.lgCounts.edges.toLocaleString()} in the graph)`,{"text-anchor":"end",class:"sub"})});
+
+V("lg","Hive plot","Each kind of thing sits on its own spoke, sorted by how connected it is; curves show the links between spokes. It shows where the graph is dense without the hairball.","Analyst audience",()=>{
+ const{s,w,h}=svgRoot();const axes=["screen","endpoint","table","job","system","object"],{nodes,edges}=lgNodes(axes);const cx=w/2,cy=h/2+10,R=Math.min(w,h)/2-40,r0=40;const deg={};edges.forEach(e=>{deg[e[0]]=(deg[e[0]]||0)+1;deg[e[1]]=(deg[e[1]]||0)+1});
+ const pos={};axes.forEach((t,i)=>{const a=i/axes.length*Math.PI*2-Math.PI/2,list=nodes.filter(n=>n.t==t).sort((x,y)=>(deg[y.id]||0)-(deg[x.id]||0));S("line",{x1:cx+r0*Math.cos(a),y1:cy+r0*Math.sin(a),x2:cx+R*Math.cos(a),y2:cy+R*Math.sin(a),stroke:C[t],"stroke-width":3,"stroke-opacity":.6},s);
+  T(s,cx+(R+18)*Math.cos(a),cy+(R+18)*Math.sin(a)+4,`${NICE[t]} (${list.length})`,{"text-anchor":Math.abs(Math.cos(a))<.2?"middle":Math.cos(a)>0?"start":"end","font-weight":600,fill:C[t],style:`fill:${C[t]}`});
+  list.forEach((n,j)=>{const rr=r0+(R-r0)*(j+.5)/list.length;pos[n.id]={x:cx+rr*Math.cos(a),y:cy+rr*Math.sin(a),a,n}})});
+ const g=S("g",{},s);edges.forEach(e=>{const a=pos[e[0]],b=pos[e[1]];if(!a||!b||a.a==b.a)return;const p=S("path",{d:`M${a.x},${a.y}Q${cx},${cy} ${b.x},${b.y}`,fill:"none",stroke:C[a.n.t],"stroke-opacity":.08},g);p._e=[e[0],e[1]]});
+ Object.values(pos).forEach(p=>{const c=S("circle",{cx:p.x,cy:p.y,r:3,fill:C[p.n.t]},s);tipOn(c,`<b>${esc(lab(p.n))}</b><br>${deg[p.n.id]||0} links`);dn(c,p.n.id);c.onmouseenter=()=>g.querySelectorAll("path").forEach(q=>q.setAttribute("stroke-opacity",q._e.includes(p.n.id)?.8:.02));c.onmouseleave=()=>g.querySelectorAll("path").forEach(q=>q.setAttribute("stroke-opacity",.08))})});
+
+V("lg","Link-type flow","All links grouped by what points to what. Left: the kind of thing a link starts from; right: what it points to. Ribbon width is the number of links (square-root scaled so small flows stay visible).","KB scope, method slide",()=>{
+ const{s,w,h}=svgRoot();const from={},to={},links=[];DATA.lgTriples.forEach(([a,v,b,n])=>{from[a]=(from[a]||0)+n;to[b]=(to[b]||0)+n});
+ const L=Object.keys(from).sort((a,b)=>from[b]-from[a]).map(t=>({id:"f"+t,l:`${NICE[t]} (${from[t].toLocaleString()})`,c:C[t]})),R=Object.keys(to).sort((a,b)=>to[b]-to[a]).map(t=>({id:"t"+t,l:`${NICE[t]} (${to[t].toLocaleString()})`,c:C[t]}));
+ DATA.lgTriples.forEach(([a,v,b,n])=>links.push({s:"f"+a,t:"t"+b,v:Math.sqrt(n),c:C[a],tip:`${NICE[a]} <b>${v.replace(/_/g," ")}</b> ${NICE[b]}: ${n.toLocaleString()} links`}));
+ const sk=sankey(s,[L,R],links,w,h,{x0:180,x1:200,nw:16,top:34,pad:10});T(s,180,20,"Starts from",{"font-weight":600,fill:"#5009b5",style:"fill:var(--p)"});T(s,w-200,20,"Points to",{"font-weight":600,fill:"#5009b5",style:"fill:var(--p)"});
+ sk.byId; Object.values(sk.byId).forEach(n=>{if(n.ci==0){n.tel.setAttribute("x",n.x-6);n.tel.setAttribute("text-anchor","end")}})});
+
+V("lg","Link-type grid","The same counts as a grid: rows are where a link starts, columns are where it points, and each cell names the relationship (reads, writes, calls, covers, changed). Switch to both directions to see each link from either end.","Method slide",()=>{
+ let both=false;selectCtl("Direction",[["one","Row to column, as recorded"],["both","Both directions"]],v=>{both=v=="both";draw()},"one");
+ function draw(){$("#stage").innerHTML="";const{s,w,h}=svgRoot();const tr=DATA.lgTriples.map(x=>[x[0],x[1],x[2],x[3],0]);if(both)DATA.lgTriples.forEach(([a,v,b,n])=>{if(a!=b)tr.push([b,v,a,n,1])});
+ const ty=[...new Set(DATA.lgTriples.flatMap(x=>[x[0],x[2]]))],rs=both?ty:[...new Set(tr.map(x=>x[0]))],cs=both?ty:[...new Set(tr.map(x=>x[2]))];const cell={};tr.forEach(([a,v,b,n,r])=>{const k=a+"|"+b;(cell[k]=cell[k]||[]).push([v,n,r])});
+ const mx=Math.max(...Object.values(cell).map(x=>x.reduce((a,b)=>a+b[1],0))),L=130,top=both?120:50,cw=(w-L-20)/cs.length,ch=(h-top-10)/rs.length;
+ cs.forEach((c,j)=>{const cx=L+j*cw+cw/2,cy=top-10;T(s,cx,cy,NICE[c]||c,both?{"text-anchor":"start","font-weight":600,fill:C[c],style:`fill:${C[c]}`,transform:`rotate(-40,${cx},${cy})`}:{"text-anchor":"middle","font-weight":600,fill:C[c],style:`fill:${C[c]}`})});
+ rs.forEach((r,i)=>{T(s,L-10,top+i*ch+ch/2+4,NICE[r]||r,{"text-anchor":"end","font-weight":600,fill:C[r],style:`fill:${C[r]}`});cs.forEach((c,j)=>{const v=cell[r+"|"+c];const x=L+j*cw,y=top+i*ch,n=v?v.reduce((a,b)=>a+b[1],0):0;
+  const re=S("rect",{x:x+2,y:y+2,width:cw-4,height:ch-4,rx:5,fill:n?heat(n,mx):"var(--grid)"},s);if(v){const st=n/mx>.3?"fill:#fff":"";T(s,x+cw/2,y+ch/2-1,n.toLocaleString(),{"text-anchor":"middle","font-weight":700,style:st});T(s,x+cw/2,y+ch/2+12,short(v.map(q=>(q[2]?"\u2190 ":"")+q[0].replace(/_/g," ")).join(", "),22),{"text-anchor":"middle","font-size":9.5,style:st});
+  tipOn(re,v.map(q=>q[2]?`${NICE[c]||c} <b>${q[0].replace(/_/g," ")}</b> ${NICE[r]||r}: ${q[1]} (read from the other end)`:`${NICE[r]||r} <b>${q[0].replace(/_/g," ")}</b> ${NICE[c]||c}: ${q[1]}`).join("<br>"))}})})}
+ draw()});
+
+V("lg","Arc diagram","The 36 tables used by the most API calls, on one line. An arc joins two tables that are used by the same API calls (6 or more shared); thicker arcs mean more shared calls.","Data-design talk",()=>{
+ const{s,w,h}=svgRoot();const A=DATA.arc,n=A.tables.length,base=h-180,x=i=>40+i*(w-80)/(n-1),mxe=Math.max(...Object.values(A.eps));const g=S("g",{},s);
+ A.links.filter(l=>l[2]>=6).forEach(([a,b,v])=>{const i=A.tables.indexOf(a),j=A.tables.indexOf(b),r=(x(j)-x(i))/2;const p=S("path",{d:`M${x(i)},${base}A${r},${Math.min(r,base-30)} 0 0 1 ${x(j)},${base}`,fill:"none",stroke:PAL[i%PAL.length],"stroke-opacity":.35,"stroke-width":Math.min(6,v/6)},g);p._ij=[a,b];tipOn(p,`<b>${esc(a)}</b> and <b>${esc(b)}</b><br>${v} API calls use both`)});
+ A.tables.forEach((t,i)=>{const c=S("circle",{cx:x(i),cy:base,r:3+A.eps[t]/mxe*8,fill:"#e8912d"},s);tipOn(c,`<b>${esc(t)}</b><br>${A.eps[t]} API calls`);dn(c,"table:"+t);c.onmouseenter=()=>g.querySelectorAll("path").forEach(p=>p.setAttribute("stroke-opacity",p._ij.includes(t)?.9:.04));c.onmouseleave=()=>g.querySelectorAll("path").forEach(p=>p.setAttribute("stroke-opacity",.35));
+  T(s,x(i),base+16,short(t,24),{"font-size":10,transform:`rotate(55,${x(i)},${base+16})`})})});
+
+V("lg","Story blast radius","Pick a Jira story: the code files its commits changed, and the tables those files read or write. A quick picture of how far one story reached.","Release / change review",()=>{
+ let cur=DATA.stories[0].id;selectCtl("Story",DATA.stories.map(x=>[x.id,`${x.id} (${x.files.length} files)`]),v=>{cur=v;draw()},cur);
+ function draw(){$("#stage").innerHTML="";const{s,w,h}=svgRoot();zoomable(s,w,h);const st=DATA.stories.find(x=>x.id==cur),cx=w/2,cy=h/2,R1=Math.min(w,h)*.22,R2=Math.min(w,h)*.44;
+  const tabs=[...new Set(st.files.flatMap(f=>f.t))],tp={};tabs.forEach((t,i)=>{const a=(i+.5)/tabs.length*Math.PI*2;tp[t]={x:cx+R2*Math.cos(a),y:cy+R2*Math.sin(a),a}});const g=S("g",{},s);
+  st.files.forEach((f,i)=>{const a=(i+.5)/st.files.length*Math.PI*2,x=cx+R1*Math.cos(a),y=cy+R1*Math.sin(a);const d=`M${cx},${cy}L${x},${y}`;S("path",{d,stroke:"#e05aa0","stroke-opacity":.5},g);travel(g,d,"#e05aa0",2,2.5);
+   f.t.forEach(t=>{const q=tp[t];const d2=`M${x},${y}Q${(x+q.x)/2+(cx-x)*.15},${(y+q.y)/2+(cy-y)*.15} ${q.x},${q.y}`;S("path",{d:d2,fill:"none",stroke:"#e8912d","stroke-opacity":.35},g)});
+   const c=S("circle",{cx:x,cy:y,r:7,fill:"#5b6770",stroke:"#fff","stroke-width":1.5},s);tipOn(c,`<b>${esc(f.f)}</b><br>${f.t.length} tables`);dn(c,"file:"+f.f);const fl=Math.cos(a)<0;T(s,x+(fl?-10:10),y+4,short(f.f.split("/").slice(-2).join("/"),30),{class:"lbl","text-anchor":fl?"end":"start","font-size":10})});
+  Object.entries(tp).forEach(([t,q])=>{const c=S("circle",{cx:q.x,cy:q.y,r:5,fill:"#e8912d"},s);tipOn(c,`<b>${esc(t)}</b>`);dn(c,"table:"+t);const fl=Math.cos(q.a)<0,deg=q.a*180/Math.PI;T(s,q.x+(fl?-8:8),q.y+3,short(t,30),{"font-size":9.5,"text-anchor":fl?"end":"start",transform:`rotate(${fl?deg+180:deg},${q.x},${q.y})`})});
+  dn(S("circle",{cx,cy,r:34,fill:"#e05aa0"},s),"story:"+st.id);T(s,cx,cy+4,st.id,{"text-anchor":"middle","font-weight":700,style:"fill:#fff","font-size":11});
+  T(s,14,20,`${st.files.length} files changed · ${tabs.length} tables reached`,{class:"sub"})}draw()});
+
+V("lg","Most connected tables","The 25 tables with the most links, split by what links to them. These are the tables where a change ripples furthest.","Risk slide",()=>{
+ const{s,w,h}=svgRoot();const H2=DATA.hubs,types=["endpoint","file","test","column","job","system","object","story","screen","chain"].filter(t=>H2.some(x=>x.by[t])),mx=H2[0].deg,L=260,top=40,bh=(h-top-14)/H2.length;
+ let lx=L;types.forEach(t=>{S("rect",{x:lx,y:14,width:10,height:10,rx:2,fill:C[t]},s);const tx=T(s,lx+14,23,NICE[t],{class:"lbl sub"});lx+=tx.getComputedTextLength()+30});
+ H2.forEach((t,i)=>{const y=top+i*bh;T(s,L-10,y+bh/2+4,t.name,{"text-anchor":"end",class:"lbl"});let x=L;types.forEach(k=>{const v=t.by[k]||0;if(!v)return;const ww=v/mx*(w-L-80);const r=S("rect",{x,y:y+3,width:ww,height:bh-6,fill:C[k],rx:2},s);tipOn(r,`<b>${esc(t.name)}</b><br>${NICE[k]}: ${v}`);dn(r,"table:"+t.name);x+=ww});T(s,x+6,y+bh/2+4,t.deg,{class:"lbl sub"})})});
+
+V("lg","Packed circles","Every kind of thing in the graph as a bubble of bubbles: the outer circle is the kind (sized by how many there are), the inner ones are its 40 most-connected members.","Scope / scale slide",()=>{
+ const{s,w,h}=svgRoot();const P=DATA.pack,keys=Object.keys(P);const groups=keys.map(k=>{const mx=P[k].top[0]?P[k].top[0][1]:1;const p=pack(P[k].top.map(x=>3+Math.sqrt(x[1]/mx)*16),0,0);return{k,p,R:Math.max(p.R+10,22)}});
+ const outer=pack(groups.map(g=>g.R),w/2,h/2),sc=Math.min(1.6,(Math.min(w,h)/2-12)/outer.R);
+ groups.forEach((g,i)=>{const n=outer.nodes[i],gx=w/2+(n.x-w/2)*sc,gy=h/2+(n.y-h/2)*sc;S("circle",{cx:gx,cy:gy,r:g.R*sc,fill:C[g.k],"fill-opacity":.08,stroke:C[g.k],"stroke-opacity":.6},s);
+  g.p.nodes.forEach((m,j)=>{const it=P[g.k].top[j];const c=S("circle",{cx:gx+m.x*sc,cy:gy+m.y*sc,r:m.r*sc,fill:C[g.k],"fill-opacity":.75},s);tipOn(c,`<b>${esc(g.k=="screen"?ROUTE(it[0]):it[0])}</b><br>${NICE[g.k]} · ${it[1]} links`);dn(c,it[0].includes(":")&&GI.has(it[0])?it[0]:g.k+":"+it[0])});
+  T(s,gx,gy+g.R*sc+13,`${NICE[g.k]} (${P[g.k].n})`,{"text-anchor":"middle","font-weight":600,"font-size":11})})});
+
+V("lg","Follow the thread","Five columns from what a user sees to where the data goes: screen, API call, table, ETL job, outside system. Click a screen (or press Play) to light up its whole path.","Demo for new joiners",()=>{
+ const{s,w,h}=svgRoot();const cols=["screen","endpoint","table","job","system"],{nodes,edges}=lgNodes(cols.concat([]));const by={};cols.forEach(t=>by[t]=nodes.filter(n=>n.t==t));const adj={};edges.forEach(e=>{(adj[e[0]]=adj[e[0]]||[]).push(e[1]);(adj[e[1]]=adj[e[1]]||[]).push(e[0])});
+ const cw=(w-60)/cols.length,pos={};cols.forEach((t,ci)=>{const L=by[t],dy=(h-50)/Math.max(1,L.length);T(s,30+ci*cw,20,`${NICE[t]} (${L.length})`,{"font-weight":600,fill:C[t],style:`fill:${C[t]}`});L.forEach((n,i)=>{pos[n.id]={x:30+ci*cw,y:36+i*dy+dy/2,n,ci}})});
+ const g=S("g",{},s),dots={};edges.forEach(e=>{const a=pos[e[0]],b=pos[e[1]];if(!a||!b||Math.abs(a.ci-b.ci)!=1)return;const[p,q]=a.ci<b.ci?[a,b]:[b,a];const el=S("path",{d:curve(p.x+4,p.y,q.x-4,q.y),fill:"none",stroke:"var(--line)","stroke-opacity":.5},g);el._k=[p.n.id,q.n.id]});
+ Object.values(pos).forEach(p=>{const c=S("circle",{cx:p.x,cy:p.y,r:p.ci==0?6:3,fill:C[p.n.t]},s);dots[p.n.id]=c;tipOn(c,`<b>${esc(lab(p.n))}</b>`);if(p.ci>0)dn(c,p.n.id);if(p.ci==0){T(s,p.x+10,p.y+4,short(lab(p.n),26),{"font-size":10.5});c.style.cursor="pointer";c.onclick=()=>light(p.n.id)}});
+ const hl=S("g",{},s);
+ function light(id){hl.innerHTML="";const lit=new Set([id]);let front=[id];for(let ci=1;ci<cols.length;ci++){const nx=[];front.forEach(f=>(adj[f]||[]).forEach(x=>{if(pos[x]&&pos[x].ci==ci&&!lit.has(x)){lit.add(x);nx.push(x)}}));front=nx}
+  g.querySelectorAll("path").forEach(p=>{const on=lit.has(p._k[0])&&lit.has(p._k[1]);p.setAttribute("stroke",on?C[pos[p._k[0]].n.t]:"var(--line)");p.setAttribute("stroke-opacity",on?.7:.15);if(on){p.classList.add("flow")}else p.classList.remove("flow")});
+  Object.entries(dots).forEach(([k,c])=>c.setAttribute("opacity",lit.has(k)?1:.2));[...lit].filter(k=>pos[k].ci==4||pos[k].ci==3).slice(0,30).forEach(k=>T(hl,pos[k].x+6,pos[k].y+3,short(lab(pos[k].n),24),{"font-size":9.5}))}
+ const scr=by.screen.map(n=>n.id);let i=0;light(scr[0]);btn("Play",()=>{clearInterval(window._ft);window._ft=setInterval(()=>light(scr[++i%scr.length]),2600);TIMERS.push(window._ft)})});
+
+V("lg","Test coverage","Left: how many automated tests cover each screen. Right: the 200 most-connected tables, one square each; filled squares are tables at least one test checks.","QA status slide",()=>{
+ const{s,w,h}=svgRoot();const ts=DATA.testScreens.slice().sort((a,b)=>b[1]-a[1]),mx=Math.max(1,...ts.map(x=>x[1])),L=180,half=w*.48,bh=(h-50)/ts.length;
+ T(s,20,22,"Tests per screen",{"font-weight":600,fill:"#2f80ed",style:"fill:#2f80ed"});ts.forEach(([r,n],i)=>{const y=36+i*bh;T(s,L-8,y+bh/2+4,ROUTE(r),{"text-anchor":"end",class:"lbl"});const ww=n/mx*(half-L-40);const b=S("rect",{x:L,y:y+3,width:n?ww:half-L-40,height:bh-6,rx:3,fill:n?"#2f80ed":"var(--grid)"},s);T(s,n?L+ww+6:L+6,y+bh/2+4,n||"none yet",{class:"lbl sub"})});
+ const tt=DATA.tableTest,cols=20,sz=Math.min((w-half-40)/cols,(h-70)/Math.ceil(tt.length/cols))-3,x0=half+20;const cov=tt.filter(x=>x[1]).length;
+ T(s,x0,22,`Tables checked by a test: ${cov} of ${tt.length}`,{"font-weight":600,fill:"#2f80ed",style:"fill:#2f80ed"});
+ tt.forEach(([t,n,d],i)=>{const r=S("rect",{x:x0+(i%cols)*(sz+3),y:36+Math.floor(i/cols)*(sz+3),width:sz,height:sz,rx:3,fill:n?"#2f80ed":"var(--grid)",stroke:n?"none":"#e8912d","stroke-opacity":.5},s);tipOn(r,`<b>${esc(t)}</b><br>${n} test links · ${d} links in all`);dn(r,"table:"+t)})});
+
+const LANES=["FE","API","DB","ETL","DOWNSTREAM","DOCS"],LANEN={FE:"Screen",API:"API",DB:"Database",ETL:"ETL",DOWNSTREAM:"Downstream",DOCS:"Docs"},LC={FE:"#00bbaa",API:"#794cff",DB:"#e8912d",ETL:"#53b1a3",DOWNSTREAM:"#d90026",DOCS:"#5b6770"};
+V("ag","Column lineage","Where data moves between tables, from the warehouse query history: each ribbon is columns copied from one table into another, width is how often those queries ran in the last 30 days.","Data team, lineage review",()=>{
+ const{s,w,h}=svgRoot();const Lg=DATA.lineage.slice(0,32);const src=[...new Set(Lg.map(x=>x.s))],tgt=[...new Set(Lg.map(x=>x.t))];const both=src.filter(x=>tgt.includes(x));
+ const c0=src.filter(x=>!both.includes(x)).map(x=>({id:"a"+x,l:x,c:"#53b1a3"})),c1=both.map(x=>({id:"b"+x,l:x,c:"#794cff"})),c2=tgt.filter(x=>!both.includes(x)).map(x=>({id:"c"+x,l:x,c:"#e8912d"}));
+ const id=x=>both.includes(x)?"b"+x:src.includes(x)?"a"+x:"c"+x;const nid=(x,side)=>both.includes(x)?"b"+x:(side?"c":"a")+x;
+ const cols=c1.length?[c0,c1,c2]:[c0,c2];const links=Lg.map(l=>({s:nid(l.s,0),t:nid(l.t,1),v:Math.sqrt(l.q),c:"#794cff",tip:`<b>${esc(l.s)} → ${esc(l.t)}</b><br>${l.c} columns · ${l.q.toLocaleString()} query runs`})).filter(l=>l.s!=l.t);
+ const sk=sankey(s,cols,links,w,h,{top:30,right:230,nw:12,pad:5});["Source tables","Pass-through tables","Target tables"].slice(0,cols.length).forEach((t,i)=>T(s,cols[i][0]?cols[i][0].x:0,18,c1.length||i==0?t:"Target tables",{"font-weight":600,style:"fill:var(--p)"}));
+ sk.els.forEach(p=>p.classList.add("flow"));Object.values(sk.byId).forEach(n=>dn(n.el,"table:"+n.l))});
+
+V("ag","ETL job flow","The busiest ETL jobs in the middle, the tables each reads on the left and the tables it writes on the right. Hover a job to see only its inputs and outputs.","ETL walkthrough",()=>{
+ const{s,w,h}=svgRoot();const J=DATA.jobs.filter(j=>j.r.length&&j.w.length).sort((a,b)=>(b.r.length+b.w.length)-(a.r.length+a.w.length)).slice(0,12);
+ const R=[...new Set(J.flatMap(j=>j.r))].slice(0,45),W=[...new Set(J.flatMap(j=>j.w))].slice(0,45);const x0=210,x1=w/2,x2=w-230;const py=(L,i)=>30+(i+.5)*(h-40)/L.length;
+ T(s,x0,18,"Reads",{"font-weight":600,"text-anchor":"end",style:"fill:#53b1a3"});T(s,x1,18,"ETL job",{"font-weight":600,"text-anchor":"middle",style:"fill:var(--p)"});T(s,x2,18,"Writes",{"font-weight":600,style:"fill:#e8912d"});
+ const g=S("g",{},s);const all=[];J.forEach((j,ji)=>{const y=py(J,ji);j.r.forEach(t=>{const i=R.indexOf(t);if(i<0)return;const p=S("path",{d:curve(x0,py(R,i),x1-70,y),fill:"none",stroke:"#53b1a3","stroke-opacity":.3},g);p._j=ji;all.push(p)});j.w.forEach(t=>{const i=W.indexOf(t);if(i<0)return;const p=S("path",{d:curve(x1+70,y,x2,py(W,i)),fill:"none",stroke:"#e8912d","stroke-opacity":.35},g);p._j=ji;all.push(p);p.classList.add("flow")})});
+ R.forEach((t,i)=>{dn(S("circle",{cx:x0,cy:py(R,i),r:4,fill:"#53b1a3"},s),"table:"+t);T(s,x0-6,py(R,i)+3,short(t,32),{"text-anchor":"end","font-size":9.5})});W.forEach((t,i)=>{dn(S("circle",{cx:x2,cy:py(W,i),r:4,fill:"#e8912d"},s),"table:"+t);T(s,x2+6,py(W,i)+3,short(t,32),{"font-size":9.5})});
+ J.forEach((j,ji)=>{const y=py(J,ji);const r=S("rect",{x:x1-70,y:y-11,width:140,height:22,rx:11,fill:"#5009b5"},s);T(s,x1,y+4,short(j.id,22),{"text-anchor":"middle","font-size":10.5,style:"fill:#fff;pointer-events:none"});tipOn(r,`<b>${esc(j.id)}</b><br>${esc(j.desc||"")}<br>reads ${j.r.length}, writes ${j.w.length}`);dn(r,"job:"+j.id);
+  r.onmouseenter=()=>all.forEach(p=>p.setAttribute("stroke-opacity",p._j==ji?.9:.04));r.onmouseleave=()=>all.forEach(p=>p.setAttribute("stroke-opacity",.32))})});
+
+V("ag","Impact chain lanes","Pick a data item that matters to the business. Lanes show who writes it and who reads it, layer by layer, in order. Press Play to walk the steps.","Change-impact story",()=>{
+ let cur=DATA.chains[0].id;selectCtl("Data item",DATA.chains.map(c=>[c.id,`${c.name} (${c.risk.toLowerCase()} risk)`]),v=>{cur=v;draw()},cur);let play=null;btn("Play",()=>play&&play());
+ function draw(){$("#stage").innerHTML="";const{s,w,h}=svgRoot();const c=DATA.chains.find(x=>x.id==cur);const steps=c.w.map(x=>Object.assign({k:"Writes"},x)).concat(c.r.map(x=>Object.assign({k:"Reads"},x)));const lanes=LANES.filter(l=>steps.some(x=>x.layer==l));
+  const L=130,lh=(h-60)/lanes.length,sw=(w-L-30)/steps.length;lanes.forEach((l,i)=>{S("rect",{x:0,y:40+i*lh,width:w,height:lh,fill:i%2?"var(--grid)":"transparent"},s);T(s,16,40+i*lh+lh/2+4,LANEN[l],{"font-weight":600,style:`fill:${LC[l]}`})});
+  T(s,L,24,`${c.name} · ${c.attr}`,{"font-weight":700,style:"fill:var(--p)"});T(s,w-16,24,`${c.risk} risk`,{"text-anchor":"end","font-weight":700,style:`fill:${c.risk=="HIGH"?"#d90026":"#e8912d"}`});
+  S("line",{x1:L+sw*c.w.length-6,y1:34,x2:L+sw*c.w.length-6,y2:h-14,stroke:"var(--line)","stroke-dasharray":"4 4"},s);T(s,L+4,h-4,"Written by",{class:"sub lbl"});T(s,L+sw*c.w.length+4,h-4,"Read by",{class:"sub lbl"});
+  const pts=steps.map((x,i)=>({x:L+i*sw+sw/2,y:40+lanes.indexOf(x.layer)*lh+lh/2,x0:x}));let d="";pts.forEach((p,i)=>d+=(i?"L":"M")+p.x+","+p.y);S("path",{d,fill:"none",stroke:"#794cff","stroke-width":2,"stroke-opacity":.5,class:"flow"},s);
+  const boxes=pts.map((p,i)=>{const g=S("g",{transform:`translate(${p.x},${p.y})`},s);const bw=Math.min(sw-10,210);S("rect",{x:-bw/2,y:-24,width:bw,height:48,rx:8,fill:"var(--card)",stroke:LC[p.x0.layer],"stroke-width":2},g);T(g,0,-8,short(p.x0.item||p.x0.action,bw/6),{"text-anchor":"middle","font-size":10.5,"font-weight":600});T(g,0,8,short(p.x0.item?p.x0.action:"",bw/5.6),{"text-anchor":"middle","font-size":9.5,class:"sub"});T(g,-bw/2+6,20,`${i+1}`,{"font-size":9,class:"sub"});tipOn(g,`<b>${p.x0.k}: ${esc(p.x0.item||LANEN[p.x0.layer]||p.x0.layer)}</b><br>${esc(p.x0.action)}`);return g});
+  const tok=S("circle",{r:8,fill:"#f3c246",stroke:"#5009b5","stroke-width":2,opacity:0},s);play=()=>{let i=0;tok.setAttribute("opacity",1);clearInterval(window._pl);const st=()=>{if(i>=pts.length){clearInterval(window._pl);return}boxes.forEach((b,j)=>b.style.opacity=j<=i?1:.35);tok.setAttribute("cx",pts[i].x);tok.setAttribute("cy",pts[i].y-28);i++};st();window._pl=setInterval(st,1100);TIMERS.push(window._pl)}}draw()});
+
+V("ag","Change effort grid","For each business-critical data item, what a change costs in each layer: the colour shows the effort the impact matrix records (low, medium, high).","Estimation, planning",()=>{
+ const{s,w,h}=svgRoot();const cs=LANES,L=230,top=60,cw=(w-L-20)/cs.length,ch=Math.min(70,(h-top-40)/DATA.chains.length),ec={LOW:"#53b1a3",MEDIUM:"#f3c246",HIGH:"#d90026"};
+ cs.forEach((c,j)=>T(s,L+j*cw+cw/2,top-16,LANEN[c],{"text-anchor":"middle","font-weight":600,style:`fill:${LC[c]}`}));
+ DATA.chains.forEach((c,i)=>{const y=top+i*ch;T(s,L-12,y+ch/2,c.name,{"text-anchor":"end","font-weight":600});T(s,L-12,y+ch/2+14,`${c.risk.toLowerCase()} risk`,{"text-anchor":"end",class:"lbl sub"});
+  cs.forEach((l,j)=>{const it=c.ch.find(x=>x.layer==l);const x=L+j*cw;const r=S("rect",{x:x+3,y:y+3,width:cw-6,height:ch-6,rx:6,fill:it?ec[(it.effort||"").toUpperCase()]||"#794cff":"var(--grid)","fill-opacity":it?.85:1},s);
+   if(it){T(s,x+cw/2,y+ch/2-2,(it.effort||"").toLowerCase(),{"text-anchor":"middle","font-weight":700,style:"fill:#fff"});T(s,x+cw/2,y+ch/2+12,short(it.action,cw/5.5),{"text-anchor":"middle","font-size":9,style:"fill:#fff"});tipOn(r,`<b>${esc(c.name)} · ${LANEN[l]}</b><br>${esc(it.action)}`)}})});
+ [["Low","#53b1a3"],["Medium","#f3c246"],["High","#d90026"]].forEach((x,i)=>{S("rect",{x:L+i*90,y:14,width:12,height:12,rx:2,fill:x[1]},s);T(s,L+i*90+18,24,x[0]+" effort",{class:"lbl sub"})})});
+
+V("ag","Systems hub","The CVBC database in the middle, the systems that send it data on the left and the ones that take data from it on the right. Dots show the direction of flow; hover a system for its tables.","Context diagram, exec",()=>{
+ const{s,w,h}=svgRoot();const ins=DATA.systems.filter(x=>x.dir=="in"),outs=DATA.systems.filter(x=>x.dir!="in"),cx=w/2,cy=h/2;const g=S("g",{},s);
+ const place=(L,x,c,isIn)=>L.forEach((y,i)=>{const yy=60+(i+.5)*(h-90)/L.length;const d=isIn?curve(x+150,yy,cx-90,cy):curve(cx+90,cy,x-150,yy);S("path",{d,fill:"none",stroke:c,"stroke-width":1.5+y.tables.length/2,"stroke-opacity":.3},g);for(let k=0;k<3;k++)travel(g,d,c,3.5,3.5);
+  const bx=S("g",{transform:`translate(${isIn?x:x-300},${yy-22})`},s);S("rect",{width:300,height:44,rx:10,fill:"var(--card)",stroke:c,"stroke-width":2},bx);T(bx,12,18,short(y.name,42),{"font-weight":600,"font-size":11.5});T(bx,12,34,short(y.sys||"",46)+` · ${y.tables.length} tables`,{"font-size":10,class:"sub"});tipOn(bx,`<b>${esc(y.name)}</b><br>${esc(y.tables.join(", "))}`);dn(bx,"system:"+y.id)});
+ place(ins,20,"#53b1a3",true);place(outs,w-20,"#d90026",false);
+ S("circle",{cx,cy,r:90,fill:"#5009b5"},s);S("circle",{cx,cy,r:98,fill:"none",stroke:"#794cff","stroke-dasharray":"4 6",class:"flow"},s);T(s,cx,cy-6,"CVBC database",{"text-anchor":"middle","font-weight":700,style:"fill:#fff","font-size":14});T(s,cx,cy+14,`${DATA.counts.tables} tables`,{"text-anchor":"middle",style:"fill:#fff"});
+ T(s,20,30,"Sends data in",{"font-weight":700,style:"fill:#53b1a3"});T(s,w-20,30,"Takes data out",{"font-weight":700,"text-anchor":"end",style:"fill:#d90026"})});
+
+V("ag","Process stages","The business processes the ontology records. The approval workflow is drawn as stages with the tables and status each stage writes; a token walks the stages.","Business process walkthrough",()=>{
+ const{s,w,h}=svgRoot();const P=DATA.processes.find(p=>p.stages.length)||DATA.processes[0],st=P.stages,top=60,bh=h*.46,bw=(w-80)/st.length-40;T(s,40,30,P.name,{"font-weight":700,"font-size":14,style:"fill:var(--p)"});
+ const xs=st.map((x,i)=>40+i*(bw+40));st.forEach((x,i)=>{const g=S("g",{transform:`translate(${xs[i]},${top})`},s);S("rect",{width:bw,height:bh,rx:14,fill:"var(--bg)",stroke:PAL[i],"stroke-width":2},g);S("rect",{width:bw,height:34,rx:14,fill:PAL[i]},g);
+  T(g,14,22,`${i+1}. ${x.stage.replace(/^\d_/,"").replace(/^./,c=>c.toUpperCase())}`,{"font-weight":700,style:"fill:#fff"});if(x.status)T(g,bw-14,22,`status ${x.status}`,{"text-anchor":"end",style:"fill:#fff","font-size":11});
+  const fo=S("foreignObject",{x:12,y:44,width:bw-24,height:bh-54},g);fo.innerHTML=`<div xmlns="http://www.w3.org/1999/xhtml" style="font-size:12px;color:var(--sub);text-align:justify">${esc(x.trigger)}<div class="chips" style="margin-top:8px">${x.tables.map(t=>`<span>${esc(t)}</span>`).join("")}</div></div>`;
+  if(i<st.length-1){S("path",{d:`M${xs[i]+bw+4},${top+bh/2}L${xs[i]+bw+36},${top+bh/2}`,stroke:"#794cff","stroke-width":3,class:"flow"},s)}});
+ const tok=S("circle",{r:10,fill:"#f3c246",stroke:"#5009b5","stroke-width":2,cy:top+bh+18},s);let i=0;const mv=()=>{tok.setAttribute("cx",xs[i%st.length]+bw/2);i++};mv();every(1400,mv);
+ const others=DATA.processes.filter(p=>p!==P),ow=(w-80)/others.length;others.forEach((p,j)=>{const fo=S("foreignObject",{x:40+j*ow,y:top+bh+40,width:ow-16,height:h-top-bh-50},s);fo.innerHTML=`<div xmlns="http://www.w3.org/1999/xhtml" class="card" style="height:100%;overflow:hidden;border-top-color:${PAL[j+3]}"><h3>${esc(p.name)}</h3><div class="d">${esc(p.desc)}</div></div>`})});
+
+V("ag","Approval rail","The Argus approval gates in the order approval-gates.yaml lists them. Each stop is a human approval, with the role that signs it. Press Play to walk a requirement through.","Framework pitch, governance",()=>{
+ const{s,w,h}=svgRoot();const G=DATA.gates.filter(g=>/^SDLC/.test(g.id)),n=G.length,y=h*.42,x=i=>60+i*(w-120)/(n-1);const sn={sdlc_intake:"Intake",sdlc_research:"Research",sdlc_plan:"Plan",sdlc_implement:"Build",sdlc_eval:"Test",sdlc_release:"Release",sdlc_kb_refresh:"KB refresh"};
+ const d=`M${x(0)},${y}L${x(n-1)},${y}`;S("path",{d,stroke:"#c9bfe0","stroke-width":10,"stroke-linecap":"round"},s);S("path",{d,stroke:"#794cff","stroke-width":3,class:"flow"},s);
+ let last="";G.forEach((g,i)=>{const X=x(i),st=sn[g.stage]||g.stage;if(st!=last){T(s,X,y-70,st,{"text-anchor":"middle","font-weight":700,style:"fill:var(--p)","font-size":13});last=st}
+  const c=S("circle",{cx:X,cy:y,r:14,fill:"#fff",stroke:"#5009b5","stroke-width":3},s);c._i=i;T(s,X,y+4,i+1,{"text-anchor":"middle","font-weight":700,style:"fill:#5009b5","font-size":11});
+  const up=i%2==0,ty=up?y-40:y+44;S("line",{x1:X,y1:y+(up?-14:14),x2:X,y2:ty+(up?6:-14),stroke:"var(--line)"},s);
+  const fo=S("foreignObject",{x:X-78,y:up?ty-6-0:ty-10,width:156,height:90,transform:up?`translate(0,-${0})`:""},s);fo.setAttribute("y",up?y+30+(0):ty);
+  fo.setAttribute("y",up?y-150:y+30);fo.innerHTML=`<div xmlns="http://www.w3.org/1999/xhtml" style="font-size:11.5px;text-align:center;line-height:1.3"><b>${esc(g.name)}</b><br><span style="color:var(--teal);font-weight:600">${esc(g.role.replace(/_/g," "))}</span><br><span style="color:var(--sub)">${g.crit} checks · waits up to ${g.hrs} h</span></div>`;tipOn(c,`<b>${esc(g.name)}</b><br>Signed by: ${esc(g.role)}<br>If not approved, holds: ${esc(g.blocks||"-")}`)});
+ const tok=S("circle",{r:8,fill:"#f3c246",stroke:"#5009b5","stroke-width":2,cy:y,cx:x(0)},s);let i=0;const lab=T(s,w/2,h-24,"",{"text-anchor":"middle","font-size":13,"font-weight":600});
+ const step=()=>{tok.setAttribute("cx",x(i%n));lab.textContent=`Step ${i%n+1}: waiting for "approved" from the ${G[i%n].role.replace(/_/g," ")}`;s.querySelectorAll("circle").forEach(c=>{if(c._i!=null)c.setAttribute("fill",c._i<=i%n?"#ebe4ff":"#fff")});i++};step();every(1800,step)});
+
+V("ag","Role dashboards","Each Argus dashboard lens (dashboard-roles.yaml) and the kinds of panels it shows (Jira lists, approvals, scrum views, insights, pages). Darker means more panels of that kind.","Onboarding, role pitch",()=>{
+ const{s,w,h}=svgRoot();const kinds={};DATA.lenses.forEach(l=>l.panels.forEach(p=>{const k=(DATA.panels[p]||{}).kind||"other";kinds[k]=(kinds[k]||0)+1}));const ks=Object.keys(kinds).sort((a,b)=>kinds[b]-kinds[a]);
+ const L=170,top=70,cw=(w-L-80)/ks.length,ch=(h-top-10)/DATA.lenses.length;let mx=0;const M=DATA.lenses.map(l=>{const r={};l.panels.forEach(p=>{const k=(DATA.panels[p]||{}).kind||"other";r[k]=(r[k]||0)+1;mx=Math.max(mx,r[k])});return r});
+ ks.forEach((k,j)=>T(s,L+j*cw+cw/2,top-12,k.replace(/_/g," "),{"text-anchor":"middle","font-size":10.5,"font-weight":600,transform:`rotate(-30,${L+j*cw+cw/2},${top-12})`}));T(s,w-30,top-12,"Total",{"text-anchor":"middle","font-weight":700});
+ DATA.lenses.forEach((l,i)=>{const y=top+i*ch;T(s,L-10,y+ch/2+4,l.label,{"text-anchor":"end","font-weight":600});ks.forEach((k,j)=>{const v=M[i][k]||0;const r=S("rect",{x:L+j*cw+2,y:y+2,width:cw-4,height:ch-4,rx:4,fill:v?heat(v,mx):"var(--grid)"},s);if(v){T(s,L+j*cw+cw/2,y+ch/2+4,v,{"text-anchor":"middle","font-size":11,style:v/mx>.4?"fill:#fff":""});tipOn(r,`<b>${esc(l.label)}</b> · ${k}<br>${l.panels.filter(p=>((DATA.panels[p]||{}).kind||"other")==k).map(p=>esc((DATA.panels[p]||{}).title||p)).join("<br>")}`)}});T(s,w-30,y+ch/2+4,l.panels.length,{"text-anchor":"middle","font-weight":700,style:"fill:var(--p)"});tipOn(s.lastChild,esc(l.focus))})});
+
+V("ag","Knowledge base map","The CVBC knowledge base by area, as tiles. Tile size is the number of files (switch to size on disk); hover for both.","KB scope slide",()=>{
+ let by="files";selectCtl("Tile size",[["files","Number of files"],["bytes","Size on disk"]],v=>{by=v;draw()},by);
+ const nm={"DB-DOCS":"Database docs","MODULES":"Application modules","SHARED":"Shared team info","REPORTS":"Reports","ETL":"ETL docs","CONFLUENCE-DERIVED":"From Confluence","JIRA-DERIVED":"From Jira","CROSS-LAYER":"Ontology and link graph","VALIDATION":"Validation","DOCUMENTATION":"Presentations","QA-AUTOMATION-DERIVED":"From test automation","DEPLOY-DERIVED":"From deployments","PROCESS-DOCS-DERIVED":"Process docs","FIGMA-DERIVED":"From Figma","DECISIONS":"Decisions"};
+ function draw(){$("#stage").innerHTML="";const{s,w,h}=svgRoot();const items=Object.entries(DATA.kb).map(([k,v],i)=>({k,v:Math.max(v[by],by=="files"?1:2000),f:v.files,b:v.bytes,c:PAL[i%PAL.length]}));
+  squarify(items,6,6,w-12,h-12).forEach(r=>{const g=S("g",{},s);const re=S("rect",{x:r.x+2,y:r.y+2,width:Math.max(0,r.w-4),height:Math.max(0,r.h-4),rx:8,fill:r.c,"fill-opacity":.85},g);tipOn(g,`<b>${esc(nm[r.k]||r.k)}</b><br>${r.f} files · ${(r.b/1048576).toFixed(1)} MB`);
+   if(r.w>70&&r.h>34){T(g,r.x+12,r.y+22,short(nm[r.k]||r.k,r.w/7.5),{"font-weight":700,style:"fill:#fff","font-size":r.w>250?15:12});T(g,r.x+12,r.y+38,`${r.f} files · ${(r.b/1048576).toFixed(1)} MB`,{style:"fill:#fff;opacity:.85","font-size":11})}})}draw()});
+
+V("ag","Who signs what","Roles on the outer ring, approvals on the inner ring. A line means that role signs that approval, so you can see who carries the most sign-offs.","Governance slide",()=>{
+ const{s,w,h}=svgRoot();const G=DATA.gates,roles=[...new Set(G.map(g=>g.role))],cx=w/2,cy=h/2,R1=Math.min(w,h)*.2,R2=Math.min(w,h)*.42;
+ const gp=G.map((g,i)=>{const a=(i+.5)/G.length*Math.PI*2-Math.PI/2;return{x:cx+R1*Math.cos(a),y:cy+R1*Math.sin(a),a,g}}),rp=roles.map((r,i)=>{const a=(i+.5)/roles.length*Math.PI*2-Math.PI/2;return{x:cx+R2*Math.cos(a),y:cy+R2*Math.sin(a),a,r,n:G.filter(g=>g.role==r).length}});
+ const lg=S("g",{},s);gp.forEach(p=>{const r=rp.find(x=>x.r==p.g.role);const d=`M${r.x},${r.y}Q${(r.x+p.x)/2*.9+cx*.1},${(r.y+p.y)/2*.9+cy*.1} ${p.x},${p.y}`;const e=S("path",{d,fill:"none",stroke:"#794cff","stroke-width":2,"stroke-opacity":.45},lg);e._r=r.r;travel(lg,d,"#f3c246",2.6,3)});
+ S("circle",{cx,cy,r:R1-40,fill:"#5009b5","fill-opacity":.08},s);T(s,cx,cy-4,`${G.length} approvals`,{"text-anchor":"middle","font-weight":700,style:"fill:var(--p)","font-size":15});T(s,cx,cy+14,`${roles.length} roles sign them`,{"text-anchor":"middle",class:"sub"});
+ gp.forEach(p=>{const c=S("circle",{cx:p.x,cy:p.y,r:7,fill:"#5009b5"},s);tipOn(c,`<b>${esc(p.g.name)}</b><br>${esc(p.g.role)}`);const fl=Math.cos(p.a)<0;T(s,p.x+(fl?12:-12),p.y+4,short(p.g.name,30),{"font-size":10,"text-anchor":fl?"start":"end"})});
+ rp.forEach(p=>{const c=S("circle",{cx:p.x,cy:p.y,r:12+p.n*4,fill:"#00bbaa"},s);c.onmouseenter=()=>lg.querySelectorAll("path").forEach(e=>e.setAttribute("stroke-opacity",e._r==p.r?.95:.05));c.onmouseleave=()=>lg.querySelectorAll("path").forEach(e=>e.setAttribute("stroke-opacity",.45));
+  T(s,p.x,p.y+4,p.n,{"text-anchor":"middle","font-weight":700,style:"fill:#fff;pointer-events:none"});const fl=Math.cos(p.a)<0;T(s,p.x+(fl?-1:1)*(18+p.n*4),p.y+4,p.r.replace(/_/g," "),{"font-weight":600,"text-anchor":fl?"end":"start"})})});
+
+const GROUPS=[["ont","Ontology"],["lg","KB link graph"],["ag","Lineage & impact"]];let G0="ont",I0=0;
+$("#asof").textContent="as of "+DATA_ASOF;
+(function(){const d=$("#lg-dots");for(let i=0;i<16;i++){const a=i/16*Math.PI*2;S("circle",{cx:20+13*Math.cos(a),cy:20+13*Math.sin(a),r:1.8},d)}})();
+const gr=$("#groups");GROUPS.forEach(([k,l])=>{const b=H("button",{class:"grp"},gr,l);b.dataset.g=k;b.onclick=()=>{G0=k;I0=0;show()}});
+function show(){DSTACK=[];TIMERS.forEach(t=>{clearInterval(t);clearTimeout(t)});TIMERS=[];cancelAnimationFrame(RAF);tip.style.display="none";
+ document.querySelectorAll(".grp").forEach(b=>b.classList.toggle("on",b.dataset.g==G0));const vs=VIEWS.filter(v=>v.g==G0),tb=$("#tabs");tb.innerHTML="";
+ vs.forEach((v,i)=>{const b=H("button",{class:"tab"+(i==I0?" on":"")},tb,`${i+1}. ${esc(v.name)}`);b.onclick=()=>{I0=i;show()}});const v=vs[I0];
+ $("#t").textContent=v.name;$("#d").textContent=v.desc;$("#u").textContent="Good for: "+v.use;document.querySelectorAll('.tab').forEach(b=>{const w=VIEWS.find(x=>x.name==b.textContent);if(w)b.title=w.desc+' Good for: '+w.use});$("#ctl").innerHTML="";$("#stage").innerHTML="";
+ $("#src").textContent=G0=="ag"?"From the CVBC ontology, approval gates, role dashboards and KB manifest":G0=="lg"?"From the CVBC link graph (every link copied from a source)":"From the CVBC ontology";
+ const top=$("#ctl").getBoundingClientRect();requestAnimationFrame(()=>{$("#stage").style.top=($("#ctl").getBoundingClientRect().bottom+2)+"px";try{v.f()}catch(e){$("#stage").innerHTML=`<p style="padding:20px;color:#d90026">${esc(e.stack||e)}</p>`;console.error(e)}});location.hash=G0+"-"+(I0+1)}
+$("#theme").onclick=()=>{const r=document.documentElement,d=r.dataset.theme=="dark";r.dataset.theme=d?"light":"dark";$("#theme").textContent=d?"Dark":"Light";show()};
+addEventListener("keydown",e=>{if(e.target.tagName=="SELECT")return;const vs=VIEWS.filter(v=>v.g==G0);if(e.key=="ArrowRight"){I0=(I0+1)%vs.length;show()}if(e.key=="ArrowLeft"){I0=(I0+vs.length-1)%vs.length;show()}});
+let rz;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(show,250)});
+const m=location.hash.match(/#(\w+)-(\d+)/),dh=location.hash.split("~")[1];if(m&&GROUPS.some(g=>g[0]==m[1])){G0=m[1];I0=+m[2]-1}show();if(dh)setTimeout(()=>drill(decodeURIComponent(dh)),400);
+const fd=H("input",{id:"find",list:"findl",placeholder:"Find any table, screen, API, job, file, story…",style:"margin-left:12px;padding:4px 10px;border-radius:14px;border:1px solid #fff6;background:#ffffff22;color:#fff;width:300px;font-size:12px"},$("#groups"));const dl=H("datalist",{id:"findl"},document.body);dl.innerHTML=GR.ids.filter(k=>!/^(column|test):/.test(k)).map(k=>`<option value="${esc(k)}">`).join("");fd.onchange=()=>{if(GI.has(fd.value)){DSTACK=[];drill(fd.value)}};
+const zb=H("div",{id:"zbar"},document.body);[["+","Zoom in",1/1.25],["−","Zoom out",1.25],["⟲","Reset zoom",0]].forEach(([l,t,f])=>{const b=H("button",{title:t},zb,l);b.onclick=()=>{const d=$("#drill"),sv=(d?d.querySelector("svg"):null)||[...$("#stage").querySelectorAll("svg")].find(x=>x._z);
+ if(sv){f?sv._z.k(f):sv._z.reset();return}const el=$("#stage").firstElementChild;if(!el)return;const z=f?(+(el.dataset.z||1))/f:1;el.dataset.z=z;el.style.transform=`scale(${z})`;el.style.transformOrigin="0 0"}});
+
+</script><script>(function(){
+const okT=t=>!/LOAD_LOG|_BKP|^TEMP_|^TMP_/i.test(t);
+DATA.jobs.forEach(j=>{j.r=j.r.filter(okT);j.w=j.w.filter(okT)});
+DATA.lineage=DATA.lineage.filter(l=>okT(l.s)&&okT(l.t));
+const _lg=lgNodes;lgNodes=function(types){const r=_lg(types),d=new Set();r.edges.forEach(e=>{d.add(e[0]);d.add(e[1])});r.nodes=r.nodes.filter(n=>d.has(n.id));return r};
+const FL=DATA.flow;FL.up={};FL.dn={};FL.e.forEach(([a,b,s])=>{(FL.dn[a]=FL.dn[a]||[]).push([b,s]);(FL.up[b]=FL.up[b]||[]).push([a,s])});
+const ZC=["#5b6770","#8a96a3","#e05aa0","#c9a227","#e8912d","#794cff","#5009b5","#00a896","#2f80ed","#d90026"];
+const CAT={};Object.entries(DATA.cat).forEach(([db,sc])=>Object.entries(sc).forEach(([s,L])=>L.forEach(r=>{const k=s+"."+r[0];if(!CAT[k]||db.startsWith("D01"))CAT[k]=[db,s].concat(r)})));
+const APPRE=/\.sql$|\.py$|scripts\//;
+function panel(){let ov=$("#pnl");if(ov)ov.remove();ov=H("div",{id:"pnl",style:"position:absolute;inset:0;background:var(--card);z-index:6;display:flex;flex-direction:column"},$("#stage"));return ov}
+function bar(ov,crumbs){const b=H("div",{style:"display:flex;gap:6px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--line);flex-wrap:wrap;font-size:12px"},ov);crumbs.forEach(([l,f],i)=>{if(i)H("span",{class:"sub"},b,"›");const a=H("a",{href:"javascript:void 0",style:`color:var(--p);font-weight:${i==crumbs.length-1?700:400}`},b,esc(l));if(f)a.onclick=f});return b}
+function tableInfo(side,k){const c=CAT[k];const n=k.split(".");H("div",{style:"font-weight:700;font-size:14px;color:var(--p);word-break:break-all"},side,esc(n[1]));
+ H("div",{class:"sub",style:"margin:2px 0 8px"},side,esc((c?c[0]+".":"")+n[0])+(c?` · ${c[3]=="V"?"view":"table"} · ${c[5]} columns${c[4]?" · "+Number(c[4]).toLocaleString()+" rows":""}`:" · not in the saved catalog"));
+ if(c){const apps=[...new Set(c[7].concat(c[8]))].filter(m=>!APPRE.test(m));if(apps.length)H("div",{style:"margin:4px 0"},side,`<b>Used by apps:</b> ${apps.map(esc).join(", ")}`);
+  const etl=[...new Set(c[7].concat(c[8]))].filter(m=>APPRE.test(m));if(etl.length)H("div",{style:"margin:4px 0"},side,`<b>ETL repos:</b> ${etl.map(esc).join(", ")}`);
+  if(c[6].length){const d=H("details",{style:"margin:6px 0"},side);H("summary",{style:"cursor:pointer;font-weight:600"},d,`Columns (${c[5]})`);H("div",{style:"font-size:11px;line-height:1.5;max-height:260px;overflow:auto"},d,c[6].map(esc).join("<br>"))}}}
+// ---------- Data flow ----------
+let TRACE=null;
+function flowView(){if(TRACE!=null){const t=TRACE;TRACE=null;return trace(t)}
+ const{s,w,h}=svgRoot();const zc=FL.zones.map(()=>0);FL.t.forEach(t=>zc[t[0]]++);const Z=FL.zones.map((n,i)=>i).filter(i=>zc[i]);
+ const zz={},self={};FL.e.forEach(([a,b])=>{const A=FL.t[a][0],B=FL.t[b][0];if(A==B)self[A]=(self[A]||0)+1;else{const k=A+"|"+B;zz[k]=(zz[k]||0)+1}});
+ const pos={},cw=(w-40)/Z.length,mx=Math.max(...Z.map(z=>zc[z]));
+ Z.forEach((z,i)=>{const bh=Math.max(46,(h-150)*Math.sqrt(zc[z]/mx)),x=20+i*cw+cw*.2,y=(h-bh)/2;pos[z]={x,y,bh,bw:cw*.6}});
+ const g=S("g",{},s),mxe=Math.max(...Object.values(zz));
+ Object.entries(zz).sort((a,b)=>a[1]-b[1]).forEach(([k,v])=>{const[A,B]=k.split("|").map(Number),p=pos[A],q=pos[B];const near=Z.indexOf(B)-Z.indexOf(A)==1;
+  const e=S("path",{d:curve(p.x+p.bw,p.y+p.bh*(.12+.76*Z.indexOf(B)/Z.length),q.x,q.y+q.bh*(.12+.76*Z.indexOf(A)/Z.length)),fill:"none",stroke:ZC[A],"stroke-opacity":near?.55:.18,"stroke-width":Math.max(1.5,18*Math.sqrt(v/mxe))},g);
+  tipOn(e,`<b>${esc(FL.zones[A])}</b> → <b>${esc(FL.zones[B])}</b><br>${v.toLocaleString()} table-to-table loads in SQL scripts`)});
+ Z.forEach(z=>{const p=pos[z];const r=S("rect",{x:p.x,y:p.y,width:p.bw,height:p.bh,rx:8,fill:ZC[z],style:"cursor:pointer"},s);r.onclick=()=>zoneList(z);
+  tipOn(r,`<b>${esc(FL.zones[z])}</b><br>${zc[z]} tables · ${self[z]||0} loads inside this layer<br>Click to list the tables`);
+  const nm=FL.zones[z].split(" ("),lines=[nm[0],nm[1]?"("+nm[1]:""];lines.forEach((l,j)=>T(s,p.x+p.bw/2,p.y-22+j*12,short(l,26),{"text-anchor":"middle","font-size":10.5,"font-weight":j?400:700}));
+  T(s,p.x+p.bw/2,p.y+p.bh/2+5,zc[z],{"text-anchor":"middle","font-size":15,"font-weight":700,style:"fill:#fff;pointer-events:none"});
+  if(self[z])T(s,p.x+p.bw/2,p.y+p.bh+14,`↻ ${self[z]} internal loads`,{"text-anchor":"middle","font-size":9.5,class:"sub"})});
+ T(s,20,18,"Upstream → staging → target. Click a layer to see its tables, then a table to trace it end to end. Log, backup and temp tables are left out.",{class:"sub"});
+ const top=FL.t.map((t,i)=>[i,(FL.up[i]||[]).length+(FL.dn[i]||[]).length]).filter(x=>FL.t[x[0]][0]>=6).sort((a,b)=>b[1]-a[1]).slice(0,40);
+ selectCtl("Trace a table",[["","pick…"]].concat(top.map(([i])=>[i,FL.t[i][1]+"."+FL.t[i][2]])),v=>{if(v!=="")trace(+v)});
+ const q=H("input",{placeholder:"or type any table…",style:"margin-left:6px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;width:200px"},ctl());const dl=H("datalist",{id:"fltabs"},ctl());q.setAttribute("list","fltabs");
+ FL.t.forEach((t,i)=>{H("option",{value:t[1]+"."+t[2]},dl)});q.onchange=()=>{const i=FL.t.findIndex(t=>t[1]+"."+t[2]==q.value.toUpperCase());if(i>=0)trace(i)}}
+function zoneList(z){const ov=panel();bar(ov,[["Data flow",()=>ov.remove()],[FL.zones[z]]]);const L=FL.t.map((t,i)=>[i,t]).filter(x=>x[1][0]==z).map(([i,t])=>[i,t,(FL.up[i]||[]).length,(FL.dn[i]||[]).length]).sort((a,b)=>(b[2]+b[3])-(a[2]+a[3]));
+ const f=H("input",{placeholder:`Filter ${L.length} tables…`,style:"margin:8px 10px;padding:4px 8px;border:1px solid var(--line);border-radius:6px;width:300px"},ov);const box=H("div",{style:"flex:1;overflow:auto;padding:0 10px 10px;columns:3 260px;font-size:12px"},ov);
+ function draw(){box.innerHTML="";L.filter(x=>!f.value||x[1][2].includes(f.value.toUpperCase())).forEach(([i,t,u,d])=>{const r=H("div",{style:"padding:2px 4px;cursor:pointer;break-inside:avoid;border-radius:4px"},box,`<b style="color:${ZC[z]}">${esc(t[2])}</b> <span class="sub">${esc(t[1])} · from ${u} · to ${d}</span>`);r.onclick=()=>trace(i);r.onmouseenter=()=>r.style.background="var(--pale)";r.onmouseleave=()=>r.style.background=""})}f.oninput=draw;draw()}
+let DEP=2;function trace(id){const ov=panel();const T0=FL.t[id];const bb=bar(ov,[["Data flow",()=>ov.remove()],[FL.zones[T0[0]],()=>zoneList(T0[0])],[T0[2]]]);H("span",{class:"sub",style:"margin-left:16px"},bb,"Steps each way:");[1,2,3,5,10].forEach(d=>{const b=H("button",{class:"grp"+(d==DEP?" on":""),style:"padding:1px 8px"},bb,d);b.onclick=()=>{DEP=d;trace(id)}});
+ const lv=new Map([[id,0]]),ed=[];function walk(dir,adj){let fr=[id],d=0;while(fr.length&&d<DEP){d++;const nx=[];fr.forEach(f=>(adj[f]||[]).forEach(([o,sc])=>{ed.push(dir<0?[o,f,sc]:[f,o,sc]);if(!lv.has(o)){lv.set(o,dir*d);nx.push(o)}}));fr=nx}}
+ walk(-1,FL.up);walk(1,FL.dn);
+ const body=H("div",{style:"flex:1;display:flex;min-height:0"},ov),side=H("div",{style:"width:280px;overflow:auto;padding:10px;border-right:1px solid var(--line);font-size:12px"},body),wrap=H("div",{style:"flex:1;overflow:auto"},body);
+ tableInfo(side,T0[1]+"."+T0[2]);const ups=[...new Set((FL.up[id]||[]).map(x=>x[1]))],dns=[...new Set((FL.dn[id]||[]).map(x=>x[1]))];
+ const lst=(t,L)=>{if(!L.length)return;const d=H("details",{open:"",style:"margin:6px 0"},side);H("summary",{style:"cursor:pointer;font-weight:600"},d,`${t} (${L.length})`);H("div",{style:"font-size:11px;line-height:1.5;word-break:break-all"},d,L.slice(0,40).map(i=>esc(FL.s[i])).join("<br>")+(L.length>40?`<br>+ ${L.length-40} more`:""))};
+ lst("Scripts that load it",ups);lst("Scripts that read it to load others",dns);
+ const nu=[...lv.values()].filter(v=>v<0).length,nd=[...lv.values()].filter(v=>v>0).length;H("div",{class:"sub",style:"margin-top:8px"},side,`${nu} upstream tables, ${nd} downstream tables, following SQL loads ${DEP} step${DEP>1?"s":""} each way (change it at the top).`);
+ const byZ={};[...lv.keys()].forEach(k=>{const z=FL.t[k][0];(byZ[z]=byZ[z]||[]).push(k)});const Z=Object.keys(byZ).map(Number).sort((a,b)=>a-b);
+ const CAP=60,cw=230,W=Math.max(wrap.clientWidth,Z.length*cw+40);const mxr=Math.max(...Z.map(z=>Math.min(CAP,byZ[z].length)));const Hh=Math.max(wrap.clientHeight-4,70+mxr*20);
+ const s=S("svg",{viewBox:`0 0 ${W} ${Hh}`,width:W,height:Hh,style:"display:block"});wrap.appendChild(s);
+ const P={};Z.forEach((z,ci)=>{const L=byZ[z].sort((a,b)=>(a==id?-1:b==id?1:FL.t[a][2]<FL.t[b][2]?-1:1));const x=30+ci*cw;T(s,x,20,short(FL.zones[z],34),{"font-weight":700,style:`fill:${ZC[z]}`});T(s,x,34,`${L.length} tables`,{class:"sub","font-size":10});
+  L.slice(0,CAP).forEach((k,i)=>{P[k]={x,y:56+i*20}});if(L.length>CAP)T(s,x,56+CAP*20,`+ ${L.length-CAP} more (open the layer list)`,{class:"sub","font-size":10})});
+ const g=S("g",{},s);const seen=new Set();ed.forEach(([a,b,sc])=>{const p=P[a],q=P[b];if(!p||!q||a==b)return;const k=a+"|"+b;if(seen.has(k))return;seen.add(k);
+  const e=S("path",{d:curve(p.x+150,p.y,q.x-6,q.y),fill:"none",stroke:ZC[FL.t[a][0]],"stroke-opacity":a==id||b==id?.8:.25,"stroke-width":a==id||b==id?1.8:1},g);tipOn(e,`${esc(FL.t[a][2])} → ${esc(FL.t[b][2])}<br><span class=sub>${esc(FL.s[sc])}</span>`)});
+ Object.entries(P).forEach(([k,p])=>{k=+k;const t=FL.t[k];const gg=S("g",{style:"cursor:pointer"},s);S("circle",{cx:p.x,cy:p.y,r:k==id?7:4.5,fill:ZC[t[0]],stroke:k==id?"#000":"none"},gg);T(gg,p.x+9,p.y+4,short(t[2],24),{"font-size":10.5,"font-weight":k==id?700:400});
+  tipOn(gg,`<b>${esc(t[1]+"."+t[2])}</b><br>${(FL.up[k]||[]).length} loads in · ${(FL.dn[k]||[]).length} loads out<br>Click to trace from here`);gg.onclick=()=>trace(k)})}
+// ---------- Database bubbles ----------
+function dbBubbles(){let path=[];const c=ctl();const crumb=H("span",{},c);const q=H("input",{placeholder:"filter tables…",style:"margin-left:8px;padding:3px 6px;border:1px solid var(--line);border-radius:6px;width:180px;display:none"},c);q.oninput=()=>draw();
+ function items(){if(!path.length)return Object.entries(DATA.cat).map(([db,sc])=>({l:db,v:Object.values(sc).reduce((a,b)=>a+b.length,0),sub:`${Object.keys(sc).length} schemas`}));
+  if(path.length==1)return Object.entries(DATA.cat[path[0]]).map(([s,L])=>({l:s,v:L.length,sub:`${L.length} tables/views`}));
+  const L=DATA.cat[path[0]][path[1]].filter(r=>!q.value||r[0].includes(q.value.toUpperCase()));return L.map(r=>{const m=r[5].concat(r[6]);const app=m.some(x=>!APPRE.test(x)),etl=m.some(x=>APPRE.test(x));return{l:r[0],v:Math.max(1,r[3]),r,col:app?"#00a896":etl?"#e8912d":"#b8bec6",sub:`${r[3]} columns · ${r[1]=="V"?"view":"table"}${app?" · used by apps":etl?" · ETL only":" · no code reference found"}`}}).sort((a,b)=>(b.col!="#b8bec6")-(a.col!="#b8bec6")||b.v-a.v).slice(0,220)}
+ function draw(){$("#stage").querySelectorAll("svg").forEach(x=>x.remove());crumb.innerHTML="";[["All databases",[]]].concat(path.map((p,i)=>[p,path.slice(0,i+1)])).forEach(([l,p],i)=>{if(i)H("span",{class:"sub"},crumb," › ");const a=H("a",{href:"javascript:void 0",style:"color:var(--p);font-weight:600"},crumb,esc(l));a.onclick=()=>{path=p;q.value="";draw()}});
+  q.style.display=path.length==2?"":"none";const{s,w,h}=svgRoot();const it=items();const mv=Math.max(...it.map(x=>x.v));const base=Math.min(w,h)/(path.length==2?16:5);
+  const rs=it.map(x=>Math.max(path.length==2?7:24,base*Math.sqrt(x.v/mv)));const p=pack(rs,0,0);const sc=Math.min(1.6,(Math.min(w,h)/2-20)/p.R);
+  if(path.length==2){T(s,14,20,"Teal = used by an app · orange = ETL only · grey = no code reference found. Size = column count. Click a table for its columns and lineage.",{class:"sub"})}
+  else T(s,14,20,path.length?"Size = number of tables. Click a schema to open it.":"Size = number of tables and views in the saved catalog. Click a database to open it.",{class:"sub"});
+  it.forEach((x,i)=>{const n=p.nodes[i],cx=w/2+n.x*sc,cy=h/2+12+n.y*sc,r=rs[i]*sc;const col=x.col||PAL[i%PAL.length];const gg=S("g",{style:"cursor:pointer"},s);
+   S("circle",{cx,cy,r,fill:col,"fill-opacity":path.length==2?.85:.75,stroke:"var(--card)"},gg);if(r>16)T(gg,cx,cy+(r>30?0:3),short(x.l,Math.max(4,Math.floor(r/3.6))),{"text-anchor":"middle","font-size":Math.min(13,Math.max(8.5,r/4)),"font-weight":600,style:"fill:#fff;pointer-events:none"});
+   if(r>30)T(gg,cx,cy+14,x.v.toLocaleString(),{"text-anchor":"middle","font-size":10,style:"fill:#fff;pointer-events:none"});tipOn(gg,`<b>${esc(x.l)}</b><br>${esc(x.sub)}`);
+   gg.onclick=()=>{if(path.length<2){path=path.concat([x.l]);draw()}else tblPanel(path[1],x.r)}})}
+ function tblPanel(sch,r){const ov=panel();bar(ov,[["Database bubbles",()=>ov.remove()],[path[0]+"."+sch,()=>ov.remove()],[r[0]]]);const side=H("div",{style:"padding:10px;overflow:auto;font-size:12px"},ov);tableInfo(side,sch+"."+r[0]);
+  const fi=FL.t.findIndex(t=>t[1]==sch&&t[2]==r[0]);if(fi>=0){const b=H("button",{class:"grp on",style:"margin-top:8px"},side,"Trace this table in Data flow");b.onclick=()=>goTrace(fi)}else H("div",{class:"sub",style:"margin-top:8px"},side,"No ETL job in the ontology loads this table, so it has no data-flow trace.")}
+ draw()}
+function goTrace(i){TRACE=i;G0="ag";I0=VIEWS.filter(v=>v.g=="ag").findIndex(v=>v.name.startsWith("Data flow"));show()}
+// ---------- Screen grid ----------
+function screenGrid(){const epT=Object.fromEntries(DATA.endpoints.map(e=>[e.id,e.r.concat(e.w)]));const app=sc=>(sc.route.split(":")[0]||"other");
+ const MT=DATA.modTables||{},epA=Object.fromEntries(DATA.endpoints.map(e=>[e.id,e.app]));const rows=DATA.screens.map(sc=>{const ts=new Set(sc.tables);sc.eps.forEach(x=>(epT[x]||[]).forEach(t=>ts.add(t)));let mod=false;if(!ts.size){sc.eps.forEach(x=>(MT[epA[x]]||[]).forEach(t=>ts.add(t)));mod=ts.size>0}return{mod,a:app(sc),l:short(sc.route.split(":").pop().split("/").pop(),38),r:sc.route,ts,v:O.obj.map(o=>o.t.filter(t=>ts.has(t)))}}).filter(r=>r.v.some(x=>x.length));
+ const apps=[...new Set(rows.map(r=>r.a))].sort();let cur=apps[0];selectCtl("App",apps.map(a=>[a,`${a} (${rows.filter(r=>r.a==a).length} screens)`]),v=>{cur=v;draw()},cur);
+ H("span",{class:"sub",style:"margin-left:8px"},ctl(),`${DATA.screens.length-rows.length} screens with no linked tables hidden · * = API-module level (the screen's API call is not traced to a table in code, so all tables its API module uses are counted)`);
+ function draw(){$("#stage").innerHTML="";const{w,h}=stageBox();const R=rows.filter(r=>r.a==cur),L=260,top=70,ch=24,cw=Math.max(90,(w-L-30)/O.obj.length),W=L+cw*O.obj.length+20,Hh=Math.max(h,top+R.length*ch+20);
+  const wrap=H("div",{style:"position:absolute;inset:0;overflow:auto"},$("#stage"));const s=S("svg",{viewBox:`0 0 ${W} ${Hh}`,width:W,height:Hh,style:"display:block"});wrap.appendChild(s);
+  const mx=Math.max(1,...R.flatMap(r=>r.v.map(x=>x.length)));
+  O.obj.forEach((o,j)=>{T(s,L+j*cw+cw/2,top-34,short(o.label,16),{"text-anchor":"middle","font-weight":600,"font-size":11});S("rect",{x:L+j*cw+4,y:top-24,width:cw-8,height:5,rx:2,fill:O.col[o.id]},s)});
+  R.forEach((r,i)=>{T(s,L-10,top+i*ch+ch/2+4,r.l+(r.mod?" *":""),{"text-anchor":"end","font-size":11});r.v.forEach((v,j)=>{const x=L+j*cw,y=top+i*ch;const c=S("rect",{x:x+2,y:y+2,width:cw-4,height:ch-4,rx:4,fill:v.length?heat(v.length,mx):"var(--grid)",style:v.length?"cursor:pointer":""},s);
+   if(v.length){T(s,x+cw/2,y+ch/2+4,v.length,{"text-anchor":"middle","font-size":11,style:(v.length/mx>.4?"fill:#fff;":"")+"pointer-events:none"});c.onclick=()=>{const ov=panel();bar(ov,[["Screen × object grid",()=>ov.remove()],[r.r],[O.obj[j].label]]);const d=H("div",{style:"padding:10px;overflow:auto;font-size:12px"},ov);
+     H("div",{style:"margin-bottom:6px"},d,`<b>${esc(r.r)}</b> uses ${v.length} of the ${O.obj[j].t.length} tables behind <b>${esc(O.obj[j].label)}</b> (through its API calls):`);v.forEach(t=>{const k=Object.keys(CAT).find(q=>q.endsWith("."+t))||("?."+t);H("div",{},d,`• ${esc(t)} <span class=sub>${CAT[k]?esc(CAT[k][0]+"."+CAT[k][1]):""}</span>`)})}}
+   tipOn(c,`<b>${esc(r.r)}</b> × <b>${esc(O.obj[j].label)}</b><br>${v.length} of ${O.obj[j].t.length} tables${r.mod?" (API-module level)":""}${v.length?"<br>Click for the table list":""}`)})})}
+ draw()}
+// ---------- Network click ----------
+function nbrPanel(id){const ov=panel();const n=SUB.nodes.find(x=>x.id==id)||{l:id,t:""};bar(ov,[["Network",()=>ov.remove()],[n.l||id]]);const d=H("div",{style:"padding:10px;overflow:auto;font-size:12px;columns:2 320px"},ov);
+ const by={};SUB.edges.forEach(e=>{let o=null,dir="";if(e[0]==id){o=e[1];dir=e[2]}else if(e[1]==id){o=e[0];dir=(e[2]||"")+" (in)"}if(o){const on=SUB.nodes.find(x=>x.id==o);(by[dir]=by[dir]||[]).push(on?on.l||o:o)}});
+ H("div",{style:"font-weight:700;font-size:14px;color:var(--p)"},d,esc(n.l||id)+` <span class=sub>${esc(NICE[n.t]||n.t)}</span>`);Object.entries(by).forEach(([k,L])=>H("div",{style:"break-inside:avoid;margin:6px 0"},d,`<b>${esc(k)}</b> (${L.length})<br>`+L.slice(0,80).map(esc).join("<br>")))}
+document.addEventListener("click",e=>{const v=VIEWS.filter(x=>x.g==G0)[I0];if(!v||v.name!="Network")return;const el=e.target.closest("circle");if(!el||!el.__id)return;nbrPanel(el.__id)},true);
+// ---------- view replacements ----------
+const byName=n=>VIEWS.find(v=>v.name==n);
+Object.assign(byName("Column lineage"),{name:"Data flow (by table layer)",desc:"How data moves between the table layers the ontology names (CFF, UI), from the ETL job inputs and outputs.",f:flowView});
+Object.assign(byName("Metric bubbles"),{name:"Database bubbles",desc:"Every database, schema and table in the CVBC DB registries (D01 dev, T01 SIT). Click to drill down.",f:dbBubbles});
+Object.assign(byName("Screen × object grid"),{f:screenGrid});
+const net=byName("Network"),nf=net.f;net.f=()=>{nf();const deg={};SUB.edges.forEach(e=>{deg[e[0]]=(deg[e[0]]||0)+1;deg[e[1]]=(deg[e[1]]||0)+1});
+ const cs=[...$("#stage").querySelectorAll("circle")];const ns=lgNodes(["object","screen","endpoint","table","job","system"]).nodes;cs.forEach((c,i)=>{if(ns[i]){c.__id=ns[i].id;c.style.cursor="pointer"}});
+ const top=ns.map((n,i)=>[i,deg[n.id]||0]).sort((a,b)=>b[1]-a[1]).slice(0,15);setTimeout(()=>top.forEach(([i])=>{const c=cs[i];if(!c)return;T(c.parentNode,+c.getAttribute("cx")+8,+c.getAttribute("cy")+3,short(ns[i].l||ns[i].id,22),{"font-size":9.5,"font-weight":600,style:"pointer-events:none"})}),2500)};
+// ---------- info strip ----------
+const top=(a,n)=>a.slice(0,n).join(", ");
+const INFO={
+"Concept web":["The CVBC business objects as big circles, the tables each uses most as small dots, and the shared-table links between areas.","A line from an object to a table means the ontology stores that object in it. A line between two objects is a relationship the ontology names.","Drag circles apart; hover a link to see the shared table. Use it to find which objects would both be hit by a change to one table.",()=>`Most connected objects: ${top(DATA.objects.slice().sort((a,b)=>(b.t||[]).length-(a.t||[]).length).map(o=>o.label),3)}. Only the 12 most-used tables per object are drawn.`,"Show at a glance how the CVBC business objects share data."],
+"Layer cake":["Each business object stacked by layer: screens, API modules, the object itself, and the outside systems it talks to.","Each band links one layer to the next, as found in code (screen → API call → handler → table).","Pick an object to see how many screens and APIs sit on top of it.",()=>"An object with no screen layer has no screen in the KB matrix that reaches its tables.","Explain one area top to bottom to a new developer."],
+"Radial focus":["One area in the middle; rings out: its tables, then the API modules and ETL jobs that use them, then screens and systems.","Each ring is one more hop away in the KB graph.","Choose an area in the drop-down; hover dots for names.",()=>"The outer rings show who else is affected if the centre area's tables change.","Impact from one area's point of view."],
+"Shared ground (chord)":["The business objects around a circle; ribbons join two objects that use the same tables or API calls.","Ribbon width = how much they share.","Hover a ribbon for the count.",()=>"Thick ribbons mean two objects share many tables.","Spot coupling between teams."],
+"Sunburst of the ontology":["Everything the KB holds, from the centre out: layer, kind of thing, then groups.","Slices nest: an outer slice belongs to the inner one.","Hover a slice for its real count.",()=>`KB holds ${DATA.counts.tables||""} tables, ${DATA.counts.endpoints||""} API calls, ${DATA.counts.screens||""} screens.`,"KB scope in one picture."],
+"Mind map":["The KB as a tree: layers, kinds of things, then examples.","Children belong to the parent node.","Click a node to open or close it; \"+ N more\" opens the next batch.",()=>"Use Open all for the full list.","Walk through the KB contents on a call."],
+"Screen × object grid":["Rows: the screens of one app (pick the app at the top). Columns: the CVBC business objects.","A cell counts the object's tables that the screen reaches through its API calls.","Pick an app at the top; click a cell for the exact table list. Rows marked * are counted at API-module level because the code link from that API call to a table is not traced.",()=>"Rows with many dark cells are screens that depend on several areas: test them first when those tables change.","Testing scope and onboarding."],
+"Value boards":["The coded values found in the semantic layer (statuses, types, flags) and what each code means.","One board per column that holds a list of codes.","Scroll and hover a code for its meaning.",()=>"Codes without a meaning are open questions in VALIDATE_KB.","Look up what a code means."],
+"Database bubbles":["Bubbles of bubbles: databases, then schemas, then tables.","Inside a schema: teal = some app reads/writes it, orange = only ETL scripts touch it, grey = no code reference found.","Click a database (D01 dev, T01 SIT), then a schema, then a table for its columns and the code that uses it. The filter box finds a table.",()=>"Grey tables have no API or ETL reference in the ontology.","Browse the warehouse and see which tables really matter."],
+"Object fact cards":["One card per area: main tables and how far it reaches (tables, APIs, screens, jobs, systems).","Numbers are counts of links in the KB graph.","Read across cards to compare areas.",()=>"Biggest cards are the riskiest areas to change.","Quick fact sheet per area."],
+"Network":["A sample of the KB graph: screens, API calls, tables, ETL jobs, systems. Unlinked items are hidden; the 15 most connected are labelled.","A line is a reads/writes/calls link found in code.","Turn kinds on/off with the chips. Hover a dot to light its links; click a dot to list everything it is linked to.",()=>"Dense green/orange clusters are ETL pipelines that write the same tables.","Show the overall shape of the graph."],
+"Hive plot":["Each kind of thing on its own spoke, sorted by how connected it is; curves are links between spokes.","A curve = links between those two kinds.","Hover to highlight.",()=>"Spokes with few curves are weakly linked in the KB.","See where the graph is dense."],
+"Link-type flow":["How many links go from each kind of thing to each other kind.","Band width = number of links.","Hover a band for the count.",()=>"table → column and SQL → table dominate; screen → API is small.","Understand what the KB graph is made of."],
+"Link-type grid":["The same counts as a grid: rows are where a link starts, columns where it points.","Each cell names the relationship (reads, writes, calls).","Hover a cell.",()=>"Empty cells are links the KB does not capture yet.","Check KB coverage."],
+"Arc diagram":["The tables used by the most API calls on one line; arcs join tables used by the same calls.","Thicker arc = more shared calls.","Hover an arc.",()=>"Tables joined by thick arcs change together.","Find table groups that travel together."],
+"Story blast radius":["Pick a Jira story: the files its commits changed and the tables those files touch.","Story → file → table.","Choose a story at the top.",()=>"Stories are matched from CVBC keys in commit messages only (link graph changed edges).","See how far one story reached."],
+"Most connected tables":["The 25 tables with the most links, split by who links to them.","Bar segments = kind of thing linking in.","Hover a segment.",()=>"Top tables are where a change ripples furthest.","Prioritise review and testing."],
+"Packed circles":["Every kind of thing as a bubble of its 40 most connected members.","Outer = kind; inner = items.","Hover an item.",()=>"","Size of each part of the KB."],
+"Follow the thread":["Five columns: screen, API call, table, ETL job, outside system.","Lines are links in code between neighbouring columns.","Click a screen or press Play to light its full path.",()=>"Screens whose path stops at the API column have unresolved table links.","Trace a screen to its data."],
+"Test coverage":["Left: automated tests per screen. Right: the most connected tables, filled if a test covers them.","Test → screen / table links.","Hover squares.",()=>"Coverage is near zero: the KB has no test-to-code links yet.","Show test gaps."],
+"Data flow (by table layer)":["The table layers the ontology names (the layer field on each table), left to right.","A ribbon = SQL scripts that read a table in one layer and write a table in the next; width = number of such loads. Layers come from CVBC_ONTOLOGY.yaml; loads from its job_io rows. Tables with no layer are not drawn.","Click a layer to list its tables; click a table to trace every upstream and downstream table and the scripts in between. Click any table in the trace to re-centre. Or pick/type a table at the top.",()=>{const zc={};FL.t.forEach(t=>zc[t[0]]=(zc[t[0]]||0)+1);return`${FL.t.length} tables and ${FL.s.length} scripts. Layers: ${FL.zones.length}. Log, backup and temp tables are left out.`},"Understand and impact-check the CFF to UI sync."],
+"ETL job flow":["The busiest ETL jobs in the middle, the tables each reads on the left and writes on the right.","Job → table.","Hover a job to isolate its inputs and outputs.",()=>"Log tables are hidden.","ETL walkthrough."],
+"Impact chain lanes":["Pick a critical data item. Lanes show who writes it and who reads it, layer by layer.","From the DB-16 dependency matrices.","Choose an item; press Play.",()=>"","What breaks if this column changes."],
+"Change effort grid":["Per critical data item, the change effort in each layer recorded in the impact matrix.","Colour = low / medium / high.","Hover a cell.",()=>"","Estimate change cost."],
+"Systems hub":["The databases in the middle, the modules sending data in on the left and those reading on the right.","Dots show direction.","Hover a system.",()=>"","Who feeds and who consumes each database."],
+"Process stages":["The CVBC processes in the ontology (for example the PG approval workflow) as stages with the tables each stage touches.","Stage order as the ontology lists it.","Press Play to walk the stages.",()=>"","Explain the orchestration."],
+"Approval rail":["The Argus approval gates (approval-gates.yaml), each with the role that signs it.","Stage order.","Press Play.",()=>"Gates as configured in Argus, not sign-off records.","KB release process."],
+"Role dashboards":["Each dashboard lens and the kinds of panels it shows.","Darker = more panels of that kind.","Hover a cell.",()=>"","What each role sees."],
+"Knowledge base map":["The KB by folder as tiles; size = number of files (or size on disk).","Tiles nest by folder.","Switch size mode; hover a tile.",()=>"","Where the KB content lives."],
+"Who signs what":["Roles on the outer ring, Argus gate stages on the inner ring.","A line = that role signs that stage.","Hover a role.",()=>"From approval-gates.yaml required_role, not sign-off records.","Who carries the sign-offs."]};
+const side=H("aside",{id:"side"},document.body);const fd=$("#find");if(fd)side.appendChild(fd);
+const SG={ont:"Ontology",lg:"KB link graph",ag:"Lineage & impact"};
+Object.keys(SG).forEach(g=>{H("div",{class:"sg"},side,SG[g]);VIEWS.filter(v=>v.g==g).forEach((v,i)=>{const b=H("button",{class:"sv",title:v.desc},side,esc(v.name));b.dataset.k=g+i;b.onclick=()=>{G0=g;I0=i;show()}})});
+const ft=H("div",{class:"ft"},side,"<span class=sub>Theme</span>");ft.appendChild($("#theme"));
+function placeSide(){const hb=document.querySelector("header").getBoundingClientRect().bottom;side.style.top=hb+"px";side.querySelectorAll(".sv").forEach(b=>b.classList.toggle("on",b.dataset.k==G0+I0))}
+const info=H("div",{id:"info",style:"padding:4px 12px;font-size:12px;border-bottom:1px solid var(--line);background:var(--card)"},document.body);$("#ctl").before(info);let open=false;
+function renderInfo(){const v=VIEWS.filter(x=>x.g==G0)[I0];const I=INFO[v.name];if(!I){info.innerHTML=`<span class=sub>${esc(v.desc)}</span>`;return}
+ let inf="";try{inf=I[3]()}catch(e){}
+ info.innerHTML=`<b style="color:var(--p)">${esc(v.name)}:</b> ${esc(I[4])} <a href="javascript:void 0" id="infot" style="color:var(--p);margin-left:6px">${open?"Hide details ▴":"What am I seeing? ▾"}</a>`+(open?`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:6px 0 2px">${[["What you see",I[0]],["Relationships",I[1]],["How to use it",I[2]],["What you can infer",inf||"—"]].map(([h,t])=>`<div style="background:var(--pale);border-radius:6px;padding:6px 8px"><b>${h}</b><br>${esc(t)}</div>`).join("")}</div>`:"");
+ $("#infot").onclick=()=>{open=!open;renderInfo();requestAnimationFrame(()=>{$("#stage").style.top=($("#ctl").getBoundingClientRect().bottom+2)+"px";show()})}}
+window.__trace=trace;window.__zone=zoneList;const _show=show;show=function(){_show();renderInfo();placeSide()};show();
+})();
+</script><style>.fs-btn{position:absolute;top:8px;right:8px;z-index:30;border:1px solid #5009B5;background:#fff;color:#5009B5;border-radius:6px;padding:3px 10px;font:600 12px/1.4 'Open Sans',Arial,sans-serif;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.15)}.fs-btn:hover{background:#EBE4FF}.fs-fixed{position:fixed;top:auto;bottom:14px;right:16px}:fullscreen{background:#fff;overflow:auto}.graph:fullscreen svg,#main:fullscreen svg{width:100%;height:100%}.fs-max{position:fixed!important;inset:0!important;z-index:2147483646!important;background:#fff;overflow:auto;margin:0!important;width:auto!important;height:auto!important;max-width:none!important;max-height:none!important}.fs-max svg{width:100%;height:100%}.fs-max>.fs-btn{position:fixed;top:8px;right:8px}.fs-max>.fs-btn.fs-fixed{top:auto;bottom:14px;right:16px}</style><script>(function(){var ON='\u26f6 Full screen',OFF='\u2715 Exit full screen',maxed=null;function label(){var on=!!(document.fullscreenElement||maxed);document.querySelectorAll('.fs-btn').forEach(function(b){b.textContent=on?OFF:ON});if(window.fsRedraw)setTimeout(window.fsRedraw,80)}function tellHub(on){try{if(window.parent!==window)window.parent.postMessage({kbFs:on},'*')}catch(e){}}function unmax(){if(!maxed)return;maxed.classList.remove('fs-max');if(maxed===document.documentElement)document.body.classList.remove('fs-max');maxed=null;tellHub(false);label()}function max(t){maxed=t;if(t===document.documentElement)document.body.classList.add('fs-max');else t.classList.add('fs-max');tellHub(true);label()}function go(t){if(document.fullscreenElement){document.exitFullscreen();return}if(maxed){unmax();return}var f=t.requestFullscreen||t.webkitRequestFullscreen;if(!f||document.fullscreenEnabled===false||document.webkitFullscreenEnabled===false){max(t);return}var done=false,fb=function(){if(!done){done=true;if(!document.fullscreenElement&&!maxed)max(t)}};try{var p=f.call(t);if(p&&p.catch)p.catch(fb)}catch(e){fb()}setTimeout(function(){if(!document.fullscreenElement)fb()},600)}function add(host,target,fixed){if(!host||host.querySelector(':scope>.fs-btn'))return;if(!fixed&&getComputedStyle(host).position=='static')host.style.position='relative';var b=document.createElement('button');b.type='button';b.className='fs-btn'+(fixed?' fs-fixed':'');b.title='Show this picture full screen (Esc to leave)';b.textContent=ON;b.onclick=function(e){e.stopPropagation();go(target||host)};host.appendChild(b)}document.addEventListener('fullscreenchange',label);document.addEventListener('keydown',function(e){if(e.key=='Escape')unmax()});window.fsAdd=add;window.fsGo=go})();window.fsRedraw=function(){if(typeof show=='function')show()};fsAdd(document.body,document.documentElement,true);</script></body>
+</html>

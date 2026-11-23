@@ -1,0 +1,281 @@
+﻿links:
+- from:
+    type: endpoint
+    name: GET /owners
+  rel: handled by
+  to:
+    type: class
+    name: OwnerController
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/OwnerController.java:94 "@GetMapping("/owners")"]'
+- from:
+    type: endpoint
+    name: GET /owners/{ownerId}
+  rel: handled by
+  to:
+    type: class
+    name: OwnerController
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/OwnerController.java:178 "@GetMapping("/owners/{ownerId}")"]'
+- from:
+    type: endpoint
+    name: POST /owners/new
+  rel: handled by
+  to:
+    type: class
+    name: OwnerController
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/OwnerController.java:77 "@PostMapping("/owners/new")"]'
+- from:
+    type: endpoint
+    name: POST /owners/{ownerId}/edit
+  rel: handled by
+  to:
+    type: class
+    name: OwnerController
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/OwnerController.java:153 "@PostMapping("/owners/{ownerId}/edit")"]'
+- from:
+    type: endpoint
+    name: POST /owners/{ownerId}/pets/new
+  rel: handled by
+  to:
+    type: class
+    name: PetController
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/PetController.java:107 "@PostMapping("/pets/new")"]'
+- from:
+    type: endpoint
+    name: POST /owners/{ownerId}/pets/{petId}/edit
+  rel: handled by
+  to:
+    type: class
+    name: PetController
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/PetController.java:144 "@PostMapping("/pets/{petId}/edit")"]'
+- from:
+    type: endpoint
+    name: POST /owners/{ownerId}/pets/{petId}/visits/new
+  rel: handled by
+  to:
+    type: class
+    name: VisitController
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/VisitController.java:97 "@PostMapping("/owners/{ownerId}/pets/{petId}/visits/new")"]'
+- from:
+    type: endpoint
+    name: GET /vets.html
+  rel: handled by
+  to:
+    type: class
+    name: VetController
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/vet/VetController.java:45 "@GetMapping("/vets.html")"]'
+- from:
+    type: endpoint
+    name: GET /vets
+  rel: handled by
+  to:
+    type: class
+    name: VetController
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/vet/VetController.java:72 "@GetMapping({ "/vets" })"]'
+- from:
+    type: class
+    name: OwnerController
+  rel: uses
+  to:
+    type: class
+    name: OwnerRepository
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/OwnerController.java:53 "private final OwnerRepository owners"]'
+- from:
+    type: class
+    name: PetController
+  rel: uses
+  to:
+    type: class
+    name: OwnerRepository
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/PetController.java:53 "private final OwnerRepository owners"]'
+- from:
+    type: class
+    name: PetController
+  rel: uses
+  to:
+    type: class
+    name: PetTypeRepository
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/PetController.java:55 "private final PetTypeRepository types"]'
+- from:
+    type: class
+    name: VisitController
+  rel: uses
+  to:
+    type: class
+    name: OwnerRepository
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/VisitController.java:45 "private final OwnerRepository owners"]'
+- from:
+    type: class
+    name: VetController
+  rel: uses
+  to:
+    type: class
+    name: VetRepository
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/vet/VetController.java:39 "private final VetRepository vetRepository"]'
+- from:
+    type: class
+    name: OwnerController
+  rel: writes
+  to:
+    type: class
+    name: Owner
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/OwnerController.java:84 "this.owners.save(owner)"]'
+- from:
+    type: class
+    name: PetController
+  rel: writes
+  to:
+    type: class
+    name: Owner
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/PetController.java:126 "this.owners.saveAndFlush(owner)"]'
+- from:
+    type: class
+    name: VisitController
+  rel: writes
+  to:
+    type: class
+    name: Owner
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/VisitController.java:109 "this.owners.save(owner)"]'
+- from:
+    type: class
+    name: OwnerRepository
+  rel: manages
+  to:
+    type: class
+    name: Owner
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/OwnerRepository.java:36 "JpaRepository<Owner, Integer>"]'
+- from:
+    type: class
+    name: PetTypeRepository
+  rel: manages
+  to:
+    type: class
+    name: PetType
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/PetTypeRepository.java:30 "JpaRepository<PetType, Integer>"]'
+- from:
+    type: class
+    name: VetRepository
+  rel: manages
+  to:
+    type: class
+    name: Vet
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/vet/VetRepository.java:38 "Repository<Vet, Integer>"]'
+- from:
+    type: class
+    name: Owner
+  rel: stored in
+  to:
+    type: table
+    name: owners
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/Owner.java:49 "@Table(name = "owners")"]'
+- from:
+    type: class
+    name: Pet
+  rel: stored in
+  to:
+    type: table
+    name: pets
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/Pet.java:45 "@Table(name = "pets")"]'
+- from:
+    type: class
+    name: PetType
+  rel: stored in
+  to:
+    type: table
+    name: types
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/PetType.java:27 "@Table(name = "types")"]'
+- from:
+    type: class
+    name: Visit
+  rel: stored in
+  to:
+    type: table
+    name: visits
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/Visit.java:36 "@Table(name = "visits")"]'
+- from:
+    type: class
+    name: Vet
+  rel: stored in
+  to:
+    type: table
+    name: vets
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/vet/Vet.java:44 "@Table(name = "vets")"]'
+- from:
+    type: class
+    name: Specialty
+  rel: stored in
+  to:
+    type: table
+    name: specialties
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/vet/Specialty.java:29 "@Table(name = "specialties")"]'
+- from:
+    type: class
+    name: Owner
+  rel: contains
+  to:
+    type: class
+    name: Pet
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/Owner.java:70 "private final List<Pet> pets"]'
+- from:
+    type: class
+    name: Pet
+  rel: contains
+  to:
+    type: class
+    name: Visit
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/owner/Pet.java:59 "private final Set<Visit> visits"]'
+- from:
+    type: class
+    name: Vet
+  rel: contains
+  to:
+    type: class
+    name: Specialty
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/vet/Vet.java:50 "private Set<Specialty> specialties"]'
+- from:
+    type: table
+    name: pets
+  rel: references
+  to:
+    type: table
+    name: owners
+  source: '[E: spring-petclinic/src/main/resources/db/h2/schema.sql:53 "FOREIGN KEY (owner_id) REFERENCES owners (id)"]'
+- from:
+    type: table
+    name: pets
+  rel: references
+  to:
+    type: table
+    name: types
+  source: '[E: spring-petclinic/src/main/resources/db/h2/schema.sql:54 "FOREIGN KEY (type_id) REFERENCES types (id)"]'
+- from:
+    type: table
+    name: visits
+  rel: references
+  to:
+    type: table
+    name: pets
+  source: '[E: spring-petclinic/src/main/resources/db/h2/schema.sql:64 "FOREIGN KEY (pet_id) REFERENCES pets (id)"]'
+- from:
+    type: table
+    name: vet_specialties
+  rel: references
+  to:
+    type: table
+    name: vets
+  source: '[E: spring-petclinic/src/main/resources/db/h2/schema.sql:27 "FOREIGN KEY (vet_id) REFERENCES vets (id)"]'
+- from:
+    type: table
+    name: vet_specialties
+  rel: references
+  to:
+    type: table
+    name: specialties
+  source: '[E: spring-petclinic/src/main/resources/db/h2/schema.sql:28 "FOREIGN KEY (specialty_id) REFERENCES specialties (id)"]'
+- from:
+    type: class
+    name: Vet
+  rel: stored in
+  to:
+    type: table
+    name: vet_specialties
+  source: '[E: spring-petclinic/src/main/java/org/springframework/samples/petclinic/vet/Vet.java:48 "@JoinTable(name = "vet_specialties""]'

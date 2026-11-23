@@ -1,0 +1,2 @@
+-- CATALOG-FKEYS-UAT-CRCA | env uat | snowflake U01_CRCA | connection ?
+SHOW IMPORTED KEYS IN DATABASE U01_CRCA;

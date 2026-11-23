@@ -1,0 +1,241 @@
+source: 'Jira board 247317 "CVBC Scorecard", filter: (project = CVBC AND "IT Team"
+  = EDA-CVBC-Scorecard) AND statusCategory != Done ORDER BY updated DESC'
+read_at: 2026-11-09T21:50
+note: People = assignees and reporters on the board issues (open + done in last 14
+  days). Roles are empty until the team names them; never inferred.
+team:
+- name: Lee, Victor
+  email: victor.lee@carelon.com
+  jira_id: AC64416
+  role: ''
+  assigned_issues: 7
+  reported_issues: 102
+  sample_issues:
+  - CVBC-21545
+  - CVBC-17904
+  - CVBC-12845
+  - CVBC-20812
+  - CVBC-12726
+- name: Kulkarni, Atit
+  email: atit.kulkarni@carelon.com
+  jira_id: AF88117
+  role: ''
+  assigned_issues: 31
+  reported_issues: 23
+  sample_issues:
+  - CVBC-12726
+  - CVBC-17902
+  - CVBC-20990
+  - CVBC-20994
+  - CVBC-20992
+- name: Chandaka, Lalitha
+  email: lalitha.chandaka@elevancehealth.com
+  jira_id: AL97178
+  role: ''
+  assigned_issues: 27
+  reported_issues: 13
+  sample_issues:
+  - CVBC-21545
+  - CVBC-17904
+  - CVBC-21544
+  - CVBC-21544
+  - CVBC-20812
+- name: Konduri, Vijaya Kumar
+  email: vijayakumar.konduri@elevancehealth.com
+  jira_id: AM37540
+  role: ''
+  assigned_issues: 21
+  reported_issues: 9
+  sample_issues:
+  - CVBC-20903
+  - CVBC-20903
+  - CVBC-21485
+  - CVBC-21485
+  - CVBC-21478
+- name: Tiwari, Prathima
+  email: prathima.tiwari@carelon.com
+  jira_id: AH17163
+  role: ''
+  assigned_issues: 19
+  reported_issues: 9
+  sample_issues:
+  - CVBC-21521
+  - CVBC-17902
+  - CVBC-21332
+  - CVBC-21046
+  - CVBC-21046
+- name: Karthik, Gandla
+  email: karthik.gandla@carelon.com
+  jira_id: AM31767
+  role: ''
+  assigned_issues: 15
+  reported_issues: 6
+  sample_issues:
+  - CVBC-21095
+  - CVBC-21521
+  - CVBC-21097
+  - CVBC-21096
+  - CVBC-20923
+- name: Rana, Sekh
+  email: sekh.rana@carelon.com
+  jira_id: AH55311
+  role: ''
+  assigned_issues: 17
+  reported_issues: 4
+  sample_issues:
+  - CVBC-19773
+  - CVBC-20593
+  - CVBC-18929
+  - CVBC-17529
+  - CVBC-17527
+- name: Ravi, Mohana Priya
+  email: mohanapriya.ravi@elevancehealth.com
+  jira_id: AM57993
+  role: ''
+  assigned_issues: 12
+  reported_issues: 8
+  sample_issues:
+  - CVBC-21471
+  - CVBC-21471
+  - CVBC-21472
+  - CVBC-21472
+  - CVBC-21470
+- name: Ramu, Amara
+  email: amara.ramu@carelon.com
+  jira_id: AM51934
+  role: ''
+  assigned_issues: 14
+  reported_issues: 6
+  sample_issues:
+  - CVBC-20992
+  - CVBC-21120
+  - CVBC-21119
+  - CVBC-21121
+  - CVBC-17673
+- name: Sinha, Jeevitesh
+  email: jeevitesh.sinha@carelon.com
+  jira_id: AL56483
+  role: ''
+  assigned_issues: 9
+  reported_issues: 10
+  sample_issues:
+  - CVBC-21060
+  - CVBC-21060
+  - CVBC-21059
+  - CVBC-21059
+  - CVBC-20934
+- name: V, Manasi
+  email: manasi.v@elevancehealth.com
+  jira_id: AM41724
+  role: ''
+  assigned_issues: 9
+  reported_issues: 5
+  sample_issues:
+  - CVBC-21124
+  - CVBC-21124
+  - CVBC-20990
+  - CVBC-21125
+  - CVBC-21125
+- name: Agnihotri, Ananya
+  email: ananya.agnihotri@carelon.com
+  jira_id: AL56228
+  role: ''
+  assigned_issues: 9
+  reported_issues: 3
+  sample_issues:
+  - CVBC-21111
+  - CVBC-21113
+  - CVBC-21112
+  - CVBC-20939
+  - CVBC-19448
+- name: Gaul, Joseph
+  email: joseph.gaul@carelon.com
+  jira_id: AF49461
+  role: ''
+  assigned_issues: 0
+  reported_issues: 12
+  sample_issues:
+  - CVBC-12725
+  - CVBC-19475
+  - CVBC-19484
+  - CVBC-15568
+  - CVBC-10920
+- name: Jha, Deborpita
+  email: deborpita.jha@elevancehealth.com
+  jira_id: AE09605
+  role: ''
+  assigned_issues: 9
+  reported_issues: 1
+  sample_issues:
+  - CVBC-12845
+  - CVBC-19486
+  - CVBC-20877
+  - CVBC-20877
+  - CVBC-20814
+- name: Reddem, Bindu
+  email: bindu.reddem@elevancehealth.com
+  jira_id: AM73283
+  role: ''
+  assigned_issues: 7
+  reported_issues: 3
+  sample_issues:
+  - CVBC-21382
+  - CVBC-21382
+  - CVBC-21381
+  - CVBC-21381
+  - CVBC-19777
+- name: Pinnamaneni, Deepthi [X]
+  email: deepthi.pinnamaneni@elevancehealth.com
+  jira_id: AG32597
+  role: ''
+  assigned_issues: 4
+  reported_issues: 4
+  sample_issues:
+  - CVBC-15786
+  - CVBC-19489
+  - CVBC-10883
+  - CVBC-19780
+  - CVBC-14105
+- name: Powell, Galina
+  email: galina.powell@carelon.com
+  jira_id: AC83584
+  role: ''
+  assigned_issues: 0
+  reported_issues: 4
+  sample_issues:
+  - CVBC-12776
+  - CVBC-12734
+  - CVBC-12773
+  - CVBC-8694
+- name: Moulvi, Tameem
+  email: tameem.moulvi@elevancehealth.com
+  jira_id: moulvtm
+  role: ''
+  assigned_issues: 0
+  reported_issues: 1
+  sample_issues:
+  - CVBC-21303
+- name: Math, Hemanth
+  email: hemanth.math@carelon.com
+  jira_id: AG39200
+  role: ''
+  assigned_issues: 0
+  reported_issues: 1
+  sample_issues:
+  - CVBC-9132
+- name: So, Daphne
+  email: daphne.so@elevancehealth.com
+  jira_id: AI02359
+  role: ''
+  assigned_issues: 0
+  reported_issues: 1
+  sample_issues:
+  - CVBC-19634
+- name: H, Avinash
+  email: avinash.h@carelon.com
+  jira_id: AH26409
+  role: ''
+  assigned_issues: 0
+  reported_issues: 1
+  sample_issues:
+  - CVBC-10108

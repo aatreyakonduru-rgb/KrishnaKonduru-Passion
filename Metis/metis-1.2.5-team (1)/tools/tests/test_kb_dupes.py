@@ -1,0 +1,125 @@
+﻿import os
+import shutil
+import sys
+import tempfile
+import unittest
+
+import yaml
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+import kb_dupes as D  # noqa: E402
+import verify_kb  # noqa: E402
+
+BASE = ("The claims intake service receives a claim from the portal, checks the policy number against the policy table, "
+        "assigns an adjuster by region and queue depth, and writes the claim header row with status open. "
+        "Every night the load job copies new headers to the reporting schema and clears the staging area. ")
+
+
+def write(path, text):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write(text)
+
+
+class Primitives(unittest.TestCase):
+    def test_words_drop_tags_links_and_markup(self):
+        self.assertEqual(D.words("**Paid** [E: file:r.txt \"x\"] in [the docs](a.md) now"), ["paid", "in", "the", "docs", "now"])
+
+    def test_shingles_and_jaccard(self):
+        a, b = D.shingles("a b c d e f g".split()), D.shingles("a b c d e f h".split())
+        self.assertEqual(len(a), 3)
+        self.assertAlmostEqual(D.jaccard(a, b), 2 / 4)
+        self.assertEqual(D.jaccard(set(), a), 0.0)
+        self.assertEqual(D.shingles(["a", "b"]), {"a b"})
+
+    def test_simhash_is_close_for_similar_text_and_far_for_different(self):
+        t1 = D.shingles(D.words(BASE))
+        t2 = D.shingles(D.words(BASE.replace("nightly", "weekly").replace("Every night", "Every week")))
+        other = D.shingles(D.words("Totally unrelated paragraph about gardening tools, seasonal planting and compost heaps in spring, "
+                                   "with notes on watering schedules and the best time to prune roses along the fence."))
+        s1, s2, s3 = D.simhash(t1), D.simhash(t2), D.simhash(other)
+        self.assertLess(D.hamming(s1, s2), D.hamming(s1, s3))
+
+    def test_paragraphs_skip_headings_code_and_front_matter(self):
+        text = "---\na: b\n---\n# H\n\nfirst block\nsecond line\n\n```\ncode here\n```\n\n| a | b |\n|---|---|\n| 1 | 2 |\n"
+        self.assertEqual(D.paragraphs(text)[0], (6, "first block\nsecond line"))
+        self.assertNotIn("code here", " ".join(t for _, t in D.paragraphs(text)))
+
+
+class Scan(unittest.TestCase):
+    def pages(self):
+        return {"a/one.md": "# One\n\n" + BASE + "\n",
+                "b/two.md": "# Two\n\n" + BASE.replace("status open", "status new") + "\n",
+                "c/copy.md": "# One\n\n" + BASE + "\n",
+                "d/other.md": "# Other\n\nPlanting notes for the garden: roses need pruning in late winter, and compost should be turned "
+                              "every few weeks so that it stays aerated and warm enough for the worms to keep working through the season.\n"}
+
+    def test_identical_and_near_pages_are_found_and_unrelated_is_not(self):
+        got = D.scan(self.pages(), page_threshold=0.6)
+        pairs = {(p["a"], p["b"]): p for p in got["pages"]}
+        self.assertEqual(pairs[("a/one.md", "c/copy.md")]["kind"], "identical")
+        self.assertEqual(pairs[("a/one.md", "c/copy.md")]["similarity"], 1.0)
+        self.assertEqual(pairs[("a/one.md", "b/two.md")]["kind"], "near")
+        self.assertTrue(all("d/other.md" not in k for k in pairs))
+
+    def test_threshold_controls_what_is_reported(self):
+        got = D.scan(self.pages(), page_threshold=0.99)
+        self.assertEqual([(p["a"], p["b"]) for p in got["pages"]], [("a/one.md", "c/copy.md")])
+
+    def test_paragraph_duplicates_across_different_pages(self):
+        pages = {"x/a.md": "# A\n\nIntro that is unique to page a and says something quite different from the other page here.\n\n" + BASE + "\n",
+                 "y/b.md": "# B\n\nCompletely other opening words for this page about batch jobs, owners, and the way operators escalate.\n\n" + BASE + "\n"}
+        got = D.scan(pages)
+        self.assertEqual(got["pages"], [])
+        self.assertEqual(len(got["paragraphs"]), 1)
+        p = got["paragraphs"][0]
+        self.assertEqual((p["a"]["page"], p["b"]["page"], p["kind"]), ("x/a.md", "y/b.md", "identical"))
+        self.assertNotIn("[", p["text"])
+
+    def test_same_page_paragraphs_are_not_reported(self):
+        got = D.scan({"x/a.md": "# A\n\n" + BASE + "\n\n" + BASE + "\n"})
+        self.assertEqual(got["paragraphs"], [])
+
+    def test_paragraph_pairs_inside_reported_page_pairs_are_not_repeated(self):
+        got = D.scan(self.pages())
+        self.assertEqual(got["paragraphs"], [])
+
+    def test_short_text_is_ignored(self):
+        self.assertEqual(D.scan({"a.md": "# A\n\nshort text here\n", "b.md": "# B\n\nshort text here\n"}), {"pages": [], "paragraphs": []})
+
+
+class Report(unittest.TestCase):
+    def setUp(self):
+        self.kb = tempfile.mkdtemp()
+        for rel, t in (("a/one.md", "# One\n\n" + BASE + " [E: file:r.txt]\n"), ("c/copy.md", "# Copy\n\n" + BASE + "\n"),
+                       ("db/gen.md", "# Generated by gen_x.py\n\n" + BASE + "\n"), ("_EVIDENCE/x.md", BASE + "\n")):
+            write(os.path.join(self.kb, rel), t)
+        write(os.path.join(self.kb, "_EVIDENCE", "files", "r.txt"), "x\n")
+
+    def tearDown(self):
+        shutil.rmtree(self.kb, ignore_errors=True)
+
+    def test_report_written_ignores_generated_and_evidence_and_passes_source_check(self):
+        rep = D.build(self.kb)
+        self.assertEqual(rep["pages_read"], 2)
+        path = D.write_report(self.kb, rep)
+        self.assertTrue(path.replace("\\", "/").endswith("CROSS-LAYER/DUPLICATES.yaml"))
+        self.assertEqual(D.load_report(self.kb)["page_pairs"], 1)
+        res = verify_kb.Checker(self.kb).run()
+        self.assertEqual([p for p in res["problems"] if p["file"].endswith("DUPLICATES.yaml")], [])
+
+    def test_cli_deletes_nothing(self):
+        before = sorted(os.listdir(os.path.join(self.kb, "a")) + os.listdir(os.path.join(self.kb, "c")))
+        self.assertEqual(D.main(["scan", self.kb]), 0)
+        self.assertEqual(sorted(os.listdir(os.path.join(self.kb, "a")) + os.listdir(os.path.join(self.kb, "c"))), before)
+        self.assertEqual(D.main(["scan", self.kb, "--page-threshold", "2"]), 2)
+        self.assertEqual(D.main(["scan", self.kb, "--no-write"]), 0)
+
+    def test_report_is_valid_yaml(self):
+        D.write_report(self.kb, D.build(self.kb))
+        with open(os.path.join(self.kb, "CROSS-LAYER", "DUPLICATES.yaml"), encoding="utf-8") as fh:
+            self.assertIn("duplicate_pages", yaml.safe_load(fh))
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,0 +1,45 @@
+# Where a page made from an uploaded document goes in the KB. Copy to <KB>/.metis/doc-categories.yaml to change it.
+# id: the value a page puts in `category:`.  folder: relative to the KB root.  keywords: used only to suggest a
+# category for each document (doc_kb.py classify); the person or the reviewer can always pick another.
+# A category with no folder is not valid. `other` takes anything that matches nothing.
+categories:
+  - id: requirements
+    title: Business and functional requirements
+    folder: context/requirements
+    keywords: [requirement, brd, frd, user story, acceptance criteria, scope, stakeholder, use case, business rule]
+  - id: architecture
+    title: Architecture and design
+    folder: context/architecture
+    keywords: [architecture, design, component, integration, interface, sequence, diagram, deployment, infrastructure, api contract]
+  - id: data
+    title: Data dictionary, mappings and models
+    folder: db/documents
+    keywords: [data dictionary, mapping, schema, table, column, field, lineage, erd, data model, source to target, snowflake]
+  - id: etl
+    title: ETL, batch and job documents
+    folder: etl/documents
+    keywords: [etl, batch, job, schedule, pipeline, load, extract, control-m, airflow, dependency, sla]
+  - id: process
+    title: Processes, runbooks and how-to
+    folder: context/processes
+    keywords: [process, procedure, runbook, how to, steps, workflow, support, incident, escalation, onboarding]
+  - id: testing
+    title: Test plans and results
+    folder: context/testing
+    keywords: [test plan, test case, test result, uat, regression, defect, qa, validation, scenario]
+  - id: security
+    title: Security, access and compliance
+    folder: context/security
+    keywords: [security, access, role, permission, phi, pii, hipaa, compliance, audit, encryption, entitlement]
+  - id: glossary
+    title: Glossary, domain and business context
+    folder: context/glossary
+    keywords: [glossary, definition, acronym, terminology, domain, business model, overview, product]
+  - id: meetings
+    title: Meeting notes, decisions and transcripts
+    folder: context/meetings
+    keywords: [meeting, minutes, agenda, action item, decision, attendees, transcript, retro, standup, notes]
+  - id: other
+    title: Other documents
+    folder: context/other
+    keywords: []

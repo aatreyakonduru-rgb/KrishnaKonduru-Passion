@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+*.zip
+*.log
+*.tmp
+.bob/
+# rebuilt from the KB pages
+*.sqlite
+# per-machine lock and state
+.metis/gate.lock
+# sample repos are cloned separately (see README)
+sandbox/repos/

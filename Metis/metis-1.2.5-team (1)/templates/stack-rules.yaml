@@ -1,0 +1,83 @@
+# What Mētis looks for to detect a team's tech stack. Each rule names the files to read and the text to find.
+# A finding is written only when the text is found; it cites the file and line. Add rules for any stack here.
+# category: language | framework | ui | database | etl-batch | aws | test | build
+# files: file-name patterns (fnmatch on the base name). match: a regular expression (case sensitive unless (?i)).
+# engine: for database rules, the database type the match shows.
+rules:
+  # build files and languages
+  - {category: language, name: Java, files: [pom.xml, build.gradle, build.gradle.kts], match: "<project|plugins\\s*\\{|apply plugin"}
+  - {category: language, name: Python, files: [requirements*.txt, pyproject.toml, setup.py, Pipfile], match: "^\\s*[A-Za-z][A-Za-z0-9_.\\[\\]-]+"}
+  - {category: language, name: JavaScript/TypeScript, files: [package.json], match: "\"name\"\\s*:"}
+  - {category: language, name: TypeScript, files: [tsconfig.json], match: "compilerOptions"}
+  - {category: language, name: C#/.NET, files: ["*.csproj"], match: "Microsoft\\.NET\\.Sdk"}
+  - {category: language, name: Go, files: [go.mod], match: "^module "}
+  - {category: build, name: Maven, files: [pom.xml], match: "<project"}
+  - {category: build, name: Gradle, files: [build.gradle, build.gradle.kts], match: "plugins|dependencies"}
+  # back-end frameworks
+  - {category: framework, name: Spring Boot, files: [pom.xml, build.gradle, build.gradle.kts], match: "spring-boot"}
+  - {category: framework, name: Django, files: [requirements*.txt, pyproject.toml, Pipfile], match: "(?i)^\\s*\"?django\\b"}
+  - {category: framework, name: Flask, files: [requirements*.txt, pyproject.toml, Pipfile], match: "(?i)^\\s*\"?flask\\b"}
+  - {category: framework, name: FastAPI, files: [requirements*.txt, pyproject.toml, Pipfile], match: "(?i)^\\s*\"?fastapi\\b"}
+  - {category: framework, name: Express, files: [package.json], match: "\"express\"\\s*:"}
+  - {category: framework, name: ASP.NET Core, files: ["*.csproj"], match: "Microsoft\\.AspNetCore|Microsoft\\.NET\\.Sdk\\.Web"}
+  # front ends
+  - {category: ui, name: React, files: [package.json], match: "\"react\"\\s*:"}
+  - {category: ui, name: Vite, files: [package.json], match: "\"vite\"\\s*:"}
+  - {category: ui, name: Next.js, files: [package.json], match: "\"next\"\\s*:"}
+  - {category: ui, name: Angular, files: [package.json], match: "\"@angular/core\"\\s*:"}
+  - {category: ui, name: Vue, files: [package.json], match: "\"vue\"\\s*:"}
+  - {category: ui, name: Sencha Ext JS, files: [app.json, workspace.json, package.json], match: "(?i)\"(framework|toolkit)\"\\s*:\\s*\"(ext|classic|modern)\"|@sencha/|\"sencha\""}
+  # databases: drivers and connection URLs
+  - {category: database, name: JDBC URL, files: ["*.yml", "*.yaml", "*.properties", "*.env", ".env*", "*.json", "*.xml", "*.conf", "*.tf", "*.py", "*.java", "*.groovy"], match: "jdbc:(?P<engine>[a-z0-9]+):", engine: from-match}
+  - {category: database, name: PostgreSQL driver, files: [pom.xml, build.gradle, build.gradle.kts], match: "<artifactId>postgresql</artifactId>|org\\.postgresql", engine: postgresql}
+  - {category: database, name: Snowflake driver, files: [pom.xml, build.gradle, build.gradle.kts], match: "snowflake-jdbc", engine: snowflake}
+  - {category: database, name: SQL Server driver, files: [pom.xml, build.gradle, build.gradle.kts], match: "mssql-jdbc", engine: sqlserver}
+  - {category: database, name: Oracle driver, files: [pom.xml, build.gradle, build.gradle.kts], match: "ojdbc", engine: oracle}
+  - {category: database, name: MySQL driver, files: [pom.xml, build.gradle, build.gradle.kts], match: "mysql-connector", engine: mysql}
+  - {category: database, name: PostgreSQL driver, files: [requirements*.txt, pyproject.toml, Pipfile], match: "(?i)^\\s*\"?(psycopg2|psycopg|asyncpg|pg8000)\\b", engine: postgresql}
+  - {category: database, name: Snowflake driver, files: [requirements*.txt, pyproject.toml, Pipfile], match: "(?i)^\\s*\"?snowflake-(connector-python|sqlalchemy|snowpark-python)\\b", engine: snowflake}
+  - {category: database, name: Oracle driver, files: [requirements*.txt, pyproject.toml, Pipfile], match: "(?i)^\\s*\"?(cx_oracle|oracledb)\\b", engine: oracle}
+  - {category: database, name: MySQL driver, files: [requirements*.txt, pyproject.toml, Pipfile], match: "(?i)^\\s*\"?(pymysql|mysqlclient|mysql-connector-python)\\b", engine: mysql}
+  - {category: database, name: SQL Server driver, files: [requirements*.txt, pyproject.toml, Pipfile], match: "(?i)^\\s*\"?(pymssql)\\b", engine: sqlserver}
+  - {category: database, name: PostgreSQL driver, files: [package.json], match: "\"(pg|postgres)\"\\s*:", engine: postgresql}
+  - {category: database, name: Snowflake driver, files: [package.json], match: "\"snowflake-sdk\"\\s*:", engine: snowflake}
+  - {category: database, name: Snowflake account URL, files: ["*.yml", "*.yaml", "*.properties", "*.env", ".env*", "*.json", "*.conf", "*.tf", "*.py"], match: "[A-Za-z0-9_.-]+\\.snowflakecomputing\\.com", engine: snowflake}
+  # schema files a database can be documented from when there is no live connection
+  - {category: database, name: Flyway migrations, files: ["V*__*.sql"], match: "(?i)create\\s+(or\\s+replace\\s+)?table", engine: from-ddl}
+  - {category: database, name: Liquibase changelog, files: ["*changelog*.xml", "*changelog*.yaml", "*changelog*.yml"], match: "databaseChangeLog"}
+  - {category: database, name: DDL file, files: ["*.sql"], match: "(?i)^\\s*create\\s+(or\\s+replace\\s+)?table", engine: from-ddl}
+  # ETL, batch, scheduling
+  - {category: etl-batch, name: Apache Airflow, files: [requirements*.txt, pyproject.toml, "*.py"], match: "apache-airflow|from airflow"}
+  - {category: etl-batch, name: dbt, files: [dbt_project.yml], match: "^name:"}
+  - {category: etl-batch, name: Apache Spark / PySpark, files: [requirements*.txt, pyproject.toml, "*.py", pom.xml], match: "pyspark|spark-core|spark-sql"}
+  - {category: etl-batch, name: Spring Batch, files: [pom.xml, build.gradle, build.gradle.kts], match: "spring-batch|spring-boot-starter-batch"}
+  - {category: etl-batch, name: Cron schedule, files: ["crontab*", "*.cron"], match: "^\\s*[0-9*/,-]+\\s+[0-9*/,-]+\\s+"}
+  # AWS (from files in the repo; live AWS is not read)
+  - {category: aws, name: AWS Glue, files: ["*.py", "*.tf", "*.yml", "*.yaml", "*.json"], match: "awsglue|AWS::Glue::Job|aws_glue_job"}
+  - {category: aws, name: AWS Batch, files: ["*.tf", "*.yml", "*.yaml", "*.json"], match: "AWS::Batch::JobDefinition|aws_batch_job_definition"}
+  - {category: aws, name: AWS Step Functions, files: ["*.tf", "*.yml", "*.yaml", "*.json", "*.asl.json"], match: "AWS::StepFunctions::StateMachine|aws_sfn_state_machine|\"StartAt\"\\s*:"}
+  - {category: aws, name: AWS Lambda, files: ["*.tf", "*.yml", "*.yaml", "*.json"], match: "AWS::Lambda::Function|aws_lambda_function|AWS::Serverless::Function"}
+  - {category: aws, name: Amazon EventBridge schedule, files: ["*.tf", "*.yml", "*.yaml", "*.json"], match: "AWS::Events::Rule|aws_cloudwatch_event_rule|AWS::Scheduler::Schedule"}
+  - {category: aws, name: Amazon S3, files: ["*.tf", "*.yml", "*.yaml", "*.json", "*.py", "*.java"], match: "AWS::S3::Bucket|aws_s3_bucket|s3://"}
+  # test automation
+  - {category: test, name: JUnit, files: [pom.xml, build.gradle, build.gradle.kts], match: "junit"}
+  - {category: test, name: pytest, files: [requirements*.txt, pyproject.toml, Pipfile, pytest.ini], match: "(?i)pytest"}
+  - {category: test, name: Jest, files: [package.json], match: "\"jest\"\\s*:"}
+  - {category: test, name: Vitest, files: [package.json], match: "\"vitest\"\\s*:"}
+  - {category: test, name: Cypress, files: [package.json], match: "\"cypress\"\\s*:"}
+  - {category: test, name: Playwright, files: [package.json, requirements*.txt], match: "playwright"}
+  - {category: test, name: Selenium, files: [pom.xml, requirements*.txt, package.json], match: "(?i)selenium"}
+  - {category: test, name: Behave, files: [requirements*.txt], match: "(?i)^\\s*behave\\b"}
+
+# Connection values read from config lines. A value that is a placeholder (${...}, {{...}}, os.environ) is not
+# known from the code: it becomes a VALIDATE_KB question.
+connection_keys: "(?i)^\\s*[\"']?(?:[a-z0-9_.-]*[._-])?(database|db|dbname|db_name|schema|schemas|warehouse|currentSchema)[\"']?\\s*[:=]\\s*(?P<value>[^#\\s,]+)"
+connection_url_keys: "(?i)^\\s*[\"']?(?:[a-z0-9_.-]*[._-])?(url|jdbc-url|jdbcurl|connection-string|connection_string|connectionstring|dsn|host)[\"']?\\s*[:=]\\s*(?P<value>\\S+)"
+url_params: "(?i)[?&;](?P<key>db|database|schema|warehouse|currentSchema|databaseName)=(?P<value>[^&;\\s\"']+)"
+url_path_db: "jdbc:(?:postgresql|mysql|mariadb)://[^/\\s\"']+/(?P<value>[A-Za-z0-9_${}.-]+)"
+placeholder: "\\$\\{[^}]*\\}|\\{\\{[^}]*\\}\\}|os\\.environ|getenv|process\\.env"
+secret: "(?i)(password|passwd|pwd|secret|token|api[_-]?key|private[_-]?key|credential)"
+# Environment shown by a file name, e.g. application-sit.yml, .env.uat, config/prod/db.yaml
+env_from_path: "(?i)(?:^|[/._-])(dev|develop|sit|qa|test|uat|stage|staging|preprod|perf|prod|production)(?:[/._-]|$)"
+skip_dirs: [.git, node_modules, target, build, dist, out, venv, .venv, __pycache__, vendor, .idea, .gradle, coverage, .next]
+max_file_bytes: 1000000

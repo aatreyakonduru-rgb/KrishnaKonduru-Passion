@@ -1,0 +1,148 @@
+# Every {{PLACEHOLDER}} a shared prompt may use, and where its value comes from.
+# `prompts.py render` fills them in; `prompts.py lint` rejects any placeholder not listed here.
+#
+# sources:  profile:<dotted key in the team profile>
+#           env:<key of the resolved database environment>   (from db.environments_file)
+#           runtime:date                                     (today, ISO format)
+# type:     text | sql_list | sql_endswith_any | bullets
+#           sql_list with no value renders as NULL, so `IN (NULL)` matches nothing.
+# required: true means rendering stops if there is no value.
+
+placeholders:
+  PRODUCT_NAME:
+    sources: [profile:product.name]
+    type: text
+    required: true
+    doc: The product the knowledge base describes, as its team writes it.
+  DOMAIN_CONTEXT:
+    sources: [profile:product.domain_context]
+    type: text
+    doc: Path to the team's domain context document.
+  DOMAIN_CONTEXT_DIR:
+    sources: [profile:paths.context_dir]
+    type: text
+    required: true
+    doc: Folder that holds the domain-context modules (0A to 0E) and their index.
+  KB_ROOT:
+    sources: [profile:paths.kb_root]
+    type: text
+    required: true
+    doc: Root folder of the generated knowledge base.
+  KB_DB_DOCS:
+    sources: [profile:paths.db_docs]
+    type: text
+    required: true
+    doc: Folder the database pipeline writes to.
+  DB_ENV:
+    sources: [env:name]
+    type: text
+    required: true
+    doc: The resolved database environment key.
+  SNOWFLAKE_DB:
+    sources: [env:database]
+    type: text
+    required: true
+    doc: Database for the resolved environment.
+  SNOWFLAKE_IAM_DB:
+    sources: [env:iam_database]
+    type: text
+    doc: Database holding access policies, if separate.
+  SNOWFLAKE_WH:
+    sources: [env:warehouse]
+    type: text
+    doc: Warehouse to run queries on.
+  DB_SCHEMA:
+    sources: [env:schema]
+    type: text
+    required: true
+    doc: The main application schema.
+  DB_SCHEMA_LIST:
+    sources: [env:schema, profile:db.related_schemas, profile:db.restricted_view_schemas]
+    type: sql_list
+    required: true
+    doc: The main schema plus every related and restricted-view schema, quoted for SQL IN (...).
+  DB_RELATED_SCHEMAS:
+    sources: [profile:db.related_schemas]
+    type: sql_list
+    doc: Staging, raw or semantic schemas that feed or sit next to the main schema.
+  DB_RESTRICTED_VIEW_SCHEMAS:
+    sources: [profile:db.restricted_view_schemas]
+    type: sql_list
+    doc: Schemas of views that mask or filter sensitive data.
+  DB_CODE_COLUMN_FILTER:
+    sources: [profile:db.code_column_suffixes]
+    type: sql_endswith_any
+    required: true
+    doc: SQL predicate matching coded columns by name suffix.
+  DB_KEY_COLUMN_FILTER:
+    sources: [profile:db.key_column_suffixes]
+    type: sql_endswith_any
+    required: true
+    doc: SQL predicate matching key columns by name suffix.
+  DB_PRIORITY_CODE_COLUMNS:
+    sources: [profile:db.priority_code_columns]
+    type: bullets
+    doc: TABLE.COLUMN pairs whose values the team always wants listed.
+  DB_ACTIVE_FILTER_COLUMN:
+    sources: [profile:db.active_record_filter.column]
+    type: text
+    doc: Column that marks the current version of a row, if the schema keeps history.
+  DB_ACTIVE_FILTER_VALUE:
+    sources: [profile:db.active_record_filter.open_value]
+    type: text
+    doc: Value of that column on the current version.
+  DB_KNOWN_JOINS:
+    sources: [profile:db.known_joins]
+    type: bullets
+    doc: CHILD.COLUMN -> PARENT.COLUMN pairs the team already knows about.
+  RUN_DATE:
+    sources: [runtime:date]
+    type: text
+    doc: Date the prompt is run.
+  TEAM_ROSTER:
+    sources: [profile:team.roster_file]
+    type: text
+    doc: Path to the team roster (names and roles) used to assign open questions.
+  DB_GLOBAL_FILTERS:
+    sources: [profile:db.global_filters]
+    type: bullets
+    doc: SQL predicates every query must include (tenant isolation and the like), with a short reason.
+  DB_DEFAULT_VIEW_SCHEMA:
+    sources: [profile:db.default_view_schema]
+    type: text
+    doc: The masked view schema an AI agent reads from by default.
+  APP_SOURCE_DIRS:
+    sources: [profile:app.source_dirs]
+    type: bullets
+    doc: Application source folders (API, UI) that read or write the database.
+  KB_MODULE_DOCS:
+    sources: [profile:paths.module_docs]
+    type: text
+    required: true
+    doc: Folder that holds one sub-folder of documents per application module.
+  KB_ETL_DOCS:
+    sources: [profile:paths.etl_docs]
+    type: text
+    doc: Folder that holds the ETL knowledge-base documents.
+  MODULE_NAME:
+    sources: [runtime:arg.MODULE_NAME]
+    type: text
+    required: true
+    doc: The module being documented, passed at render time (--set MODULE_NAME=...).
+  MODULE_SOURCE:
+    sources: [runtime:arg.MODULE_SOURCE]
+    type: text
+    required: true
+    doc: Source folder of that module, passed at render time (--set MODULE_SOURCE=...).
+  DB_SENSITIVE_COLUMN_PATTERNS:
+    sources: [profile:db.sensitive_column_patterns]
+    type: bullets
+    doc: Column-name patterns or tags the team treats as sensitive, beyond the masking policies.
+  DB_QUERY_HISTORY_DAYS:
+    sources: [profile:db.query_history_days]
+    type: text
+    doc: How many days of query history DB-20 reads (ACCOUNT_USAGE). Set in the team profile.
+  DB_FILTER_COLUMN_CANDIDATES:
+    sources: [profile:db.filter_column_candidates]
+    type: bullets
+    doc: Columns the team says users filter on, to seed the business-term map.

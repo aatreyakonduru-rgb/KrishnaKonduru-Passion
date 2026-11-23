@@ -1,0 +1,38 @@
+<!doctype html><html><head><meta charset="utf-8"><title>ERD from code joins</title><style>
+*{box-sizing:border-box}body{margin:0;font-family:"Open Sans",Arial,sans-serif;font-size:12.5px;color:#231E33;background:#F5F5F5;display:flex;height:100vh;overflow:hidden}
+#side{width:290px;background:#fff;border-right:1px solid #D9D9D9;display:flex;flex-direction:column}#side input{margin:10px;padding:6px 10px;border:1px solid #D9D9D9;border-radius:14px}
+#list{flex:1;overflow:auto}#list div{padding:4px 12px;cursor:pointer;border-left:3px solid transparent;display:flex;justify-content:space-between}#list div:hover{background:#F1EBFC}#list div.on{border-left-color:#5009B5;background:#F1EBFC;color:#5009B5;font-weight:600}
+#main{flex:1;position:relative;overflow:hidden}svg{width:100%;height:100%;cursor:grab}#tb{position:absolute;left:10px;top:8px;background:#fff;border:1px solid #D9D9D9;border-radius:8px;padding:5px 10px;z-index:2}
+#tb button{border:1px solid #D9D9D9;background:#fff;border-radius:6px;padding:2px 8px;cursor:pointer;color:#5009B5}#tb button.on{background:#5009B5;color:#fff}
+#det{position:absolute;right:0;top:0;bottom:0;width:380px;background:#fff;border-left:1px solid #D9D9D9;overflow:auto;padding:12px;display:none}#det a{color:#5009B5}#det .x{float:right;cursor:pointer}
+#zb{position:absolute;left:12px;bottom:12px;display:flex;gap:4px}#zb button{width:30px;height:30px;border-radius:6px;border:1px solid #D9D9D9;background:#fff;color:#5009B5;font-weight:700;cursor:pointer}#zb .r{width:auto;padding:0 8px;font-size:12px}
+.sub{color:#5B6770}text{pointer-events:none}</style></head><body>
+<div id="side"><input id="q" placeholder="Find a table…"><div class="sub" style="padding:0 12px 6px">Tables that appear in at least one JOIN in the code, most-joined first.</div><div id="list"></div></div>
+<div id="main"><div id="tb"><b id="ttl"></b> <span class="sub">· steps:</span> <button data-d="1" class="on">1</button><button data-d="2">2</button> <span class="sub" id="cnt"></span></div>
+<svg id="s"><g id="vp"></g></svg><div id="zb"><button id="zi">+</button><button id="zo">&minus;</button><button id="zr" class="r">Reset</button></div><div id="det"></div></div>
+<script>
+const D=__DATA__,NS="http://www.w3.org/2000/svg";const adj={};D.e.forEach((e,i)=>{(adj[e[0]]=adj[e[0]]||[]).push(i);(adj[e[1]]=adj[e[1]]||[]).push(i)});
+const deg=D.t.map((t,i)=>(adj[i]||[]).reduce((a,k)=>a+D.e[k][2],0));const order=D.t.map((t,i)=>i).filter(i=>adj[i]).sort((a,b)=>deg[b]-deg[a]);
+let cur=order[0],DEP=1,vb=null;const s=document.getElementById("s"),vp=document.getElementById("vp");
+function el(n,a,p){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e}
+function list(){const q=document.getElementById("q").value.toUpperCase(),L=document.getElementById("list");L.innerHTML="";order.filter(i=>!q||D.t[i][0].includes(q)).slice(0,400).forEach(i=>{const d=document.createElement("div");d.className=i==cur?"on":"";d.innerHTML=`<span>${D.t[i][0]}</span><span class=sub>${(adj[i]||[]).length}</span>`;d.onclick=()=>{cur=i;draw();list()};L.appendChild(d)})}
+document.getElementById("q").oninput=list;
+document.querySelectorAll("#tb button").forEach(b=>b.onclick=()=>{DEP=+b.dataset.d;document.querySelectorAll("#tb button").forEach(x=>x.classList.toggle("on",x==b));draw()});
+function draw(){vp.innerHTML="";const W=s.clientWidth,H=s.clientHeight;const lv=new Map([[cur,0]]);let fr=[cur];
+ for(let d=1;d<=DEP;d++){const nx=[];fr.forEach(f=>(adj[f]||[]).map(k=>D.e[k]).sort((a,b)=>b[2]-a[2]).slice(0,d==1?40:8).forEach(e=>{const o=e[0]==f?e[1]:e[0];if(!lv.has(o)){lv.set(o,d);nx.push(o)}}));fr=nx}
+ const pos={};pos[cur]={x:W/2,y:H/2};[1,2].forEach(d=>{const L=[...lv].filter(x=>x[1]==d).map(x=>x[0]);const R=Math.min(W,H)*(d==1?.32:.47);L.forEach((k,i)=>{const a=i/L.length*Math.PI*2;pos[k]={x:W/2+R*1.35*Math.cos(a),y:H/2+R*Math.sin(a)}})});
+ const ids=new Set(lv.keys());const mx=Math.max(...D.e.filter(e=>ids.has(e[0])&&ids.has(e[1])).map(e=>e[2]));
+ D.e.forEach(e=>{if(!ids.has(e[0])||!ids.has(e[1]))return;const p=pos[e[0]],q=pos[e[1]];const ln=el("line",{x1:p.x,y1:p.y,x2:q.x,y2:q.y,stroke:e[0]==cur||e[1]==cur?"#5009B5":"#b9a6e8","stroke-width":1+4*Math.sqrt(e[2]/mx),"stroke-opacity":.7,style:"cursor:pointer"},vp);
+  ln.onclick=ev=>{ev.stopPropagation();det(e)};const t=el("title",{},ln);t.textContent=D.t[e[0]][0]+" ⋈ "+D.t[e[1]][0]+" ("+e[2]+" join conditions)"});
+ [...ids].forEach(k=>{const p=pos[k],c=k==cur;const g=el("g",{style:"cursor:pointer"},vp);const w=Math.max(90,D.t[k][0].length*6.6+16);
+  el("rect",{x:p.x-w/2,y:p.y-12,width:w,height:24,rx:12,fill:c?"#5009B5":lv.get(k)==1?"#fff":"#F1EBFC",stroke:"#5009B5"},g);const tx=el("text",{x:p.x,y:p.y+4,"text-anchor":"middle","font-size":11,fill:c?"#fff":"#231E33","font-weight":c?700:400},g);tx.textContent=D.t[k][0];
+  g.onclick=()=>{cur=k;draw();list()}});
+ document.getElementById("ttl").textContent=D.t[cur][0];document.getElementById("cnt").textContent=`${ids.size-1} joined tables shown`+(D.t[cur][1].length?` · schemas: ${D.t[cur][1].join(", ")}`:"");vb=[0,0,W,H];s.setAttribute("viewBox",vb.join(" "))}
+function link(ev){const m=ev.match(/^([^/]+)\/(.+?):(\d+)$/);const p=m&&D.proj[m[1]];if(!p||!D.url)return ev;const u=D.url.replace("{project}",p).replace("{repo}",m[1]).replace("{path}",m[2]).replace("{line}",m[3]);return `<a target=_blank rel=noopener href="${u}">${ev}</a>`}
+function det(e){const d=document.getElementById("det");d.style.display="block";d.innerHTML=`<span class=x onclick="this.parentNode.style.display='none'">&#10005;</span><b style="color:#5009B5">${D.t[e[0]][0]} ⋈ ${D.t[e[1]][0]}</b><div class=sub>${e[2]} join conditions found in code</div><h4>Join columns</h4>`+Object.entries(e[3]).map(([k,v])=>`<div><code>${k}</code> <span class=sub>×${v}</span></div>`).join("")+`<h4>Where (file:line)</h4>`+e[4].map(x=>`<div>${link(x)}</div>`).join("")}
+function z(k){const[x,y,w,h]=vb;const nw=w*k,nh=h*k;vb=[x+(w-nw)/2,y+(h-nh)/2,nw,nh];s.setAttribute("viewBox",vb.join(" "))}
+document.getElementById("zi").onclick=()=>z(1/1.2);document.getElementById("zo").onclick=()=>z(1.2);document.getElementById("zr").onclick=draw;
+s.addEventListener("wheel",e=>{e.preventDefault();z(e.deltaY>0?1.1:1/1.1)},{passive:false});let dr=null;s.onmousedown=e=>{dr=[e.clientX,e.clientY,vb[0],vb[1]];s.style.cursor="grabbing"};
+addEventListener("mouseup",()=>{dr=null;s.style.cursor="grab"});addEventListener("mousemove",e=>{if(!dr)return;const k=vb[2]/s.clientWidth;vb[0]=dr[2]-(e.clientX-dr[0])*k;vb[1]=dr[3]-(e.clientY-dr[1])*k;s.setAttribute("viewBox",vb.join(" "))});
+addEventListener("resize",draw);list();draw();
+</script></body></html>

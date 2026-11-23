@@ -1,0 +1,2 @@
+-- CATALOG-FKEYS-PROD-CRCA | env prod | snowflake P01_CRCA | connection ?
+SHOW IMPORTED KEYS IN DATABASE P01_CRCA;

@@ -1,0 +1,128 @@
+jira:
+  sprint_field: ''
+  points_field: ''
+  done_days: 14
+  verify_tls: false
+  waiting_statuses:
+  - On Hold
+  - Blocked
+  stale_days: 5
+usage:
+  days: 30
+  team_from: jira
+  usd_per_acu: null
+  usd_per_acu_source: ''
+  not_people:
+  - srcAPM1081911UEPJira
+  per_person_lenses:
+  - manager
+  - tech_lead
+kb_link_base: ''
+team:
+- name: Lee, Victor
+  email: victor.lee@carelon.com
+  role: ''
+- name: Kulkarni, Atit
+  email: atit.kulkarni@carelon.com
+  role: ''
+- name: Chandaka, Lalitha
+  email: lalitha.chandaka@elevancehealth.com
+  role: ''
+- name: Konduri, Vijaya Kumar
+  email: vijayakumar.konduri@elevancehealth.com
+  role: ''
+- name: Tiwari, Prathima
+  email: prathima.tiwari@carelon.com
+  role: ''
+- name: Karthik, Gandla
+  email: karthik.gandla@carelon.com
+  role: ''
+- name: Rana, Sekh
+  email: sekh.rana@carelon.com
+  role: ''
+- name: Ravi, Mohana Priya
+  email: mohanapriya.ravi@elevancehealth.com
+  role: ''
+- name: Ramu, Amara
+  email: amara.ramu@carelon.com
+  role: ''
+- name: Sinha, Jeevitesh
+  email: jeevitesh.sinha@carelon.com
+  role: ''
+- name: V, Manasi
+  email: manasi.v@elevancehealth.com
+  role: ''
+- name: Agnihotri, Ananya
+  email: ananya.agnihotri@carelon.com
+  role: ''
+- name: Gaul, Joseph
+  email: joseph.gaul@carelon.com
+  role: ''
+- name: Jha, Deborpita
+  email: deborpita.jha@elevancehealth.com
+  role: ''
+- name: Reddem, Bindu
+  email: bindu.reddem@elevancehealth.com
+  role: ''
+- name: Pinnamaneni, Deepthi [X]
+  email: deepthi.pinnamaneni@elevancehealth.com
+  role: ''
+- name: Powell, Galina
+  email: galina.powell@carelon.com
+  role: ''
+- name: Moulvi, Tameem
+  email: tameem.moulvi@elevancehealth.com
+  role: ''
+- name: Math, Hemanth
+  email: hemanth.math@carelon.com
+  role: ''
+- name: So, Daphne
+  email: daphne.so@elevancehealth.com
+  role: ''
+- name: H, Avinash
+  email: avinash.h@carelon.com
+  role: ''
+lenses:
+  manager:
+  - overview
+  - sprint
+  - workload
+  - waiting
+  - done
+  - team
+  - usage
+  - kb
+  - questions
+  tech_lead:
+  - overview
+  - sprint
+  - workload
+  - waiting
+  - done
+  - usage
+  - kb
+  - questions
+  product_owner:
+  - overview
+  - sprint
+  - waiting
+  - done
+  - usage
+  - kb
+  - questions
+  developer:
+  - mine
+  - sprint
+  - waiting
+  - usage
+  - kb
+  - questions
+role_lens:
+  manager: manager
+  dev lead: tech_lead
+  architect: tech_lead
+  etl lead: tech_lead
+  data lead: tech_lead
+  product owner: product_owner
+  business analyst: product_owner
+default_lens: developer

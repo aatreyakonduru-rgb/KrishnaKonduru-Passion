@@ -1,0 +1,51 @@
+# Sample team profile, filled in with made-up values for an imaginary "Acme Orders" team.
+# Mētis setup writes your own copy to <KB>/.metis/kb-profile.yaml in your own repo and replace every value.
+
+product:
+  name: Acme Orders
+  short_name: ACME
+  domain_context: kb/context/DOMAIN_CONTEXT.md
+
+app:
+  # Application source folders, used to trace columns to API and UI code.
+  source_dirs:
+    - orders-api
+    - orders-web
+
+paths:
+  kb_root: kb
+  db_docs: kb/db
+  module_docs: kb/modules
+  etl_docs: kb/etl
+  context_dir: kb/context
+
+db:
+  engine: snowflake
+  # database, iam_database, warehouse and schema per environment
+  environments_file: db-environments.yaml
+  # optional: environment the knowledge base is built from when no --env is given
+  related_schemas:
+    - ORD_STAGE
+    - ORD_RAW
+  restricted_view_schemas:
+    - ORD_SECURE_VIEWS
+  code_column_suffixes: [_CODE, _FLAG]
+  key_column_suffixes: [_ID]
+  priority_code_columns:
+    - ORDER_HEADER.STATUS_CODE
+  active_record_filter:
+    column: VALID_TO
+    open_value: '9999-12-31'
+  global_filters:
+    - "TENANT_ID = 1  (tenant isolation)"
+  default_view_schema: ORD_SECURE_VIEWS
+  known_joins:
+    - ORDER_LINE.ORDER_ID -> ORDER_HEADER.ORDER_ID
+
+# Used by `prompts.py lint`: none of these may appear in a shared prompt.
+lint:
+  leak_terms: [Acme, AcmeOrders]
+  leak_patterns:
+    - '\bORD_[A-Z0-9_]+'
+  value_files:
+    - db-environments.yaml

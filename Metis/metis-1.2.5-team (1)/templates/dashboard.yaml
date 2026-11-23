@@ -1,0 +1,43 @@
+# Mētis dashboard settings. `metis-dashboard` reads this from <KB>/.metis/dashboard.yaml.
+# Leave a value empty rather than guess it.
+
+jira:
+  sprint_field: ""        # empty: found from Jira's field list by the name "Sprint"
+  points_field: ""        # empty: found by the name "Story Points"
+  done_days: 14           # "Done recently" looks back this many days
+  verify_tls: true        # false only if the org's Jira uses an internal certificate the session doesn't trust
+  waiting_statuses: [On Hold, Blocked]
+  stale_days: 5           # in-progress issues not updated for this many days are listed
+
+# Teams Devin Usage tab. Numbers come only from the Devin session tools (see dash_usage.py).
+usage:
+  days: 30                # the period looked back over
+  team_from: jira         # jira: the people on the team's Jira stories (assignees and reporters in the snapshot)
+                          # dashboard: only the team list below; org: everyone in the Devin org member list
+  usd_per_acu: null       # the team's price per ACU. Empty: only ACUs are shown, never dollars
+  usd_per_acu_source: ""  # who gave the price, or where it comes from (shown beside every dollar figure)
+  not_people: []          # Jira users that are not people (service or bot accounts), by email or Jira name. The Jira
+                          # service account that reads the snapshot is always left out
+  per_person_lenses: [manager, tech_lead]   # these views see every person; the others see the team totals and their own row
+
+kb_link_base: ""          # optional: web address of the KB folder in the repo browser, so KB pages open as links
+
+# Who is on the team. `metis-dashboard` fills it from the Devin org member list; a role comes only from the
+# person or from owners.roles in kb-profile.yaml, never from a guess.
+team: []                  # - {name: "", email: "", role: ""}
+
+# Which tabs each view shows. A person's view comes from their role (role_lens); --lens overrides it.
+lenses:
+  manager:       [overview, sprint, workload, waiting, done, team, usage, kb, questions]
+  tech_lead:     [overview, sprint, workload, waiting, done, usage, kb, questions]
+  product_owner: [overview, sprint, waiting, done, usage, kb, questions]
+  developer:     [mine, sprint, waiting, usage, kb, questions]
+role_lens:
+  manager: manager
+  dev lead: tech_lead
+  architect: tech_lead
+  etl lead: tech_lead
+  data lead: tech_lead
+  product owner: product_owner
+  business analyst: product_owner
+default_lens: developer

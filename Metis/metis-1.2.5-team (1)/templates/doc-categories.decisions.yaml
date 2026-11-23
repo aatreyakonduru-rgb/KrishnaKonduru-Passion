@@ -1,0 +1,17 @@
+# Extra page categories for decisions, incidents and procedures (adr_ingest.py, recipes_ingest.py).
+# Same shape as doc-categories.yaml. To use them everywhere (doc_kb.py classify and publish), copy these entries onto the end of
+# `categories:` in <KB>/.metis/doc-categories.yaml (or into templates/doc-categories.yaml). The ingest tools read the folder for
+# each id from <KB>/.metis/doc-categories.yaml first, then from this file, so they work before that merge is done.
+categories:
+  - id: decisions
+    title: Architecture decisions (ADRs)
+    folder: context/decisions
+    keywords: [adr, architecture decision, decision record, status accepted, decision outcome, considered options, supersedes, consequences]
+  - id: incidents
+    title: Incidents and post-mortems
+    folder: context/incidents
+    keywords: [post-mortem, postmortem, incident, root cause, timeline, action items, outage, severity, blameless, rca]
+  - id: procedures
+    title: Procedures, runbooks and recipes
+    folder: context/procedures
+    keywords: [runbook, procedure, deploy, rollback, recipe, make target, npm script, pipeline, ci job, how to run, contributing]

@@ -1,0 +1,2 @@
+-- IDENTITY-NONPROD | snowflake | connection snowflakenonprodmcp-012d
+SELECT CURRENT_USER(), CURRENT_ROLE(), CURRENT_WAREHOUSE(), CURRENT_ACCOUNT();

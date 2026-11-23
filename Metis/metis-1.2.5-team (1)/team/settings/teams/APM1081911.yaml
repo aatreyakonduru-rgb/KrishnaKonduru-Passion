@@ -1,0 +1,13 @@
+# CVBC Scorecard (PRFPHM): has its own full pipeline, run the cvbc-kb-refresh skill.
+pipeline: cvbc
+team:
+  name: CVBC Scorecard
+  short_name: PRFPHM
+jira:
+  project: CVBC
+  team_field: customfield_12479
+  team_value: EDA-CVBC-Scorecard
+confluence:
+  space: CVBN
+  team_root_title: CVBC Scorecard
+  team_root_ids: ['1398627261']

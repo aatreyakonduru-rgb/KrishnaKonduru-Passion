@@ -1,0 +1,104 @@
+# Which skill, pipeline or script runs each shared prompt in $METIS/kb-prompts/.
+# Checked by $METIS/tools/tests/test_kb_wiring.py: every prompt is listed once,
+# every skill named here runs (or, for runners, follows) that prompt file, every pipeline named
+# here lists the skill as a stage, and no script-built file is also written by a prompt.
+#
+# class:
+#   stage      a skill renders and runs the prompt; `pipeline` is the skill that calls it in order
+#   on_demand  a skill runs it when a person asks (one requirement, one drift check); no pipeline
+#   runner     the stage order and gates, followed by a pipeline skill
+#   helper     run by a pipeline skill around the stages
+
+standard: PROMPT_STANDARD.md   # read by every prompt (listed in each prompt's `requires`)
+
+prompts:
+  CTX-00: {file: PROMPT_0_MODULE_INDEX.md, class: stage, skill: kb-context-build, pipeline: kb-context-build}
+  CTX-0A: {file: PROMPT_0A_BUSINESS_MODEL.md, class: stage, skill: kb-context-build, pipeline: kb-context-build}
+  CTX-0B: {file: PROMPT_0B_TECHNOLOGY_STACK.md, class: stage, skill: kb-context-build, pipeline: kb-context-build}
+  CTX-0C: {file: PROMPT_0C_DATA_ARCHITECTURE.md, class: stage, skill: kb-context-build, pipeline: kb-context-build}
+  CTX-0D: {file: PROMPT_0D_JOB_ORCHESTRATION.md, class: stage, skill: kb-context-build, pipeline: kb-context-build}
+  CTX-0E: {file: PROMPT_0E_TEAM_GLOSSARY.md, class: stage, skill: kb-context-build, pipeline: kb-context-build}
+  APP-01: {file: PROMPT_1_DISCOVERY.md, class: stage, skill: app-discovery, pipeline: app-run-pipeline}
+  APP-02: {file: PROMPT_2_BUSINESS_REQUIREMENTS.md, class: stage, skill: app-brd, pipeline: app-run-pipeline}
+  APP-03: {file: PROMPT_3_FUNCTIONAL_REQUIREMENTS.md, class: stage, skill: app-frd, pipeline: app-run-pipeline}
+  APP-04: {file: PROMPT_4_TECHNICAL_REQUIREMENTS.md, class: stage, skill: app-trd, pipeline: app-run-pipeline}
+  APP-05: {file: PROMPT_5_USER_MANUAL.md, class: stage, skill: app-user-manual, pipeline: app-run-pipeline}
+  APP-06: {file: PROMPT_6_PROCESS_DOCUMENTATION.md, class: stage, skill: app-process-docs, pipeline: app-run-pipeline}
+  APP-07: {file: PROMPT_7_DIAGRAMS.md, class: stage, skill: app-diagrams, pipeline: app-run-pipeline}
+  APP-08: {file: PROMPT_8_VALIDATION_LOG_UPDATE.md, class: stage, skill: app-validation-log, pipeline: app-run-pipeline}
+  APP-09: {file: PROMPT_9_SECURITY_REVIEW.md, class: stage, skill: app-security-review, pipeline: app-run-pipeline}
+  APP-10: {file: PROMPT_10_ENDPOINT_REGISTRY.md, class: on_demand, skill: kb-build}
+  APP-11: {file: PROMPT_11_API_DATA_CONTRACTS.md, class: on_demand, skill: kb-build}
+  APP-12: {file: PROMPT_12_COMPONENT_REGISTRY.md, class: on_demand, skill: kb-build}
+  APP-13: {file: PROMPT_13_UI_TO_DATA_FIELD_MAPPING.md, class: stage, skill: app-ui-data-mapping, pipeline: app-run-pipeline}
+  APP-14: {file: PROMPT_14_VALIDATION_RULES_CATALOGUE.md, class: stage, skill: app-validation-rules, pipeline: app-run-pipeline}
+  APP-15: {file: PROMPT_15_UI_SPECIFICATION.md, class: stage, skill: app-ui-spec, pipeline: app-run-pipeline}
+  APP-16: {file: PROMPT_16_MODULE_IO_SUMMARY.md, class: stage, skill: app-module-io, pipeline: app-run-pipeline}
+  APP-17: {file: PROMPT_17_INTEGRATION_SCENARIOS.md, class: stage, skill: app-integration, pipeline: app-run-pipeline}
+  APP-18: {file: PROMPT_18_RESPONSE_FIELD_LINEAGE.md, class: stage, skill: app-response-lineage, pipeline: app-run-pipeline}
+  APP-GAP: {file: PROMPT_GAP_FILL.md, class: stage, skill: app-gap-fill, pipeline: app-run-pipeline}
+  DB-01: {file: DB_PROMPT_1_DISCOVERY.md, class: stage, skill: db-discovery, pipeline: db-run-pipeline}
+  DB-01A: {file: DB_PROMPT_1.5_DISCOVERY_VALIDATION.md, class: stage, skill: db-discovery, pipeline: db-run-pipeline}
+  DB-02: {file: DB_PROMPT_2_BRD.md, class: stage, skill: db-brd, pipeline: db-run-pipeline}
+  DB-03: {file: DB_PROMPT_3_TRD.md, class: stage, skill: db-trd, pipeline: db-run-pipeline}
+  DB-04: {file: DB_PROMPT_4_DIAGRAMS.md, class: stage, skill: db-diagrams, pipeline: db-run-pipeline}
+  DB-05: {file: DB_PROMPT_5_SUPPORTING.md, class: stage, skill: db-supporting, pipeline: db-run-pipeline}
+  DB-06: {file: DB_PROMPT_6_SECURITY.md, class: stage, skill: db-security, pipeline: db-run-pipeline}
+  DB-07: {file: DB_PROMPT_7_VALIDATION.md, class: stage, skill: db-validation, pipeline: db-run-pipeline}
+  DB-08: {file: DB_PROMPT_8_CHANGE_ANALYSIS.md, class: on_demand, skill: db-change-analysis}
+  DB-09: {file: DB_PROMPT_9_SEMANTIC_LAYER.md, class: stage, skill: db-semantic-layer, pipeline: db-run-pipeline}
+  DB-09B: {file: DB_PROMPT_9B_DATA_CONTRACTS.md, class: stage, skill: db-data-contracts, pipeline: db-run-pipeline}
+  DB-10: {file: DB_PROMPT_10_VERIFIED_QUERIES.md, class: stage, skill: db-verified-queries, pipeline: db-run-pipeline}
+  DB-11: {file: DB_PROMPT_11_DATA_LINEAGE.md, class: stage, skill: db-lineage, pipeline: db-run-pipeline}
+  DB-12: {file: DB_PROMPT_12_AI_GUARDRAILS.md, class: stage, skill: db-guardrails, pipeline: db-run-pipeline}
+  DB-13: {file: DB_PROMPT_13_ENTITY_REGISTRY.md, class: stage, skill: db-entity-registry, pipeline: db-run-pipeline}
+  DB-14: {file: DB_PROMPT_14_APP_VERIFIED_QUERIES.md, class: stage, skill: db-app-queries, pipeline: db-run-pipeline}
+  DB-15: {file: DB_PROMPT_15_AI_VALIDATION_TESTS.md, class: stage, skill: db-ai-tests, pipeline: db-run-pipeline}
+  DB-16: {file: DB_PROMPT_16_CROSS_MODULE_MATRIX.md, class: stage, skill: db-cross-module, pipeline: db-run-pipeline}
+  DB-17: {file: DB_PROMPT_17_COLUMN_PROFILE.md, class: stage, skill: db-column-profile, pipeline: db-run-pipeline}
+  DB-18: {file: DB_PROMPT_18_METRICS.md, class: stage, skill: db-metrics, pipeline: db-run-pipeline}
+  DB-19: {file: DB_PROMPT_19_TERM_MAP.md, class: stage, skill: db-term-map, pipeline: db-run-pipeline}
+  DB-20: {file: DB_PROMPT_20_QUERY_HISTORY.md, class: stage, skill: db-query-history, pipeline: db-run-pipeline}
+  DB-21: {file: DB_PROMPT_21_OBJECT_LOGIC.md, class: stage, skill: db-object-logic, pipeline: db-run-pipeline}
+  DB-22: {file: DB_PROMPT_22_SENSITIVITY.md, class: stage, skill: db-sensitivity, pipeline: db-run-pipeline}
+  DB-23: {file: DB_PROMPT_23_COLUMN_LINEAGE.md, class: stage, skill: db-column-lineage, pipeline: db-run-pipeline}
+  DB-SD: {file: DB_PROMPT_STALENESS_DETECTION.md, class: on_demand, skill: kb-build}
+  ETL-01: {file: ETL_PROMPT_1_DISCOVERY.md, class: stage, skill: etl-discovery, pipeline: etl-run-pipeline}
+  ETL-02: {file: ETL_PROMPT_2_BUSINESS_REQUIREMENTS.md, class: stage, skill: etl-brd, pipeline: etl-run-pipeline}
+  ETL-03: {file: ETL_PROMPT_3_FUNCTIONAL_REQUIREMENTS.md, class: stage, skill: etl-frd, pipeline: etl-run-pipeline}
+  ETL-04: {file: ETL_PROMPT_4_TECHNICAL_REQUIREMENTS.md, class: stage, skill: etl-trd, pipeline: etl-run-pipeline}
+  ETL-05: {file: ETL_PROMPT_5_USER_MANUAL.md, class: stage, skill: etl-operator-manual, pipeline: etl-run-pipeline}
+  ETL-06: {file: ETL_PROMPT_6_PROCESS_DOCUMENTATION.md, class: stage, skill: etl-runbooks, pipeline: etl-run-pipeline}
+  ETL-07: {file: ETL_PROMPT_7_ARCHITECTURE_DIAGRAMS.md, class: stage, skill: etl-diagrams, pipeline: etl-run-pipeline}
+  ETL-08: {file: ETL_PROMPT_8_VALIDATION_LOG.md, class: stage, skill: etl-validation-log, pipeline: etl-run-pipeline}
+  ETL-09: {file: ETL_PROMPT_9_SECURITY_REVIEW.md, class: stage, skill: etl-security-review, pipeline: etl-run-pipeline}
+  ETL-10: {file: ETL_PROMPT_10_MODULE_IO_SUMMARY.md, class: stage, skill: etl-module-io, pipeline: etl-run-pipeline}
+  ETL-11: {file: ETL_PROMPT_11_INTEGRATION_SCENARIOS.md, class: stage, skill: etl-integration, pipeline: etl-run-pipeline}
+  ETL-12: {file: ETL_PROMPT_12_SQL_PATTERN_LIBRARY.md, class: stage, skill: etl-sql-patterns, pipeline: etl-run-pipeline}
+  ETL-13: {file: ETL_PROMPT_13_TABLE_IO_CONTRACT.md, class: stage, skill: etl-table-contract, pipeline: etl-run-pipeline}
+  RUN-APP: {file: KB_RUNNER_APP.md, class: runner, followed_by: app-run-pipeline}
+  RUN-DB: {file: KB_RUNNER_DB.md, class: runner, followed_by: db-run-pipeline}
+  RUN-ETL: {file: KB_RUNNER_ETL.md, class: runner, followed_by: etl-run-pipeline}
+  HELP-CODEDOC: {file: DETAILED_CODE_DOCUMENTATION.md, class: stage, skill: app-code-docs, pipeline: app-run-pipeline}   # optional stage
+  HELP-SESSION: {file: SESSION_MANAGER.md, class: helper, skill: app-run-pipeline}
+
+# Files two prompts both write, and how they share them.
+shared_outputs:
+  - path: "{{KB_MODULE_DOCS}}/{{MODULE_NAME}}/SESSION_STATE.md"
+    writers: [HELP-SESSION, APP-08]
+    rule: HELP-SESSION starts it at the beginning of a run; APP-08 updates the same file and never starts a new one.
+
+# Top-level entry points and what they call, in order.
+entry_points:
+  kb-build: [kb-context-build, app-run-pipeline, etl-run-pipeline, db-run-pipeline, db-cross-module, app-cross-pipeline]
+
+# Smallest set of stages to re-run for each kind of change. Carried over from the archived
+# prompt-pipeline guide (section 11, "Refresh Cascade Rules"), with its old numbers mapped to
+# the current prompt IDs. `kb-build` (rebuild) lists these as the suggested follow-up.
+refresh_cascade:
+  new_db_table: [DB-01, DB-03, DB-09, DB-09B, DB-13, DB-16]
+  new_db_column_on_contracted_table: [DB-01, DB-09, DB-09B, DB-16]
+  new_code_value: [DB-01, DB-05, DB-09, DB-13]
+  new_api_endpoint: [APP-01, APP-03, APP-10, APP-11]
+  new_ui_component: [APP-01, APP-03, APP-12]
+  new_etl_script: [ETL-01, ETL-03, ETL-12, ETL-13]

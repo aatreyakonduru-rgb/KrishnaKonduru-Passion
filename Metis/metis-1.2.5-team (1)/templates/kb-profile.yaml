@@ -1,0 +1,228 @@
+# Mētis settings. `metis-setup` fills this in and writes it to <KB>/.metis/kb-profile.yaml.
+# Every value is the team's own; leave a value empty rather than guess it.
+
+product:
+  name: "<product name as the team writes it>"
+  short_name: "<short name>"
+  domain_context: "<KB>/context/DOMAIN_CONTEXT.md"
+
+repo:
+  url: "<team repo clone URL>"          # the repo that holds the KB folder
+  base_branch: "<branch the KB PR goes to>"
+
+paths:
+  kb_root: "<KB>"                        # the KB folder, relative to the repo root, e.g. docs/kb
+  db_docs: "<KB>/db"
+  module_docs: "<KB>/modules"
+  etl_docs: "<KB>/etl"
+  context_dir: "<KB>/context"
+
+sources:
+  workspace_root: "<folder the source repos are cloned into, e.g. /home/ubuntu/repos>"
+  repos:                                 # short name -> folder under workspace_root; used in [E: <name>/<path>:<line>]
+    "<name>": "<folder>"
+  repo_urls:                             # short name -> clone URL (read only)
+    "<name>": "<clone URL>"
+  confluence:
+    enabled: false
+    base_url: "<Confluence base URL>"
+    spaces: []                           # space keys
+    root_pages: []                       # page ids to read, with their children
+    secret: "<name of the Devin secret holding the Confluence service-account token>"
+    auth: bearer                         # bearer (token) or basic (the secret holds "email:api-token", Confluence Cloud)
+    verify_tls: true
+  sharepoint:                            # read only, through Microsoft Graph; used by `metis-ingest` for SharePoint and OneDrive links
+    enabled: false
+    base_url: "<SharePoint tenant URL, e.g. https://<tenant>.sharepoint.com>"
+    secret: "<name of the Devin secret holding a Microsoft Graph token with Files.Read.All and Sites.Read.All>"
+    verify_tls: true
+  jira:
+    enabled: false
+    base_url: "<Jira base URL>"
+    projects: []                         # project keys
+    boards: []                           # - {id: <rapidView id from the board link>, name: <board name>}; each board's own filter is read
+    jql: ""                              # optional filter
+    secret: "<name of the Devin secret holding the Jira service-account token>"
+
+app:
+  source_dirs: []                        # source folders, as <repo name>/<path>
+  modules: []                            # - {name: <module>, source: <repo name>/<path>, kind: <as the approved stack shows it>}
+
+etl:
+  modules: []                            # - {name: <job group>, source: <repo name>/<path>, kind: <as the approved stack shows it>}
+
+db:
+  environments_file: db-environments.yaml   # every database and schema per environment, and the reference environment
+  related_schemas: []
+  restricted_view_schemas: []
+  code_column_suffixes: []
+  key_column_suffixes: []
+  priority_code_columns: []
+  active_record_filter:
+    column: ""
+    open_value: ""
+  global_filters: []
+  default_view_schema: ""
+  known_joins: []                        # only joins a source shows; each needs a source in the docs
+
+owners:
+  kb_owner: "<name>"                     # reviews and approves the KB PR
+  app_owner: ""
+  db_owner: ""
+  etl_owner: ""
+  roles:                                 # who answers each kind of question in VALIDATE_KB
+    dev lead: ""
+    etl lead: ""
+    data lead: ""
+    architect: ""
+    manager: ""
+    product owner: ""
+    business analyst: ""
+    security lead: ""
+    operations: ""
+
+# The certification gate. After the first KB is built and locked (kb_gate.py lock), nothing enters the KB until a named
+# lead certifies it. Leads are kb_owner, app_owner, db_owner, etl_owner, every role above whose name contains "lead",
+# and anyone listed here. Put <KB>/.metis/certified.yaml under CODEOWNERS so changing it needs a lead's approval, and run
+# `python3 <metis>/tools/kb_gate.py check <KB>` in CI so a change that skipped the gate fails.
+gate:
+  certifiers: []                         # extra people who may certify, besides the leads above
+  allow_self_certify: false              # true lets the person who gave a document certify it (only for a team of one)
+  # Optional. Teams that own parts of the KB. The first team whose path glob matches a file owns it; that team's approvers
+  # (and the leads) may certify it, nobody else. A file no team owns waits for the leads. Leave empty for one shared pool.
+  # `python3 <metis>/tools/review_queue.py queue <KB>` groups what is waiting by team; `plan` names one branch and PR body per team.
+  teams: []
+  #  - name: <team name>
+  #    owns: ["<folder or glob relative to the KB, e.g. context/payments>"]
+  #    approvers: ["<person>"]
+
+verify:
+  strict_tags: true                      # a bare file: or kb: tag with no quote fails the check
+
+questions:
+  role_for_type:                         # question type -> role
+    business: product owner
+    application: dev lead
+    data: data lead
+    etl-batch: etl lead
+    access: manager
+    security: security lead
+
+# --- Optional blocks for the second-pass tools. Every value is optional; empty or absent keeps today's behaviour. ---
+# Never put a secret, token, password or webhook URL in this file: every *_env value is the NAME of an environment variable.
+
+review:
+  default_days: 90                       # page_owners.py: days between reviews of a page (per-page value: page_owners.py set)
+
+search:                                  # kb_search.py, kb_embed.py (python3 <metis>/tools/kb_embed.py eval <KB> before enabling hybrid)
+  hybrid: false                          # true = BM25 plus vectors
+  embedder: hashing                      # hashing | sentence-transformers[:model] | {type: http, url:, model:, api_key_env:, allow_page_text: true}
+  count_misses: false                    # true = count searches that found nothing, by salted hash only (no question text)
+
+judge:                                   # llm_judge.py. Empty endpoint = the file judge (a Devin or Bob session writes the verdicts)
+  endpoint: ""                           # OpenAI-compatible chat completions URL (https; http only on this machine)
+  model: ""
+  api_key_env: ""
+  timeout: 60
+
+parse:
+  dialect: ""                            # sqlglot dialect for sql_links.py and column_lineage.py, e.g. snowflake, postgres
+
+labels:                                  # claim_labels.py
+  default_sensitivity: internal
+  restricted_folders: []                 # globs relative to the KB, e.g. ["context/hr/*"]
+  clearance: {}                          # {<name or role>: public|internal|confidential|restricted}
+
+notify:                                  # notify.py: dry run unless --send
+  base_url: ""                           # e.g. http://metis.example:8765, used for links in messages
+  channels: []
+  #  - name: team-slack
+  #    kind: slack                       # slack | teams | webhook | email
+  #    url_env: METIS_SLACK_WEBHOOK      # NAME of the env var that holds the webhook URL (email: the SMTP password variable)
+  #    events: [pending_certification, open_question_raised, devin_task_queued, review_overdue, stale_pages, build_failed, pr_impact_posted]
+  #    min_interval: 300                 # seconds between two messages on this channel
+  #    digest: false                     # true: one summary message per run
+  #  - name: leads-mail
+  #    kind: email
+  #    url_env: METIS_SMTP_PASSWORD
+  #    host: smtp.example.com
+  #    port: 587
+  #    security: starttls                # starttls | ssl | none
+  #    user: metis@example.com
+  #    from: metis@example.com
+  #    to: ["leads@example.com"]
+
+# Bitbucket PR impact comment (bb_pr.py). The only write Metis makes to a source system; a comment only, dry run unless --post.
+# The comment route is not confirmed against a real Bitbucket yet.
+bitbucket:
+  flavor: ""                             # server (Bitbucket Server / Data Center) or cloud
+  base_url: ""                           # server: https://bitbucket.example.com ; cloud: leave empty
+  project: ""                            # server: project key
+  workspace: ""                          # cloud: workspace
+  repo: ""                               # repository slug
+  token_env: ""                          # NAME of the env var that holds the bearer token
+  source_repo: ""                        # repo name used in [E: repo/path:line] tags (default: the slug)
+  max_chars: 8000
+
+refresh:                                 # refresh_trigger.py serve-webhook
+  secret_env: METIS_WEBHOOK_SECRET       # NAME of the env var that holds the webhook shared secret
+  branches: []                           # only these branches trigger a plan (empty: all)
+
+federation:                              # shared_index.py, cross_impact.py
+  share: true                            # false keeps this KB out of the shared cross-team index
+  shared_db: ""                          # default <KB>/.metis/shared.sqlite
+
+otel:                                    # export_prov.py --post
+  endpoint: ""                           # OTLP/HTTP endpoint; empty = files only
+
+auth:                                    # auth_oidc.py. mode none = today's behaviour (the "You are" name box)
+  mode: none                             # none | oidc  (check with: python3 <metis>/tools/auth_oidc.py check <KB> [--online])
+  issuer: ""
+  client_id: ""
+  client_secret_env: METIS_OIDC_SECRET
+  redirect_uri: ""                       # https://<host>/oidc/callback
+  scopes: [openid, profile, email]
+  allowed_domains: []
+  session_secret_env: METIS_SESSION_SECRET
+  groups_claim: groups
+  group_map: {}                          # {<idp group>: <role>}
+  session_hours: 8
+
+# Dashboard, gallery, ERD, lineage and query-index scripts (tools/viz, etl_layer_lineage.py, index/). Every value is the
+# team's own and every part is optional: an empty value switches that part off, it never falls back to another team's.
+# The scripts find the KB through METIS_KB; METIS_WORK, METIS_REPOS and METIS_LOGO override the folders below.
+viz:
+  org_name: ""                           # shown in the page header next to the logo (the company or business unit)
+  title: "Mētis - Knowledgebase Dashboard"
+  logo: ""                               # PNG, path relative to the KB or absolute; none = no logo
+  primary_color: "#7c3aed"
+  palette: {}                            # optional stock colour -> your colour, e.g. {"#7c3aed": "#5009B5"}
+  source_link:                           # turns a source tag into a link to the code host; leave empty for no links
+    remote_regex: ""                     # matched against `git remote get-url origin`; group 1 is the project
+    url: ""                              # e.g. "https://git.example.com/projects/{project}/repos/{repo}/browse/{path}#{line}"
+  areas: []                              # business areas: - {id: payments, label: Payments, module_prefix: payments-}
+  databases: []                          # - {label: <name>, folder: <KB folder with its 09/11/12/16 db files>}
+  catalogs: []                           # - {env: DEV, db: <db>, name: <set>}  -> CATALOG-TABLES-<env>-<name>.json
+  reference_db_prefix: ""                # catalogue names starting with this win when a table is in two (the dev database)
+  env_by_db_prefix: {}                   # first 3 letters of a catalogue file name -> environment, e.g. {D01: dev, T01: sit}
+  etl_module_pattern: ""                 # regex on a module or repo name; matches are shown as ETL, the rest as apps
+  story_key_pattern: ""                  # regex with one group, e.g. "\\b([A-Z]+-\\d+)\\b", for the story blast-radius view
+  finance_table_pattern: ""              # regex on table names counted as finance in the overview
+  lineage:                               # layered ETL lineage; none = not drawn
+    param_files: []                      # JSON files under the repos folder whose ${NAME} values name schemas
+    source_repo_pattern: ""              # regex on a link file path that selects the ETL code
+    database_prefix: ""                  # regex a 3-part name's first part must match; empty = any
+    zones: []                            # in flow order, upstream first: - {label: Staging, schemas: [STG], prefixes: [STG_], table_prefix: LZ_}
+  param_files: []                        # JSON files under the repos folder used to resolve ${NAME} in SQL for the ERD
+
+lint:
+  leak_terms: []                         # team words that must never appear in the shared prompts
+  leak_patterns: []
+  value_files:
+    - db-environments.yaml
+
+
+# Experimental features (python tools/features.py list). Built and tested only against fakes; hidden from the screen menu until
+# enabled here. A name, or all. Command-line tools still run either way; this only controls the UI menu.
+experimental:
+  enable: []                             # e.g. [notify, oidc] or all

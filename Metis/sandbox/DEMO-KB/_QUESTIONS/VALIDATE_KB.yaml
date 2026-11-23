@@ -1,0 +1,36 @@
+# Metis VALIDATE_KB: open questions for the team. Answer in the answer fields (answer, answered_by), or through `questions.py answer`.
+questions:
+- id: Q-0001
+  question: Which database engine runs in production? Only the H2 schema was read for this build.
+  type: data
+  priority: P2
+  answer_role: data lead
+  context:
+  - 'The schema folder holds H2, MySQL and Postgres variants. [E: spring-petclinic/src/main/resources/db/h2/schema.sql:10
+    "CREATE TABLE vets"]'
+  blocks:
+  - db/PETCLINIC_DB.md
+  possible_answers: []
+  status: open
+  answer: null
+  answered_by: null
+  answered_on: null
+  raised_on: '2026-11-12'
+  raised_by_build: '2026-11-13'
+- id: Q-0002
+  question: Who owns the raw schema that feeds the dbt source tables?
+  type: data
+  priority: P2
+  answer_role: data lead
+  context:
+  - 'Sources are declared in the ecom source with schema raw. [E: jaffle-shop/models/staging/__sources.yml:5 "schema:
+    raw"]'
+  blocks:
+  - dbt/JAFFLE_MODELS.md
+  possible_answers: []
+  status: open
+  answer: null
+  answered_by: null
+  answered_on: null
+  raised_on: '2026-11-12'
+  raised_by_build: '2026-11-13'

@@ -1,0 +1,19 @@
+# CRCA FIN (Carelon Risk Clinical Analytics FIN). Values confirmed from Jira / Confluence on 2026-11-09.
+pipeline: team
+team:
+  name: CVBC Financial
+  short_name: FIN
+  keywords: [FIN, Financial, TCOC, SSAV, EOC, SMI, MSK, CC payment, Revenue, MLR, Spend]
+jira:
+  project: CVBC
+  team_field: customfield_12479
+  team_value: EDA-CVBC-Financial
+confluence:
+  space: CVBN
+  team_root_title: CVBC Financial
+  team_root_ids: ['1750769899']
+snowflake:
+  dev_db: D01_CRCA
+  sit_db: T01_CRCA
+  team_schemas: [CRCA_FIN_ANTM, CRCA_ANTM_STG, CRCA_UI_ANTM, CRCA_MRM_ANTM]
+  table_prefixes: [VB_FNC_, WORK_FNC_, VB_RUN_, VBC_FNC_]

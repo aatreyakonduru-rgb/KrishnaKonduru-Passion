@@ -1,0 +1,125 @@
+product:
+  name: CVBC Scorecard
+  short_name: PRFPHM
+  domain_context: context/DOMAIN_CONTEXT.md
+repo:
+  url: local-only (no repo writes; KB stays in this Devin session)
+  base_branch: ''
+paths:
+  kb_root: .
+  db_docs: db
+  module_docs: modules
+  etl_docs: etl
+  context_dir: context
+sources:
+  workspace_root: /home/ubuntu/repos
+  repos:
+    ncr_dna1_crcaprf_files: crcaprf-develop
+    ncr_dna1_crcaprf_files@master: crcaprf-master
+  repo_urls:
+    ncr_dna1_crcaprf_files: https://bitbucket.elevancehealth.com/scm/aedlnc/ncr_dna1_crcaprf_files.git
+  confluence:
+    enabled: true
+    base_url: https://confluence.elevancehealth.com
+    spaces:
+    - CVBN
+    root_pages:
+    - '1398627261'
+    secret: srcAPM1081911UEPConf
+  jira:
+    enabled: true
+    base_url: https://jira.elevancehealth.com
+    projects: []
+    boards:
+    - id: 247317
+      name: CVBC Scorecard
+    jql: ''
+    secret: srcAPM1081911UEPJira
+  repo_branches:
+    ncr_dna1_crcaprf_files: develop@5af0e18
+    ncr_dna1_crcaprf_files@master: master@9e10839
+  devin_wiki:
+    repo: bitbucket.elevancehealth.com/AEDLNC/ncr_dna1_crcaprf_files
+  devin_knowledge:
+  - cvbc-scorecard-knowledge
+  - apm1081911-carelon-risk-clinical-analytics-prf-context
+  - apm-leader-mapping-jira-mapping
+app:
+  source_dirs:
+  - ncr_dna1_crcaprf_files/scripts/sql/python/cvbc_scorecard_copilot
+  - ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool
+  - ncr_dna1_crcaprf_files/scripts/sql/python/vldtn_table_manager
+  modules:
+  - name: cvbc-scorecard-copilot
+    source: ncr_dna1_crcaprf_files/scripts/sql/python/cvbc_scorecard_copilot
+    kind: Python Flask web app
+  - name: migration-assist-tool
+    source: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool
+    kind: Python Streamlit tool
+  - name: vldtn-table-manager
+    source: ncr_dna1_crcaprf_files/scripts/sql/python/vldtn_table_manager
+    kind: Python tool
+etl:
+  modules:
+  - name: scorecard-sql
+    source: ncr_dna1_crcaprf_files/scripts/sql
+    kind: Snowflake SQL loads + param files + test automation SQL
+  - name: magnolia
+    source: ncr_dna1_crcaprf_files/scripts/sql/magnolia_scripts
+    kind: Snowflake SQL
+  - name: orchestration
+    source: ncr_dna1_crcaprf_files/scripts/sql/python
+    kind: Python job scripts
+db:
+  environments_file: db-environments.yaml
+  related_schemas:
+  - CRCA_PRF_ANTM_SEMANTIC
+  - CRCA_PRF_DBG
+  restricted_view_schemas:
+  - CRCA_PRF_ANTM_ALLPHI
+  - CRCA_PRF_ANTM_NOPHI
+  - CRCA_PRF_ANTM_NOHAPHI
+  code_column_suffixes:
+  - _CD
+  key_column_suffixes:
+  - _ID
+  - _KEY
+  - _SK
+  priority_code_columns: []
+  active_record_filter:
+    column: ''
+    open_value: ''
+  global_filters: []
+  default_view_schema: ''
+  known_joins: []
+owners:
+  kb_owner: Konduru, Krishna
+  app_owner: Sahu, Ashish
+  db_owner: ''
+  etl_owner: ''
+  roles:
+    dev lead: ''
+    etl lead: ''
+    data lead: ''
+    architect: ''
+    manager: ''
+    product owner: ''
+    business analyst: ''
+    security lead: ''
+    operations: ''
+questions:
+  role_for_type:
+    business: product owner
+    application: dev lead
+    data: data lead
+    etl-batch: etl lead
+    access: manager
+    security: security lead
+lint:
+  leak_terms: []
+  leak_patterns: []
+  value_files:
+  - db-environments.yaml
+team:
+  roster_file: kb/.metis/TEAM_ROSTER.yaml
+  it_team: EDA-CVBC-Scorecard

@@ -1,0 +1,19 @@
+product:
+  name: Demo KB (jaffle-shop + spring-petclinic)
+  short_name: DEMO
+
+sources:
+  workspace_root: C:\Users\KRISHNAKonduru\Documents\Metis\sandbox\repos
+  repos:
+    jaffle-shop: jaffle-shop
+    spring-petclinic: spring-petclinic
+
+paths:
+  kb_root: .
+  db_docs: db
+  module_docs: app
+  etl_docs: dbt
+  context_dir: context
+
+db:
+  engine: h2

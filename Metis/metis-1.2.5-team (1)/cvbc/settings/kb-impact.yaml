@@ -1,0 +1,12 @@
+# KB usage efficiency gain settings (read by cvbc/tools/kb_baseline_fetch.py and kb_gain.py)
+kb_start_date: '2026-11-09'      # first day the team uses the Mētis KB; baseline = the 12 months before it [?: open question]
+baseline_months: 12
+project: CVBC
+team_field: customfield_12479     # Jira "IT Team"
+team_value: EDA-CVBC-Scorecard
+ai_labels: [ai-used, AI-USED, ai_used, AI-Used]
+points_field: customfield_11222
+sprint_field: customfield_11224
+defect_found_field: customfield_10401   # Jira "Defect Detected In"
+defect_types: [Bug, Defect, Production Defect, Incident]
+usd_per_acu: null

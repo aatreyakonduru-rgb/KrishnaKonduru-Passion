@@ -1,0 +1,94 @@
+reference_environment: dev
+environments:
+  dev:
+    docs_dir: ''
+    databases:
+    - label: CRCA
+      engine: snowflake
+      database: D01_CRCA
+      schema: CRCA_PRF_ANTM
+      schemas:
+      - CRCA_PRF_ANTM
+      - CRCA_PRF_ANTM_ALLPHI
+      - CRCA_PRF_ANTM_NOPHI
+      - CRCA_PRF_ANTM_NOHAPHI
+      - CRCA_PRF_ANTM_SEMANTIC
+      - CRCA_PRF_DBG
+      - CRCA_UI_ANTM
+      - CRCA_UI_ANTM_ALLPHI
+      - CRCA_ANTM_STG
+      - CRCA_MRM_ANTM
+      - CRCA_MRM_ANTM_ALLPHI
+      - CRCA_PHM_ANTM
+      - CRCA_ANTM
+      warehouse: D01_LOAD_01_WH
+      connection: snowflakenonprodmcp-012d
+  sit:
+    docs_dir: environments/sit
+    databases:
+    - label: CRCA
+      engine: snowflake
+      database: T01_CRCA
+      schema: CRCA_PRF_ANTM
+      schemas:
+      - CRCA_PRF_ANTM
+      - CRCA_PRF_ANTM_ALLPHI
+      - CRCA_PRF_ANTM_NOPHI
+      - CRCA_PRF_ANTM_NOHAPHI
+      - CRCA_PRF_ANTM_SEMANTIC
+      - CRCA_PRF_DBG
+      - CRCA_UI_ANTM
+      - CRCA_UI_ANTM_ALLPHI
+      - CRCA_ANTM_STG
+      - CRCA_MRM_ANTM
+      - CRCA_MRM_ANTM_ALLPHI
+      - CRCA_PHM_ANTM
+      - CRCA_ANTM
+      warehouse: T01_LOAD_01_WH
+      connection: snowflakenonprodmcp-012d
+  uat:
+    docs_dir: environments/uat
+    databases:
+    - label: CRCA
+      engine: snowflake
+      database: U01_CRCA
+      schema: CRCA_PRF_ANTM
+      schemas:
+      - CRCA_PRF_ANTM
+      - CRCA_PRF_ANTM_ALLPHI
+      - CRCA_PRF_ANTM_NOPHI
+      - CRCA_PRF_ANTM_NOHAPHI
+      - CRCA_PRF_ANTM_SEMANTIC
+      - CRCA_PRF_DBG
+      - CRCA_UI_ANTM
+      - CRCA_UI_ANTM_ALLPHI
+      - CRCA_ANTM_STG
+      - CRCA_MRM_ANTM
+      - CRCA_MRM_ANTM_ALLPHI
+      - CRCA_PHM_ANTM
+      - CRCA_ANTM
+      warehouse: U01_LOAD_01_WH
+      connection: ''
+  prod:
+    docs_dir: environments/prod
+    databases:
+    - label: CRCA
+      engine: snowflake
+      database: P01_CRCA
+      schema: CRCA_PRF_ANTM
+      schemas:
+      - CRCA_PRF_ANTM
+      - CRCA_PRF_ANTM_ALLPHI
+      - CRCA_PRF_ANTM_NOPHI
+      - CRCA_PRF_ANTM_NOHAPHI
+      - CRCA_PRF_ANTM_SEMANTIC
+      - CRCA_PRF_DBG
+      - CRCA_UI_ANTM
+      - CRCA_UI_ANTM_ALLPHI
+      - CRCA_ANTM_STG
+      - CRCA_MRM_ANTM
+      - CRCA_MRM_ANTM_ALLPHI
+      - CRCA_PHM_ANTM
+      - CRCA_ANTM
+      warehouse: P01_LOAD_01_WH
+      connection: ''

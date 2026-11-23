@@ -1,0 +1,14 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Metis open questions</title>
+<style>body{font:14px/1.45 system-ui,Segoe UI,Arial;margin:0;color:#1d1530}header{background:#4b2a7b;color:#fff;padding:8px 16px}
+main{padding:12px 16px}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ddd3ec;padding:6px;vertical-align:top;text-align:left}
+th{background:#f2edf9}select{margin-right:10px}small{color:#5c4d75}</style></head><body>
+<header>Metis &middot; Open questions &middot; as of 2026-11-12</header><main>
+<p>Each question names what the sources say, what it blocks and who can answer it. Possible answers come only from sources.</p>
+<p>Role <select id="role"><option value="">All</option><option value="data lead">data lead</option></select>Type <select id="type"><option value="">All</option><option value="business">business</option><option value="application">application</option><option value="data">data</option><option value="etl-batch">etl-batch</option><option value="access">access</option><option value="security">security</option></select>
+Priority <select id="pri"><option value="">All</option><option value="P1">P1</option><option value="P2">P2</option><option value="P3">P3</option></select>Status <select id="status"><option value="">All</option><option value="open">open</option><option value="answered">answered</option><option value="closed">closed</option></select></p>
+<table><thead><tr><th>Id</th><th>Priority</th><th>Question</th><th>Who can answer</th><th>Type</th><th>What the sources say</th>
+<th>Possible answers</th><th>Blocks</th><th>Status</th></tr></thead><tbody><tr data-role="data lead" data-type="data" data-pri="P2" data-status="open"><td>Q-0001</td><td><b>P2</b></td><td>Which database engine runs in production? Only the H2 schema was read for this build.</td><td>data lead<br><small>not named in settings</small></td><td>data</td><td>The schema folder holds H2, MySQL and Postgres variants. [E: spring-petclinic/src/main/resources/db/h2/schema.sql:10 &quot;CREATE TABLE vets&quot;]</td><td>None found in sources</td><td>db/PETCLINIC_DB.md</td><td>open</td></tr>
+<tr data-role="data lead" data-type="data" data-pri="P2" data-status="open"><td>Q-0002</td><td><b>P2</b></td><td>Who owns the raw schema that feeds the dbt source tables?</td><td>data lead<br><small>not named in settings</small></td><td>data</td><td>Sources are declared in the ecom source with schema raw. [E: jaffle-shop/models/staging/__sources.yml:5 &quot;schema: raw&quot;]</td><td>None found in sources</td><td>dbt/JAFFLE_MODELS.md</td><td>open</td></tr></tbody></table></main>
+<script>var f=["role","type","pri","status"];function go(){document.querySelectorAll("tbody tr").forEach(function(r){
+r.style.display=f.every(function(k){var v=document.getElementById(k).value;return !v||r.dataset[k]===v})?"":"none"})}
+f.forEach(function(k){document.getElementById(k).onchange=go})</script></body></html>

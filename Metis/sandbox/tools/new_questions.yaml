@@ -1,0 +1,13 @@
+questions:
+  - question: Which database engine runs in production? Only the H2 schema was read for this build.
+    type: data
+    priority: P2
+    context:
+      - 'The schema folder holds H2, MySQL and Postgres variants. [E: spring-petclinic/src/main/resources/db/h2/schema.sql:10 "CREATE TABLE vets"]'
+    blocks: [db/PETCLINIC_DB.md]
+  - question: Who owns the raw schema that feeds the dbt source tables?
+    type: data
+    priority: P2
+    context:
+      - 'Sources are declared in the ecom source with schema raw. [E: jaffle-shop/models/staging/__sources.yml:5 "schema: raw"]'
+    blocks: [dbt/JAFFLE_MODELS.md]

@@ -1,0 +1,423 @@
+# Written by detect_stack.py from the repos. Do not edit; approve with detect_stack.py approve.
+generated_by: detect_stack.py
+detected_on: '2026-11-09'
+repos_read:
+- name: ncr_dna1_crcaprf_files
+  folder: ncr-dna1-crcaprf-files
+  commit: 9e10839
+repos:
+  ncr_dna1_crcaprf_files: ncr-dna1-crcaprf-files
+items:
+- category: language
+  name: Python
+  repo: ncr_dna1_crcaprf_files
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/requirements.txt:1 "streamlit"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/vldtn_table_manager/requirements.txt:1 "streamlit"]'
+- category: database
+  name: MySQL driver
+  repo: ncr_dna1_crcaprf_files
+  engine: MySQL
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/requirements.txt:6 "mysql-connector-python"]'
+- category: database
+  name: Snowflake driver
+  repo: ncr_dna1_crcaprf_files
+  engine: Snowflake
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/requirements.txt:4 "snowflake-connector-python"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/vldtn_table_manager/requirements.txt:3 "snowflake-connector-python"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  key: database
+  value: ir_audt_cntrl
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_ir.json:138 "ir_audt_cntrl"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:162 "ir_audt_cntrl"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:317 "ir_audt_cntrl"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/metadata_config.json:39 "ir_audt_cntrl"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/metadata_config.json:87 "ir_audt_cntrl"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  key: database
+  value: uat_audt_cntrl
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:148 "uat_audt_cntrl"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:303 "uat_audt_cntrl"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/metadata_config.json:25 "uat_audt_cntrl"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/metadata_config.json:73 "uat_audt_cntrl"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  key: database
+  value: preprod_audt_cntrl
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:155 "preprod_audt_cntrl"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:310 "preprod_audt_cntrl"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/metadata_config.json:32 "preprod_audt_cntrl"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/metadata_config.json:80 "preprod_audt_cntrl"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  key: database
+  value: prod_audt_cntrl
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:169 "prod_audt_cntrl"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/metadata_config.json:46 "prod_audt_cntrl"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  key: database
+  value: audt_cntrl
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:324 "audt_cntrl"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/metadata_config.json:59 "audt_cntrl"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/metadata_config.json:94 "audt_cntrl"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  key: database
+  value: dev_audt_cntrl
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/metadata_config.json:11 "dev_audt_cntrl"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  key: database
+  value: sit_audt_cntrl
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/metadata_config.json:18 "sit_audt_cntrl"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/metadata_config.json:66 "sit_audt_cntrl"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  key: database
+  value: TennCare_EoC
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/sql_server_config.json:6 "TennCare_EoC"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  key: database
+  value: D01_CRCA
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/sql_server_config.json:35 "database"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/vldtn_table_manager/config/vldtn_config.json:6 "database"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  key: database
+  value: T01_CRCA
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/vldtn_table_manager/config/vldtn_config.json:12 "database"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  key: database
+  value: U01_CRCA
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/vldtn_table_manager/config/vldtn_config.json:18 "database"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  key: database
+  value: P01_CRCA
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/vldtn_table_manager/config/vldtn_config.json:24 "database"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  env: dev
+  key: database
+  value: D01_ACV
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_dev.json:9 "acv_source_db_name"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  env: dev
+  key: database
+  value: audt_cntrl
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_dev.json:142 "audt_cntrl"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  env: preprod
+  key: database
+  value: U01_ACV
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_preprod.json:14 "acv_source_db_name"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  env: preprod
+  key: database
+  value: preprod_audt_cntrl
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_preprod.json:141 "preprod_audt_cntrl"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  env: prod
+  key: database
+  value: P01_ACV
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_prod.json:14 "acv_source_db_name"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  env: prod
+  key: database
+  value: audt_cntrl
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_prod.json:142 "audt_cntrl"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  env: sit
+  key: database
+  value: T01_ACV
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_sit.json:11 "acv_source_db_name"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  env: sit
+  key: database
+  value: sit_audt_cntrl
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_sit.json:142 "sit_audt_cntrl"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  env: uat
+  key: database
+  value: U01_ACV
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_uat.json:13 "acv_source_db_name"]'
+- category: connection
+  name: database
+  repo: ncr_dna1_crcaprf_files
+  env: uat
+  key: database
+  value: uat_audt_cntrl
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_uat.json:142 "uat_audt_cntrl"]'
+- category: connection
+  name: schema
+  repo: ncr_dna1_crcaprf_files
+  key: schema
+  value: CRCA_PRF_ANTM
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_ir.json:16 "CRCA_PRF_ANTM"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/vldtn_table_manager/config/vldtn_config.json:7 "CRCA_PRF_ANTM"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/vldtn_table_manager/config/vldtn_config.json:13 "CRCA_PRF_ANTM"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/vldtn_table_manager/config/vldtn_config.json:19 "CRCA_PRF_ANTM"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/vldtn_table_manager/config/vldtn_config.json:25 "CRCA_PRF_ANTM"]'
+- category: connection
+  name: schema
+  repo: ncr_dna1_crcaprf_files
+  key: schema
+  value: '['
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:129 "schemas"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:246 "schemas"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:284 "schemas"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:400 "schemas"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/ddl_config.json:11 "schemas"]'
+- category: connection
+  name: schema
+  repo: ncr_dna1_crcaprf_files
+  key: schema
+  value: dbo
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/sql_server_config.json:7 "schema"]'
+- category: connection
+  name: schema
+  repo: ncr_dna1_crcaprf_files
+  key: schema
+  value: CRCA_UI_ANTM_ALLPHI
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/sql_server_config.json:36 "CRCA_UI_ANTM_ALLPHI"]'
+- category: connection
+  name: schema
+  repo: ncr_dna1_crcaprf_files
+  env: dev
+  key: schema
+  value: CRCA_PRF_ANTM
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_dev.json:19 "CRCA_PRF_ANTM"]'
+- category: connection
+  name: schema
+  repo: ncr_dna1_crcaprf_files
+  env: preprod
+  key: schema
+  value: CRCA_PRF_ANTM
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_preprod.json:19 "CRCA_PRF_ANTM"]'
+- category: connection
+  name: schema
+  repo: ncr_dna1_crcaprf_files
+  env: prod
+  key: schema
+  value: CRCA_PRF_ANTM
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_prod.json:19 "CRCA_PRF_ANTM"]'
+- category: connection
+  name: schema
+  repo: ncr_dna1_crcaprf_files
+  env: sit
+  key: schema
+  value: CRCA_PRF_ANTM
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_sit.json:19 "CRCA_PRF_ANTM"]'
+- category: connection
+  name: schema
+  repo: ncr_dna1_crcaprf_files
+  env: uat
+  key: schema
+  value: CRCA_PRF_ANTM
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_uat.json:19 "CRCA_PRF_ANTM"]'
+- category: connection
+  name: warehouse
+  repo: ncr_dna1_crcaprf_files
+  key: warehouse
+  value: R01_LOAD_01_WH
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_ir.json:11 "etl_stp_warehouse"]'
+- category: connection
+  name: warehouse
+  repo: ncr_dna1_crcaprf_files
+  key: warehouse
+  value: U01_DPDF_ANTM_USER_WH_M
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:99 "U01_DPDF_ANTM_USER_WH_M"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:107 "U01_DPDF_ANTM_USER_WH_M"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:216 "U01_DPDF_ANTM_USER_WH_M"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:224 "U01_DPDF_ANTM_USER_WH_M"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/ddl_config.json:54 "U01_DPDF_ANTM_USER_WH_M"]'
+- category: connection
+  name: warehouse
+  repo: ncr_dna1_crcaprf_files
+  key: warehouse
+  value: P01_DPDF_ANTM_USER_WH_M
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:115 "P01_DPDF_ANTM_USER_WH_M"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:123 "P01_DPDF_ANTM_USER_WH_M"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:232 "P01_DPDF_ANTM_USER_WH_M"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:240 "P01_DPDF_ANTM_USER_WH_M"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/ddl_config.json:90 "P01_DPDF_ANTM_USER_WH_M"]'
+- category: connection
+  name: warehouse
+  repo: ncr_dna1_crcaprf_files
+  key: warehouse
+  value: U01_CRCA_ANTM_USER_WH
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:255 "U01_CRCA_ANTM_USER_WH"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:263 "U01_CRCA_ANTM_USER_WH"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:371 "U01_CRCA_ANTM_USER_WH"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:379 "U01_CRCA_ANTM_USER_WH"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/ddl_config.json:175 "U01_CRCA_ANTM_USER_WH"]'
+- category: connection
+  name: warehouse
+  repo: ncr_dna1_crcaprf_files
+  key: warehouse
+  value: P01_CRCA_ANTM_USER_WH
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:271 "P01_CRCA_ANTM_USER_WH"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:278 "P01_CRCA_ANTM_USER_WH"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:387 "P01_CRCA_ANTM_USER_WH"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/batch_run.json:394 "P01_CRCA_ANTM_USER_WH"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/ddl_config.json:211 "P01_CRCA_ANTM_USER_WH"]'
+- category: connection
+  name: warehouse
+  repo: ncr_dna1_crcaprf_files
+  key: warehouse
+  value: D01_DPDF_ANTM_USER_WH_M
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/ddl_config.json:6 "D01_DPDF_ANTM_USER_WH_M"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/ddl_config.json:18 "D01_DPDF_ANTM_USER_WH_M"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/ddl_config.json:36 "D01_DPDF_ANTM_USER_WH_M"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/ui_tables_config.json:52 "D01_DPDF_ANTM_USER_WH_M"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/ui_tables_config.json:63 "D01_DPDF_ANTM_USER_WH_M"]'
+- category: connection
+  name: warehouse
+  repo: ncr_dna1_crcaprf_files
+  key: warehouse
+  value: D01_CRCA_ANTM_USER_WH
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/ddl_config.json:127 "D01_CRCA_ANTM_USER_WH"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/ddl_config.json:139 "D01_CRCA_ANTM_USER_WH"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/sql_server_config.json:34 "D01_CRCA_ANTM_USER_WH"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/ui_tables_config.json:109 "D01_CRCA_ANTM_USER_WH"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/vldtn_table_manager/config/vldtn_config.json:5 "D01_CRCA_ANTM_USER_WH"]'
+- category: connection
+  name: warehouse
+  repo: ncr_dna1_crcaprf_files
+  key: warehouse
+  value: T01_CRCA_ANTM_USER_WH
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/ddl_config.json:157 "T01_CRCA_ANTM_USER_WH"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/migration_assist_tool/config/ui_tables_config.json:120 "T01_CRCA_ANTM_USER_WH"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/vldtn_table_manager/config/vldtn_config.json:11 "T01_CRCA_ANTM_USER_WH"]'
+- category: connection
+  name: warehouse
+  repo: ncr_dna1_crcaprf_files
+  env: dev
+  key: warehouse
+  value: D01_LOAD_01_WH
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_dev.json:14 "etl_stp_warehouse"]'
+- category: connection
+  name: warehouse
+  repo: ncr_dna1_crcaprf_files
+  env: preprod
+  key: warehouse
+  value: U01_LOAD_01_WH
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_preprod.json:12 "etl_stp_warehouse"]'
+- category: connection
+  name: warehouse
+  repo: ncr_dna1_crcaprf_files
+  env: prod
+  key: warehouse
+  value: P01_LOAD_01_WH
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_prod.json:12 "etl_stp_warehouse"]'
+- category: connection
+  name: warehouse
+  repo: ncr_dna1_crcaprf_files
+  env: sit
+  key: warehouse
+  value: T01_LOAD_01_WH
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_sit.json:14 "etl_stp_warehouse"]'
+- category: connection
+  name: warehouse
+  repo: ncr_dna1_crcaprf_files
+  env: uat
+  key: warehouse
+  value: U01_LOAD_01_WH
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_prf_params_uat.json:12 "etl_stp_warehouse"]'
+- category: aws
+  name: Amazon S3
+  repo: ncr_dna1_crcaprf_files
+  sources:
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/param/cvbc_snflk_test_automation_tool_params.json:31 "s3://"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/cvbc_cortex_recommendation.py:16 "s3://"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/cvbc_snflk_eoc_episode_msr_framework.py:2262 "s3://"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/cvbc_snflk_file_tracking_notification.py:93 "s3://"]'
+  - '[E: ncr_dna1_crcaprf_files/scripts/sql/python/cvbc_snflk_sc_src_engn_job_trigger.py:158 "s3://"]'
+databases:
+- engine: MySQL
+  environments:
+  - any
+- engine: Snowflake
+  environments:
+  - any
+unresolved: []

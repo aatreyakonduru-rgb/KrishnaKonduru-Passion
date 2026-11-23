@@ -1,0 +1,137 @@
+﻿links:
+- from:
+    type: table
+    name: stg_customers
+  rel: reads
+  to:
+    type: table
+    name: raw_customers
+  source: '[E: jaffle-shop/models/staging/stg_customers.sql:5 "raw_customers"]'
+- from:
+    type: table
+    name: stg_locations
+  rel: reads
+  to:
+    type: table
+    name: raw_stores
+  source: '[E: jaffle-shop/models/staging/stg_locations.sql:5 "raw_stores"]'
+- from:
+    type: table
+    name: stg_order_items
+  rel: reads
+  to:
+    type: table
+    name: raw_items
+  source: '[E: jaffle-shop/models/staging/stg_order_items.sql:5 "raw_items"]'
+- from:
+    type: table
+    name: stg_orders
+  rel: reads
+  to:
+    type: table
+    name: raw_orders
+  source: '[E: jaffle-shop/models/staging/stg_orders.sql:5 "raw_orders"]'
+- from:
+    type: table
+    name: stg_products
+  rel: reads
+  to:
+    type: table
+    name: raw_products
+  source: '[E: jaffle-shop/models/staging/stg_products.sql:5 "raw_products"]'
+- from:
+    type: table
+    name: stg_supplies
+  rel: reads
+  to:
+    type: table
+    name: raw_supplies
+  source: '[E: jaffle-shop/models/staging/stg_supplies.sql:5 "raw_supplies"]'
+- from:
+    type: table
+    name: customers
+  rel: reads
+  to:
+    type: table
+    name: stg_customers
+  source: '[E: jaffle-shop/models/marts/customers.sql:5 "stg_customers"]'
+- from:
+    type: table
+    name: customers
+  rel: reads
+  to:
+    type: table
+    name: orders
+  source: '[E: jaffle-shop/models/marts/customers.sql:11 "orders"]'
+- from:
+    type: table
+    name: locations
+  rel: reads
+  to:
+    type: table
+    name: stg_locations
+  source: '[E: jaffle-shop/models/marts/locations.sql:5 "stg_locations"]'
+- from:
+    type: table
+    name: order_items
+  rel: reads
+  to:
+    type: table
+    name: stg_order_items
+  source: '[E: jaffle-shop/models/marts/order_items.sql:5 "stg_order_items"]'
+- from:
+    type: table
+    name: order_items
+  rel: reads
+  to:
+    type: table
+    name: stg_orders
+  source: '[E: jaffle-shop/models/marts/order_items.sql:12 "stg_orders"]'
+- from:
+    type: table
+    name: order_items
+  rel: reads
+  to:
+    type: table
+    name: stg_products
+  source: '[E: jaffle-shop/models/marts/order_items.sql:18 "stg_products"]'
+- from:
+    type: table
+    name: order_items
+  rel: reads
+  to:
+    type: table
+    name: stg_supplies
+  source: '[E: jaffle-shop/models/marts/order_items.sql:24 "stg_supplies"]'
+- from:
+    type: table
+    name: orders
+  rel: reads
+  to:
+    type: table
+    name: stg_orders
+  source: '[E: jaffle-shop/models/marts/orders.sql:5 "stg_orders"]'
+- from:
+    type: table
+    name: orders
+  rel: reads
+  to:
+    type: table
+    name: order_items
+  source: '[E: jaffle-shop/models/marts/orders.sql:11 "order_items"]'
+- from:
+    type: table
+    name: products
+  rel: reads
+  to:
+    type: table
+    name: stg_products
+  source: '[E: jaffle-shop/models/marts/products.sql:5 "stg_products"]'
+- from:
+    type: table
+    name: supplies
+  rel: reads
+  to:
+    type: table
+    name: stg_supplies
+  source: '[E: jaffle-shop/models/marts/supplies.sql:5 "stg_supplies"]'

@@ -1,0 +1,14 @@
+{
+  "name": "metis",
+  "version": "2.0.0",
+  "displayName": "M\u0113tis",
+  "tagline": "Knowledge-base builder",
+  "description": "Builds a verifiable knowledge base from a team's code repos, databases, Confluence and Jira (read only) into one folder of the team repo and sends it as one pull request. Every line names its source; anything no source shows becomes a question in VALIDATE_KB, grouped by who can answer and by priority. Also builds the ontology and link graph from sourced links only. Typing \"metis\" first detects the session's APM, repos, Jira team, Confluence space and working tokens, then builds that team's KB and dashboard (with the 12-month efficiency baseline) locally. CVBC Scorecard (APM1081911) keeps its own build. Users talk to Metis in plain language; no commands are needed.",
+  "outputs": [
+    "Knowledge-base documents (.md) for application, ETL/batch and database",
+    "VALIDATE_KB question file (.yaml) and page (.html)",
+    "Ontology and link graph (.yaml, .html)",
+    "Saved evidence (queries, page and issue snapshots)",
+    "One pull request per build"
+  ]
+}

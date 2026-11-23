@@ -1,0 +1,8 @@
+PyYAML>=6
+# Optional (each tool guards its import; see pyproject.toml extras):
+# sqlglot
+# tree-sitter tree-sitter-python tree-sitter-java tree-sitter-typescript tree-sitter-javascript
+# rdflib
+# sentence-transformers
+# tiktoken
+# pypdf

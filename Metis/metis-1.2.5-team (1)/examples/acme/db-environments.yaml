@@ -1,0 +1,33 @@
+# Sample databases per environment for the made-up Acme team.
+reference_environment: test
+environments:
+  dev:
+    label: Development
+    databases:
+    - label: ORDERS
+      engine: snowflake
+      database: ACMEDEV_ORDERS
+      iam_database: ACMEDEV_IAM
+      warehouse: ACMEDEV_WH
+      schemas:
+      - ORDERS
+  test:
+    label: Test
+    databases:
+    - label: ORDERS
+      engine: snowflake
+      database: ACMETEST_ORDERS
+      iam_database: ACMETEST_IAM
+      warehouse: ACMETEST_WH
+      schemas:
+      - ORDERS
+  prod:
+    label: Production
+    databases:
+    - label: ORDERS
+      engine: snowflake
+      database: ACMEPROD_ORDERS
+      iam_database: ACMEPROD_IAM
+      warehouse: ACMEPROD_WH
+      schemas:
+      - ORDERS

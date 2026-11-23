@@ -1,0 +1,31 @@
+[project]
+name = "metis-kb"
+version = "2.0.0"
+description = "Metis: builds a verifiable, sourced knowledge base from a team's repos, databases and documents."
+requires-python = ">=3.10"
+dependencies = ["PyYAML>=6"]
+
+# Everything below is optional. Each tool imports its package behind a guard
+# and falls back to standard-library code (or says what is missing).
+[project.optional-dependencies]
+sql = ["sqlglot"]                          # sql_links.py, column_lineage.py
+code = [
+    "tree-sitter",
+    "tree-sitter-python",
+    "tree-sitter-java",
+    "tree-sitter-typescript",
+    "tree-sitter-javascript",
+]                                          # code_links.py
+rdf = ["rdflib"]                           # export_rdf.py (full SPARQL)
+embeddings = ["sentence-transformers"]     # kb_embed.py
+tokens = ["tiktoken"]                      # context_pack.py --tokenizer tiktoken
+docs = ["pypdf"]                           # read_docs.py, doc_images.py
+all = [
+    "sqlglot",
+    "tree-sitter", "tree-sitter-python", "tree-sitter-java",
+    "tree-sitter-typescript", "tree-sitter-javascript",
+    "rdflib", "sentence-transformers", "tiktoken", "pypdf",
+]
+
+# Tests: python -W ignore -m unittest discover -s tools/tests -p "test_*.py"
+# (run from this folder; unittest only, no pytest).
