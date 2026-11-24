@@ -381,6 +381,7 @@ schema: {{DB_SCHEMA}}
 environment: {{DB_ENV}}
 generated_date: {{RUN_DATE}}
 connected_as: <user and role from Before you start>
+layer: code
 prompt_id: DB-01
 prompt_version: 2.0.0
 ---

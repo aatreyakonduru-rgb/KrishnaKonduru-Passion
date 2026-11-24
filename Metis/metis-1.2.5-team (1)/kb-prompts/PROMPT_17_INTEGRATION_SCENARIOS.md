@@ -66,6 +66,7 @@ module: {{MODULE_NAME}}
 version: <n>
 status: Draft
 generated_date: {{RUN_DATE}}
+layer: design
 prompt_id: APP-17
 prompt_version: 2.1.0
 ---

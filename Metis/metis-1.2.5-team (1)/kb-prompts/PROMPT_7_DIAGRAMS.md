@@ -60,6 +60,7 @@ product: {{PRODUCT_NAME}}
 module: {{MODULE_NAME}}
 version: <n>
 generated_date: {{RUN_DATE}}
+layer: design
 prompt_id: APP-07
 prompt_version: 2.0.0
 ---

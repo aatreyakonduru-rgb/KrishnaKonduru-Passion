@@ -88,6 +88,7 @@ schema: {{DB_SCHEMA}}
 environment: {{DB_ENV}}
 generated_date: {{RUN_DATE}}
 inputs: [00_DB_DISCOVERY_REPORT.md, 01_DB_BUSINESS_REQUIREMENTS.md, <domain context file>]
+layer: design
 prompt_id: DB-03
 prompt_version: 2.0.0
 review: developer and business analyst review required before DB-04, DB-05 and DB-06

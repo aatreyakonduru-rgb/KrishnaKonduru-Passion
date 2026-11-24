@@ -88,6 +88,7 @@ schema: {{DB_SCHEMA}}
 environment: {{DB_ENV}}
 generated_date: {{RUN_DATE}}
 inputs: [<every KB file read>]
+layer: design
 prompt_id: DB-08
 prompt_version: 2.0.0
 ---

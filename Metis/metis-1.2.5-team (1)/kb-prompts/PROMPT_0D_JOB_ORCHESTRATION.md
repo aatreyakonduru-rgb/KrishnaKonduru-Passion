@@ -54,6 +54,7 @@ Write `{{DOMAIN_CONTEXT_DIR}}/CONTEXT_0D_JOB_ORCHESTRATION.md`, starting with:
 document: Domain context: jobs and orchestration
 product: {{PRODUCT_NAME}}
 updated_date: {{RUN_DATE}}
+layer: design
 prompt_id: CTX-0D
 prompt_version: 2.0.0
 ---

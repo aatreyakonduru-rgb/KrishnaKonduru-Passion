@@ -600,6 +600,7 @@ def answer_card(ctx, a):
     chk = a.get("checked") or {}
     out.append(rounds_card(tasks.get(ctx.kb, a["task"]) if a.get("task") else None))
     out.append(confidence_badge(a.get("confidence")))
+    out.append(freshness_note(a.get("freshness")))
     out.append(audience_note(a.get("audience")))
     out.append('<div>%s</div>' % C.render_md(answers.answer_text(ctx.kb, a)))
     out.append('<p>%s <span class="muted">%d lines checked against the KB</span>%s</p>' % (
@@ -641,6 +642,22 @@ def rate_forms(ctx, a):
     return ('<div class="card rate"><b>Was this right?</b><input type="checkbox" id="%s" class="dn-toggle">%s'
             '<label for="%s" class="thumb" title="Wrong or incomplete: dislike this answer" aria-label="Dislike">&#128078;</label>'
             '<div class="reason">%s</div></div>') % (box, up, box, down)
+
+
+def freshness_note(info):
+    """Say, above the answer, which pages it used cite a source that changed since the build, and which could not be compared."""
+    if not info or not info.get("checked"):
+        return ""
+    out = []
+    if info.get("stale"):
+        out.append('<p><span class="pill warn">Source changed</span> <span class="muted">%d page%s used cite a file that changed since '
+                   'the KB was built, so the answer may be out of date: %s. Ask a lead to rebuild those pages.</span></p>' % (
+                       len(info["stale"]), "" if len(info["stale"]) == 1 else "s",
+                       esc("; ".join("%s (%s)" % (x["page"], ", ".join(x["reasons"][:2])) for x in info["stale"][:3]))))
+    if info.get("unknown"):
+        out.append('<p class="muted">Not compared: %s has no recorded build commit, so this answer cannot say whether its sources changed.</p>'
+                   % esc(", ".join(info["unknown"])))
+    return "".join(out)
 
 
 def audience_note(info):

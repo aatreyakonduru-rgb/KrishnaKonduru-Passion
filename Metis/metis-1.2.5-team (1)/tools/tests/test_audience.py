@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -73,6 +74,24 @@ class Layers(AudienceBase):
     def test_unknown_audience_is_an_error(self):
         with self.assertRaises(audience.AudienceError):
             audience.get("wizard")
+
+    def test_build_prompts_name_a_layer_and_the_layer_is_valid(self):
+        prompts = os.path.join(HERE, "..", "..", "kb-prompts")
+        with_layer = 0
+        for name in sorted(os.listdir(prompts)):
+            text = open(os.path.join(prompts, name), encoding="utf-8").read()
+            m = re.search(r"^layer: (\S+)\n(?:.*\n)?prompt_id: ", text, re.M)
+            if m:
+                with_layer += 1
+                self.assertIn(m.group(1), audience.LAYERS, name)
+        self.assertGreater(with_layer, 30)
+
+    def test_strict_layers_fails_on_a_guess_and_passes_when_named(self):
+        kb = os.path.join(self.d, "kb2")
+        write(os.path.join(kb, "misc", "X.md"), "# x\n\n- A line. [E: repo/schema.sql:1-1 \"CREATE TABLE orders\"]\n")
+        self.assertEqual(audience.main(["layers", kb, "--strict"]), 1)
+        write(os.path.join(kb, "misc", "X.md"), "---\nlayer: design\n---\n# x\n\n- A line.\n")
+        self.assertEqual(audience.main(["layers", kb, "--strict"]), 0)
 
 
 class Ask(AudienceBase):

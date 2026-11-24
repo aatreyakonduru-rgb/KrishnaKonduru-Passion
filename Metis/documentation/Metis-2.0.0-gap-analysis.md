@@ -178,9 +178,9 @@ Counts below come from the code, not from this prose:
 
 <!-- metrics:begin -->
 Counted from the code by `tools/doc_metrics.py`; run `python3 doc_metrics.py write` to refresh.
-- Tests discovered: 1203
+- Tests discovered: 1231
 - UI screens (paths in `server.SCREENS`): 29
-- Tools (`tools/*.py`): 76
+- Tools (`tools/*.py`): 77
 - Skills: 74
 <!-- metrics:end -->
 

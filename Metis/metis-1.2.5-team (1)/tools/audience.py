@@ -206,6 +206,7 @@ def main(argv=None):
     sub.add_parser("list")
     p = sub.add_parser("layers")
     p.add_argument("kb")
+    p.add_argument("--strict", action="store_true", help="exit 1 when a page has no layer from front matter, folder or sources")
     p = sub.add_parser("who")
     p.add_argument("kb")
     p.add_argument("person")
@@ -224,7 +225,7 @@ def main(argv=None):
         guess = [r for r in rows if r["from"] == "default"]
         if guess:
             print("\n%d page(s) have no layer from front matter, folder or sources; add `layer:` to their front matter." % len(guess))
-        return 0
+        return 1 if guess and a.strict else 0
     try:
         aud = resolve(a.kb, a.person)
     except AudienceError as exc:

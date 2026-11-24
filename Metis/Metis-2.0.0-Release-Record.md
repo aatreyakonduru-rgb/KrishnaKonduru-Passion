@@ -74,13 +74,13 @@ The second-pass feature build completed all remaining functional workstreams (W1
 | Hybrid vector search & eval | Developer / reader: find concepts with mismatched terms | `kb_embed.py`, `/search` | Default off; eval CLI; sentence-transformers and HTTP embedder need your environment to verify |
 | Unanswered query report & miss counting | KB owner: what is missing from the KB | `kb_unanswered.py`, `/search` | Salted SHA-256 miss counter (`search.count_misses: true`); reads low-confidence asks and open questions |
 | Area summaries (GraphRAG) | System architect: big-picture domain summary | `kb_summaries.py` | Builds `SUMMARY_TREE.yaml` and `PROMPT.md`; prose writing requires Devin/Bob session |
-| Chat-first interface | General reader / BSA: interactive conversational Q&A | `screens_chat.py`, `/chat` | Multi-turn extractive chat; in-memory threads (last 20 turns) reset on restart |
-| Code dependency links | Developer: verified code call graph and API endpoints | `code_links.py` | Java, TS, Python; tree-sitter optional with pure-Python AST fallback; unparsed dynamic calls flagged |
+| Chat-first interface | General reader / BSA: interactive conversational Q&A | `screens_chat.py`, `/chat` | Multi-turn extractive chat; threads persisted per user in `.metis/chat/` (up to 50 threads / 200 messages) |
+| Code dependency links | Developer: verified code call graph and API endpoints | `code_links.py` | Java, TS, Python; tree-sitter optional with pure-Python AST fallback; verified locally with AST; unparsed dynamic calls flagged |
 | Column-level lineage & impact | Data engineer: which columns break if table.column changes | `column_lineage.py`, `column_impact` | sqlglot optional; traces SELECT/CTEs/dbt; unexpanded SELECT * without catalog listed in unresolved |
 | Build-time contradiction finder | Reviewer / lead: do staged facts conflict with live KB | `kb_contradict.py`, `/quality` | Pattern matching across tables/key-values; heuristic confidence; cannot catch arbitrary prose conflicts |
 | LLM-judged citations & golden scoring | QA lead / lead: semantic citation accuracy check | `llm_judge.py`, `/quality` | File judge (needs Devin/Bob session) and HTTP judge (tested on fake opener, needs your endpoint to verify) |
 | Near-duplicate and link checker | KB owner: clean up redundant or broken content | `kb_dupes.py`, `kb_links.py`, `/quality` | MinHash/SimHash shingle Jaccard matching; internal link/anchor/orphan audit |
-| Build trend metrics & line telemetry | KB owner: track verification health and citation lines | `kb_trend.py`, `telemetry_lines.py`, `/quality` | Appends counts to `.metis/trend.jsonl`; line attribution drifts on page edit |
+| Build trend metrics & line telemetry | KB owner: track verification health and citation lines | `kb_trend.py`, `telemetry_lines.py`, `/quality` | Appends counts to `.metis/trend.jsonl`; salted SHA-256 line fingerprints track lines across edits (`telemetry_lines.py reanchor`) |
 | Push notifications & refresh triggers | On-call / lead: get alerts on batches, questions, tasks | `notify.py`, `refresh_trigger.py`, `/notify` | Slack, Teams, webhook, SMTP alerts (tested on local fakes, need your environment); HMAC webhook server |
 | Bitbucket PR impact comments | PR author / reviewer: downstream impact before merge | `bb_pr.py`, `/notify` | Dry-run default; requires `--post`; Bitbucket comment route unconfirmed, needs your Bitbucket environment |
 | RDF, SPARQL, OWL export | External graph tool / architect: query KB without Metis | `export_rdf.py`, `/federation` | Turtle/N-Triples/JSON-LD/OWL; built-in SPARQL subset engine; full SPARQL 1.1 needs rdflib |
@@ -88,8 +88,9 @@ The second-pass feature build completed all remaining functional workstreams (W1
 | OKF v0.2 bundle packaging | External data consumer: standardized KB bundle | `okf_bundle.py`, `/federation` | OKF-shaped bundle packager and local validator; formal compliance needs official OKF validator |
 | Shared cross-team read index | Cross-team engineer: search across team KBs | `shared_index.py`, `/federation` | Stored in `shared.sqlite`; certified and non-sensitive pages only |
 | Cross-team impact walks | Multi-team architect: trace dependencies across teams | `cross_impact.py`, `/federation` | Upstream and downstream walks across `shared.sqlite` by normalized identity and same_as links |
-| Time-aware facts | Historical analyst / auditor: what was true at date X | `facts_time.py` | `{valid-from:...; valid-to:...; superseded-by:...}` annotations; `.metis/facts.sqlite`; `page-at` needs git |
-| Per-claim environment & sensitivity labels | Security officer: role-filtered KB views | `claim_labels.py` | `{env:...; sensitivity:...}` annotations; clearance filtering; sensitive.py integration |
+| Time-aware facts | Historical analyst / auditor: what was true at date X | `facts_time.py` | Line and section `{valid-from:...; valid-to:...; superseded-by:...}` annotations; `.metis/facts.sqlite`; `page-at` needs git |
+| Per-claim environment & sensitivity labels | Security officer: role-filtered KB views | `claim_labels.py` | `{env:...; sensitivity:...}` annotations; clearance filtering enforced across pack, Ask, search, chat, MCP, `/files`, exports; audit CLI |
+| Reviewer trust weights & routing | Tech lead: advisory routing and sampling | `reviewer_stats.py`, `review_queue.py route`, `/owners` | Advisory trust weights from Wilson intervals, contributor track records, suggested routing, fast-lane sampling labels |
 | Rationale & ADR context ingest | System architect: why architecture decisions were made | `adr_ingest.py` | Ingests Nygard/MADR/incidents into context; Confluence/SharePoint intake needs your environment |
 | Procedural context recipes | On-call engineer: operational runbook guidance | `recipes_ingest.py` | Ingests runbooks and CI pipelines; marks destructive steps needs-confirm; never executes commands |
 | Propose-an-edit & threaded comments | Reader / lead: suggest corrections on any page | `page_suggest.py`, `/suggest` | Staged batch approval replaces single lines; multi-line changes routed as open questions |
@@ -111,6 +112,12 @@ The second-pass feature build completed all remaining functional workstreams (W1
 | Real-repo smoke test | Maintainer | `tests/test_smoke_sandbox.py` | Source check, search and `--task` pack over a copy of `sandbox/DEMO-KB` and the real jaffle-shop and spring-petclinic repos. Skipped if the sandbox is absent. Not CI and not a live MCP client |
 | Asker-aware answers | Business, developer, tech lead, architect, support: the layer they need first | `audience.py`, Ask and Pack selectors, `--audience`, MCP `audience` | Four KB layers, five audiences; orders lines and pages and sets link lines and impact share; never changes a fact, tag or clearance. Weights are starting values, untested with real readers; a one-layer KB gives every audience the same lines |
 | Stricter source check | Reader of an answer; lead | `verify_kb.py` (`verify.strict_tags`, `verify.support_min`) | A repo line range needs a quote in strict mode; a fact line must share words with its quotes. Lexical screen, not a judge; says nothing about a quote read wrongly |
+| Enforced `Inferred:` | Reader of an answer; lead | `verify_kb.py` (`verify.inferred_rule`) | A line with conclusion wording, or citing 2+ different sources, must start with `Inferred:` (always for answers, off by default for pages). Looks at wording and source count; a conclusion written without those words is not seen |
+| Stale-source warning in Ask | Reader of an answer | `ui/answers.py` (`freshness`), `build_plan.stale` | A cited page whose source changed since the build shows a pill and lowers confidence; never High. Needs `built-from.yaml` and the git clones; otherwise it says `not compared` |
+| Search-ranked Ask | Anyone asking | `ui/answers.py` (`page_ranks`), `kb_search` | The best 3 pages let one-word lines in; ties broken by search rank; `ask.search: false` turns it off. Not measured on real questions (TD-8) |
+| Layer in page front matter | KB builder; reader by audience | build prompts, `PROMPT_STANDARD.md`, `audience.py layers --strict` | Prompts write `layer:`; `--strict` fails when a layer is a guess. Existing pages without it keep the folder or source guess |
+| Summaries in the pack and Ask | Anyone with area summaries | `context_pack.py`, `kb_summaries.drill_pages` | A matching `area-summary` page brings in the pages it covers. Needs summaries written by a session and certified by a lead; the demo KB has none; saving unmeasured (TD-9) |
+| Judge-agreement sampling | Lead reviewer | `judge_agreement.py` | Draws a sample plus control lines, writes judge requests, scores a person's labels (needs 30+). No labels exist yet, so the agreement rate is still unknown (TD-6, TD-10) |
 
 
 Open from that review, and not fixable in code alone: authentication (labels are a filter; see `documentation/TECH-DEBT.md` TD-3), a measured LLM-judge agreement rate (TD-6), calibrated confidence bands (TD-5, needs rating volume), and runs against real Bitbucket, Slack, SMTP, OIDC, OTLP, sentence-transformers and an MCP client (TD-4). `cvbc/` and `team/` are still inside the plugin (TD-1).
@@ -135,8 +142,8 @@ Open from that review, and not fixable in code alone: authentication (labels are
 
 <!-- metrics:begin -->
 Counted from the code by `tools/doc_metrics.py`; run `python3 doc_metrics.py write` to refresh.
-- Tests discovered: 1203
-- UI screens (paths in `server.SCREENS`): 29
-- Tools (`tools/*.py`): 76
-- Skills: 74
+- Tests discovered: 100
+- UI screens (paths in `server.SCREENS`): 5
+- Tools (`tools/*.py`): 7
+- Skills: 3
 <!-- metrics:end -->

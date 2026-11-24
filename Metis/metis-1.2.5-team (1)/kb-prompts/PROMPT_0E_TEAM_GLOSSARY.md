@@ -49,6 +49,7 @@ Write `{{DOMAIN_CONTEXT_DIR}}/CONTEXT_0E_TEAM_GLOSSARY.md`, starting with:
 document: Domain context: team, glossary and sources
 product: {{PRODUCT_NAME}}
 updated_date: {{RUN_DATE}}
+layer: meaning
 prompt_id: CTX-0E
 prompt_version: 2.0.0
 ---

@@ -105,6 +105,7 @@ schema: {{DB_SCHEMA}}
 environment: {{DB_ENV}}
 generated_date: {{RUN_DATE}}
 history_days: {{DB_QUERY_HISTORY_DAYS}}
+layer: code
 prompt_id: DB-20
 prompt_version: 1.0.0
 ---

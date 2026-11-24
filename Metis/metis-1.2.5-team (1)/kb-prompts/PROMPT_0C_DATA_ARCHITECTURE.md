@@ -53,6 +53,7 @@ Write `{{DOMAIN_CONTEXT_DIR}}/CONTEXT_0C_DATA_ARCHITECTURE.md`, starting with:
 document: Domain context: data architecture
 product: {{PRODUCT_NAME}}
 updated_date: {{RUN_DATE}}
+layer: design
 prompt_id: CTX-0C
 prompt_version: 2.0.0
 ---

@@ -49,6 +49,13 @@ outputs: ["{{KB_DB_DOCS}}/00_DB_DISCOVERY_REPORT.md"]
 ---
 ```
 
+### Output front matter: layer
+
+A prompt that writes a page shows that page's front matter in its Output section. That front matter carries `layer: meaning|rules|design|code`,
+so the page records which kind of reader it serves and Ask and the context pack do not have to guess from the folder. meaning is what the business
+means, ules is what must hold, design is how the parts fit, code is what the source does. Check a built KB with
+`python3 <distribution>/tools/audience.py layers <kb> --strict` (exit 1 when a page's layer is only a guess).
+
 ## 3. Sections
 
 A `kind: prompt` file has these sections, in this order, as `##` headings:

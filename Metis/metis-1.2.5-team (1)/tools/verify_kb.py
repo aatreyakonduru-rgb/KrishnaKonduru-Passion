@@ -50,6 +50,10 @@ QID = re.compile(r"^Q-\d{4,}$")
 
 CAVEAT = ("Note: a pass shows each tag resolves and each quote is in its source, not that the statement is right.")
 ANSWER_SUPPORT_MIN = 0.2   # an answer line must share at least this part of its words with the quotes behind it
+INFERRED = re.compile(r"^\s*(?:[-*]|\d+[.)])?\s*Inferred:")
+CONCLUSION = re.compile(r"\b(therefore|thus|hence|consequently|as a result|which means|this means|that means|it follows|implies|"
+                        r"so that means|we can conclude|can be concluded|must therefore)\b", re.I)
+
 STOPWORDS = frozenset("a an the of to in on for is are was were be been being and or but if then than that this these those it its as at by "
                       "with from into out up down over under not no yes do does did has have had can could will would should may might "
                       "each every any all some one two per via also only more most other such what which who whom how when where why "
@@ -126,6 +130,7 @@ class Checker:
         self.strict = bool(get_key(self.settings, "verify.strict_tags"))
         sm = get_key(self.settings, "verify.support_min")
         self.support_min = float(sm) if isinstance(sm, (int, float)) and not isinstance(sm, bool) else 0.0
+        self.inferred_rule = bool(get_key(self.settings, "verify.inferred_rule"))
 
     def repo_path(self, ref):
         repo, _, rest = ref.partition("/")
@@ -249,6 +254,26 @@ class Checker:
             if m:
                 yield m.group(1)
 
+    def check_inferred(self, rel, n, line, tags, problems):
+        """A line that draws a conclusion, or joins two or more sources, says so with `Inferred:`. Without that prefix it reads
+        as a plain fact one source states, and a reader (and the confidence score) would trust it as such. On for answers always
+        and for KB pages when verify.inferred_rule is true. It looks for wording and for the number of different sources; a
+        conclusion written without those words is not seen."""
+        if not self.inferred_rule or not tags or INFERRED.match(line):
+            return
+        plain = TAG.sub(" ", line)
+        if CONCLUSION.search(plain):
+            problems.append((rel, n, "a conclusion must start with `Inferred:`: %s" % " ".join(plain.split())[:80]))
+            return
+        sources = set()
+        for kind, value in tags:
+            for part in value.split(";"):
+                part = re.sub(r'\s+"[^"]*"\s*$', "", part.strip())
+                sources.add((kind, re.sub(r":\d+(?:-\d+)?$", "", part)))
+        if len(sources) >= 2:
+            problems.append((rel, n, "a line that joins %d different sources must start with `Inferred:`: %s"
+                             % (len(sources), " ".join(plain.split())[:80])))
+
     def check_support(self, rel, n, line, tags, problems):
         """Does the statement talk about what it cites? A fact line whose content words share none (or almost none) with the
         quotes behind it is a real citation put under an unrelated claim. This is a lexical screen, not a judge: it cannot say a
@@ -256,7 +281,7 @@ class Checker:
         answers are checked with a low default."""
         if not self.support_min or not tags:
             return
-        if re.match(r"^\s*(?:[-*]|\d+[.)])?\s*Inferred:", line):  # a stated inference combines lines; it is shown as one, not screened
+        if INFERRED.match(line):  # a stated inference combines lines; it is shown as one, not screened for overlap
             return
         quotes = [q for kind, value in tags if kind == "E" for q in self.cited_text(kind, value)]
         if not quotes:
@@ -291,6 +316,7 @@ class Checker:
                 problems.append((rel, n, "bare [%s] tag; use a source or a question id" % bare.group(1)))
             tags = TAG.findall(line)
             self.check_support(rel, n, line, tags, problems)
+            self.check_inferred(rel, n, line, tags, problems)
             for kind, value in tags:
                 counts["tags"] += 1
                 for part in value.split(";"):
@@ -331,6 +357,7 @@ class Checker:
     def check_answer(self, path):
         self.strict = True  # an answer is always checked to the words it relies on
         self.support_min = self.support_min or ANSWER_SUPPORT_MIN
+        self.inferred_rule = True
         problems, counts = [], {"tags": 0, "fact_lines": 0}
         with open(path, encoding="utf-8") as fh:
             self.check_text(os.path.basename(path), fh.read(), problems, counts)

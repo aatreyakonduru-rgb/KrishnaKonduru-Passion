@@ -70,32 +70,53 @@ the item was written down, not when it is due.
   `layer:` front-matter line, add golden questions per audience to
   `pack_eval.py`, then tune the weights against recall and a reader's rating.
 
-## TD-8 Ask does not use the hybrid search
+## TD-8 Ask uses the search to rank pages, not to find lines (partly done)
 
-- Recorded: 2026-11-23. Owner: plugin maintainer.
-- `ui/answers.py` scores lines with its own stem matcher; only the context
-  pack uses `kb_search` (BM25 plus optional vectors). So a question whose words
-  differ from the page's reach Ask less well than the pack.
-- Plan: route Ask's candidate lines through `kb_search`, keep the quote check
-  and clearance filter, and compare with `pack_eval.py` before switching.
+- Recorded: 2026-11-23. Owner: plugin maintainer. Updated: 2026-11-24.
+- Done: Ask now asks `kb_search` (BM25, plus vectors when the profile sets
+  `search.hybrid`) for the best pages. A line on one of the 3 best pages that
+  shares one word with the question now qualifies, and the search breaks ties
+  between equal lines. The quote check, the clearance filter and the audience
+  order are unchanged. A broken search falls back to the word matcher and says
+  so. `ask.search: false` in the profile turns it off.
+- Not done: a line that shares no word with the question still cannot qualify,
+  even on the best page (glossary synonyms reach it only through the existing
+  boost). The change is not measured on real questions: `pack_eval.py` scores
+  packs, and Ask has no golden set of its own.
+- Plan: write 20 golden Ask questions for a real KB, compare answers with
+  `ask.search` on and off, and widen the rule only if recall rises without new
+  wrong lines.
 
-## TD-9 Area summaries are not in the answer path
+## TD-9 Summaries reach the pack and Ask only when summary pages exist (partly done)
 
-- Recorded: 2026-11-23. Owner: plugin maintainer.
-- `kb_summaries.py` builds a summary tree (needs a model session for the prose)
-  but neither Ask nor the pack starts from it, so the layered structure does not
-  yet save tokens or choose where to drill.
-- Plan: start a pack from the summary page for the area, then add the full
-  pages the question needs; measure tokens and recall with `pack_eval.py`.
+- Recorded: 2026-11-23. Owner: plugin maintainer. Updated: 2026-11-24.
+- Done: when the search ranks an `area-summary` page, the pack adds the pages it
+  covers (`summarises` front matter, see `kb_summaries.drill_pages`) and Ask
+  gives those pages the summary's rank.
+- Not done: the summary prose is written by a model session and certified by a
+  lead (`kb_summaries.py build`, `verify`, `stage`). A KB with none gets no
+  change, and the demo KB has none. Nothing yet starts a pack from the summary
+  alone and drills only when needed, so there is no token saving to quote. The
+  gain is unmeasured.
+- Plan: write and certify summaries for a real KB, then compare tokens and
+  recall of packs with and without them using `pack_eval.py`.
 
-## TD-10 A statement can still be wrong while its quote is present
+## TD-10 A statement can still be wrong while its quote is present (tooling done, labels needed)
 
-- Recorded: 2026-11-23. Owner: lead reviewer.
-- `verify_kb.py` now needs a quote on repo line tags in strict mode and, with
-  `verify.support_min`, a word overlap between statement and quote. Neither
-  proves the sentence is right: a quote can be read wrongly, and `Inferred:`
-  lines are not screened.
-- Plan: sample 50 certified lines, have a lead mark each right or wrong, then
-  compare with the lexical screen and with `llm_judge.py` before relying on
-  either (see TD-6).
-
+- Recorded: 2026-11-23. Owner: lead reviewer. Updated: 2026-11-24.
+- `verify_kb.py` needs a quote on repo line tags in strict mode, a word overlap
+  with `verify.support_min`, and `Inferred:` on conclusions and on lines citing
+  two or more sources (always for answers, `verify.inferred_rule` for pages).
+  None of that proves a sentence is right: a quote can be read wrongly, and a
+  line on a templated page can share the words of the wrong citation.
+- Done: `judge_agreement.py` draws a reproducible sample of cited lines, adds
+  control lines (a real citation under an unrelated claim), writes the judge
+  requests, and scores a person's labels against the lexical screen and the
+  judge, with an interval. It gives no figure under 30 labelled lines.
+- Not done: no person has labelled a sample, so we do not know how often the
+  screen or the judge agree with a reader. That needs a lead's time and a real
+  KB; the demo KB has 25 cited lines, too few.
+- Plan: `judge_agreement.py draw <kb> --n 50 --controls 5`; a lead fills in
+  `human:` for each item; a model session answers the judge requests; then
+  `judge_agreement.py score <kb>`. Set `verify.support_min` from the sweep it
+  prints.

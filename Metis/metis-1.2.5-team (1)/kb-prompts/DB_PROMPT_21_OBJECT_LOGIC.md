@@ -94,6 +94,7 @@ source_db: {{SNOWFLAKE_DB}}
 schema: {{DB_SCHEMA}}
 environment: {{DB_ENV}}
 generated_date: {{RUN_DATE}}
+layer: code
 prompt_id: DB-21
 prompt_version: 1.0.0
 ---

@@ -392,6 +392,18 @@ def verify(kb, directory=None, out=None):
 
 
 # ---- stage ------------------------------------------------------------------------------------------
+def drill_pages(text):
+    """The pages a summary page covers (its `summarises` front matter), or [] when `text` is not an area summary. Search and Ask use
+    it to go from a summary that matched to the full pages under it."""
+    try:
+        meta, _ = kb_gate.front(text or "")
+    except Exception:
+        return []
+    if not isinstance(meta, dict) or meta.get("type") != SUMMARY_TYPE:
+        return []
+    return [str(p) for p in (meta.get("summarises") or [])]
+
+
 def with_front(tree, aid, text):
     meta, body = kb_gate.front(text)
     meta = dict(meta)

@@ -86,6 +86,7 @@ schema: {{DB_SCHEMA}}
 environment: {{DB_ENV}}
 generated_date: {{RUN_DATE}}
 inputs: [00_DB_DISCOVERY_REPORT.md, 02_DB_TECHNICAL_REQUIREMENTS.md, <domain context file>]
+layer: meaning
 prompt_id: DB-05
 prompt_version: 2.0.0
 ---

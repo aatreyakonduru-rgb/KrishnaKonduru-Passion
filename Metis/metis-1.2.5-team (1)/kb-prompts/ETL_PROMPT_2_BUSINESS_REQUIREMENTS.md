@@ -66,6 +66,7 @@ module: {{MODULE_NAME}}
 version: <n>
 status: Draft, pending business analyst review
 generated_date: {{RUN_DATE}}
+layer: meaning
 prompt_id: ETL-02
 prompt_version: 2.1.0
 ---

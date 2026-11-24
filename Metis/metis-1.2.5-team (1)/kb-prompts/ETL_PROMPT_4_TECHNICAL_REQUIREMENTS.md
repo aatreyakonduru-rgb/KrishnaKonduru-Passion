@@ -65,6 +65,7 @@ module: {{MODULE_NAME}}
 version: <n>
 status: Draft
 generated_date: {{RUN_DATE}}
+layer: design
 prompt_id: ETL-04
 prompt_version: 2.0.0
 ---

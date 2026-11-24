@@ -67,6 +67,7 @@ module: {{MODULE_NAME}}
 version: <n>
 audience: <from step 1>
 generated_date: {{RUN_DATE}}
+layer: meaning
 prompt_id: APP-05
 prompt_version: 2.0.0
 ---

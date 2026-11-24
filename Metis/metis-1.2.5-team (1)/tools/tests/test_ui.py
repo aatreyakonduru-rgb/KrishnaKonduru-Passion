@@ -238,13 +238,13 @@ class TestAnswersAndRatings(unittest.TestCase):
 
     def test_glossary_synonyms_widen_the_search(self):
         import glossary
-        self.assertEqual(answers.compose(self.kb, "which clients have pets?")[1], 0)
+        self.assertEqual(answers.compose(self.kb, "which clients are registered?")[1], 0)
         glossary.add(self.kb, "owner", ["client"], "A person who owns pets.", ["db/PETS.md"], "Ana Lead")
-        self.assertGreaterEqual(answers.compose(self.kb, "which clients have pets?")[1], 1)  # "client" now finds the owner lines
+        self.assertGreaterEqual(answers.compose(self.kb, "which clients are registered?")[1], 1)  # "client" now finds the owner lines
         # a broken glossary never stops an answer
         with open(glossary.path(self.kb), "w", encoding="utf-8") as fh:
             fh.write(":\n  - [unbalanced")
-        self.assertIsInstance(answers.compose(self.kb, "which clients have pets?")[1], int)
+        self.assertIsInstance(answers.compose(self.kb, "which clients are registered?")[1], int)
 
 
     def test_miss_gives_guidance_and_clarify_asks_again(self):

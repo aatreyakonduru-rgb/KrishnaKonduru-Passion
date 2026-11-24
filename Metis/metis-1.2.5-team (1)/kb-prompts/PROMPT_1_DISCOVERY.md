@@ -100,6 +100,7 @@ module: {{MODULE_NAME}}
 source: {{MODULE_SOURCE}}
 module_type: <from step 1>
 generated_date: {{RUN_DATE}}
+layer: code
 prompt_id: APP-01
 prompt_version: 2.1.0
 ---

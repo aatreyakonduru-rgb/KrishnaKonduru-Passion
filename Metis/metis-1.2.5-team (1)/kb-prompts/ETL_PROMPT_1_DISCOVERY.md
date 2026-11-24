@@ -78,6 +78,7 @@ product: {{PRODUCT_NAME}}
 module: {{MODULE_NAME}}
 source: {{MODULE_SOURCE}}
 generated_date: {{RUN_DATE}}
+layer: code
 prompt_id: ETL-01
 prompt_version: 2.1.0
 ---

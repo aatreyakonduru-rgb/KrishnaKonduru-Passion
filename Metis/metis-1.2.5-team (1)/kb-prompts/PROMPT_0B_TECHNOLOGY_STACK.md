@@ -54,6 +54,7 @@ Write `{{DOMAIN_CONTEXT_DIR}}/CONTEXT_0B_TECHNOLOGY_STACK.md`, starting with:
 document: Domain context: technology and infrastructure
 product: {{PRODUCT_NAME}}
 updated_date: {{RUN_DATE}}
+layer: design
 prompt_id: CTX-0B
 prompt_version: 2.0.0
 ---

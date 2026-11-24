@@ -1,6 +1,6 @@
 # Pet Clinic database
 
-## Tables [E: spring-petclinic/src/main/resources/db/h2/schema.sql:10-65]
+## Tables [E: spring-petclinic/src/main/resources/db/h2/schema.sql:10-65 "CREATE TABLE vets"]
 
 The schema file creates seven tables: vets, specialties, vet_specialties, types, owners, pets and visits. [E: spring-petclinic/src/main/resources/db/h2/schema.sql:10 "CREATE TABLE vets"]
 

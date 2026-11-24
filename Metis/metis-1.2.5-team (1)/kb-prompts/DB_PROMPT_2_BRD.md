@@ -83,6 +83,7 @@ schema: {{DB_SCHEMA}}
 environment: {{DB_ENV}}
 generated_date: {{RUN_DATE}}
 inputs: [00_DB_DISCOVERY_REPORT.md, <domain context file>]
+layer: meaning
 prompt_id: DB-02
 prompt_version: 2.0.0
 review: business analyst sign-off required before DB-03

@@ -70,6 +70,7 @@ class Mcp(unittest.TestCase):
         self.assertEqual(self.rpc("nope")["error"]["code"], -32601)
         self.assertEqual(self.rpc("tools/call", {"name": "nope"})["error"]["code"], -32602)
         self.assertEqual(self.rpc("ping")["result"], {})
+
     def test_a_message_that_is_not_an_object_gets_an_error_not_silence(self):
         # a client that sends a JSON array or a bare string waits for an answer; silence hangs it
         for bad in ([1, 2, 3], "just a string", 7, None):
@@ -84,8 +85,6 @@ class Mcp(unittest.TestCase):
         out = mcp_server.handle(self.kb, {"jsonrpc": "2.0", "id": 4, "method": "tools/call", "params": {"name": ["a"]}})
         self.assertEqual(out["error"]["code"], -32602)
         self.assertEqual(self.rpc("ping")["result"], {})
-
-
 
     def test_find_nodes(self):
         text, bad = self.tool("metis_find_nodes", query="orders")

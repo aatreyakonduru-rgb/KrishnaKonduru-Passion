@@ -57,6 +57,7 @@ import build_plan  # noqa: E402
 import claim_labels  # noqa: E402
 import graph_store  # noqa: E402
 import kb_coverage  # noqa: E402
+import kb_summaries  # noqa: E402
 import questions  # noqa: E402
 import sensitive  # noqa: E402
 import telemetry  # noqa: E402
@@ -261,6 +262,12 @@ def candidates(kb, seeds, depth, up, down, files, viewer=None, task=None, who=No
                 e["score"] += 2.0 / (1 + rank)
                 e["terms"] = terms
                 e["why"].append("search hit %d%s" % (rank + 1, ": " + h["heading"] if h.get("heading") else ""))
+                for under in kb_summaries.drill_pages(texts[h["path"]]):   # a summary matched: go down to the pages it covers
+                    if under in texts and under != h["path"]:
+                        d = entry(pages, under)
+                        d["score"] += 1.5 / (1 + rank)
+                        d["terms"] = terms
+                        d["why"].append("under summary %s" % h["path"])
             notes += ["search: " + n for n in hits.get("notes") or []]
         except Exception as exc:  # the graph and named pages still make a pack
             notes.append("search not available for the task: %s" % exc)

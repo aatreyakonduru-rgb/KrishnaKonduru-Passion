@@ -147,10 +147,47 @@ def candidate_lines(kb, viewer=None, withheld=None):
     return out
 
 
-def score_lines(lines, qstems, boost, lens=None):
+PAGE_BONUS = (0.5, 0.4, 0.3, 0.2, 0.1, 0.1, 0.05, 0.05)   # what the search rank of a page adds to its lines, best page first
+PAGE_RESCUE = 3                                            # lines with one word hit on one of this many top pages still qualify
+
+
+def page_ranks(kb, question, who=None, info=None):
+    """{page: bonus} from the KB search (BM25, plus vectors when the profile turns hybrid on), best page first, or None when the
+    search is off (profile key ask.search: false) or fails. A failure is recorded in `info` and never stops the answer: the
+    caller falls back to the word matcher alone."""
+    prof = C.profile(kb) or {}
+    if (prof.get("ask") or {}).get("search") is False:
+        return None
+    try:
+        import kb_search
+        found = kb_search.search(kb, question, limit=len(PAGE_BONUS), who=who)
+    except Exception as err:  # a broken index must not stop an answer
+        if info is not None:
+            info["search_note"] = "page search skipped: %s" % err
+        return None
+    pages = {r["path"]: PAGE_BONUS[i] for i, r in enumerate(found.get("results") or [])}
+    try:   # a summary page that ranks well passes its rank down to the pages it covers
+        import kb_summaries
+        for i, r in enumerate(found.get("results") or []):
+            for under in kb_summaries.drill_pages(kb_coverage.page_files(kb).get(r["path"], "")):
+                pages.setdefault(under, PAGE_BONUS[i])
+    except Exception:
+        pass
+    if info is not None:
+        info["search"] = {"engine": found.get("engine"), "hybrid": found.get("hybrid"), "pages": list(pages)}
+        if found.get("notes"):
+            info["search_note"] = "; ".join(found["notes"])
+    return pages or None
+
+
+def score_lines(lines, qstems, boost, lens=None, pages=None):
     """Scored lines, best first. A `lens` (audience.Lens) multiplies a line's score by what its page's layer is worth to the asker.
-    It reorders lines that already matched; it never adds a line and never hides one (a line that matched stays a candidate)."""
+    It reorders lines that already matched; it never adds a line and never hides one (a line that matched stays a candidate).
+    `pages` ({page: bonus} from page_ranks) adds the page's search bonus to a line that shares a word with the question, and lets a
+    one-word line on one of the best pages qualify; the quote and support checks still apply to every line it lets in."""
     scored = []
+    top = set(list(pages or {})[:PAGE_RESCUE])
+    need = 1 if len(qstems) < 3 else 2
     for rel, n, line, exempt in lines:
         words = stems(plain(line)) | {stem(w) for w in re.findall(r"[a-z0-9]+", rel.lower())}
         hit = len(qstems & stems(plain(line)))
@@ -159,20 +196,22 @@ def score_lines(lines, qstems, boost, lens=None):
         score = hit + len(qstems & words - stems(plain(line))) * 0.5
         if boost:
             score += 2 * len(boost & words) + 0.5 * len(boost & stems(plain(line)))
+        if score < need and rel not in top:
+            continue
         scored.append((-score, len(line), rel, n, line, exempt))
-    need = 1 if len(qstems) < 3 else 2
-    scored = [s for s in scored if -s[0] >= need]
     if lens:
         scored = [(s[0] * lens.weight(s[2]),) + s[1:] for s in scored]
+    if pages:   # after the lens, and small, so the search breaks ties and never overrules the audience order
+        scored = [(s[0] - pages.get(s[2], 0),) + s[1:] for s in scored]
     scored.sort()
     return scored
 
 
-def fact_lines(kb, qstems, boost, viewer=None, withheld=None, lens=None):
+def fact_lines(kb, qstems, boost, viewer=None, withheld=None, lens=None, pages=None):
     """Scored candidate lines, best first. `withheld`, when a list, receives the scored lines the viewer may not see (the caller
     uses only its length)."""
     hid = [] if withheld is not None else None
-    scored = score_lines(candidate_lines(kb, viewer, hid), qstems, boost, lens)
+    scored = score_lines(candidate_lines(kb, viewer, hid), qstems, boost, lens, pages)
     if hid:
         withheld.extend(score_lines(hid, qstems, boost))
     return scored
@@ -332,7 +371,8 @@ def compose(kb, question, direction=None, who=None, audience=None, info=None):
     viewer = viewer_for(kb, who)
     lens = audience_lens(kb, who, audience)
     held, left_out = [], {}
-    for _, _, rel, n, line, exempt in fact_lines(kb, direction_words, boost, viewer, held, lens):
+    pages = page_ranks(kb, question, who, info)
+    for _, _, rel, n, line, exempt in fact_lines(kb, direction_words, boost, viewer, held, lens, pages):
         text = plain(line)
         if len(facts) >= MAX_FACTS:
             if lens and not exempt and text not in used and quote_of(line):
@@ -394,11 +434,39 @@ INFERRED = re.compile(r"^\s*(?:[-*>]|\d+[.)])?\s*(?:\(?inferred\)?:?|inference:|
 BANDS = ((85, "High"), (60, "Medium"), (1, "Low"), (0, "None"))
 
 
-def confidence(question, text):
+def freshness(kb, files):
+    """{"stale": [{page, reasons}], "unknown": [repo...], "checked": bool} for the pages an answer used.
+
+    A page is stale when a source file it cites changed since the commit recorded at the last build (build_plan.stale). A repo
+    with no recorded commit, or one whose commit is gone, cannot be compared: that is reported as unknown, not as stale, so a KB
+    that never recorded a build is not flagged on every answer. Never stops an answer: any failure gives checked False."""
+    out = {"stale": [], "unknown": [], "checked": False}
+    if not files:
+        return out
+    try:
+        import build_plan
+        rows, _notes = build_plan.stale(kb)
+    except Exception:  # noqa: BLE001  no profile, no git, no clone: freshness is extra
+        return out
+    out["checked"] = True
+    used = set(files)
+    for row in rows:
+        if row["page"] not in used:
+            continue
+        real = [x for x in row["reasons"] if not x.endswith("cannot compare")]
+        if real:
+            out["stale"].append({"page": row["page"], "reasons": real})
+        out["unknown"] += [x.split(":")[0] for x in row["reasons"] if x.endswith("cannot compare")]
+    out["unknown"] = sorted(set(out["unknown"]))
+    return out
+
+
+def confidence(question, text, fresh=None):
     """{"score": 0-100, "band": ..., "reasons": [...]}. 100 means one KB line answers the whole question word for word.
 
     Points come off for what the answer had to do beyond quoting: join several lines, follow a recorded link, infer, leave a part
-    out, or rest on an open question. The reasons are shown with the number so the person can judge it."""
+    out, rest on an open question, or cite a page whose source changed since the build (`fresh`, from freshness()). The reasons
+    are shown with the number so the person can judge it."""
     q = {s for s in stems(question) if s not in FILLER}
     facts, not_in, exempt = [], 0, False
     for line in text.splitlines():
@@ -451,6 +519,12 @@ def confidence(question, text):
         score -= min(20, 10 * opened)
         cap = min(cap, 84)  # the KB itself is unsure
         why.append("An open question in the KB bears on this." if opened == 1 else "%d open questions in the KB bear on this." % opened)
+    if fresh and fresh.get("stale"):
+        n = len(fresh["stale"])
+        score -= min(25, 15 * n)
+        cap = min(cap, 84)  # the source moved on since the KB was built: never High
+        why.append("%d page%s used cite%s a source that changed since the KB was built: %s." % (
+            n, "" if n == 1 else "s", "s" if n == 1 else "", ", ".join(x["page"] for x in fresh["stale"][:3])))
     score = max(1, min(cap, score))
     if not why:
         why.append("A KB line states this directly, and its quote was checked against the page.")
@@ -502,7 +576,9 @@ def ask(kb, question, by, mode="local", direction=None, follows=None, queue_task
             text = "\n".join(keep) + "\n"
             C.write_text(answer_path(kb, aid), text)
             chk = check(kb, answer_path(kb, aid))
-        r.update(answer_file=aid + ".md", checked=chk, files=cited_files(text), confidence=confidence(question, text))
+        files = cited_files(text)
+        fresh = freshness(kb, files)
+        r.update(answer_file=aid + ".md", checked=chk, files=files, freshness=fresh, confidence=confidence(question, text, fresh))
         if not chk["lines"] or r["confidence"]["band"] != "High":
             r["guidance"] = guidance(kb, question, by)
         if r["files"]:
@@ -557,8 +633,10 @@ def attach_model_answer(kb, aid, file, by, tid):
     if not chk["lines"] and "## Not in the KB" not in text:
         os.remove(dst)
         raise C.UiError("the answer has no checked line and no 'Not in the KB' section")
-    r.update(status="answered", answer_file=aid + ".md", checked=chk, files=cited_files(text), answered_by=by, task=tid,
-             confidence=confidence(r["question"], text))
+    files = cited_files(text)
+    fresh = freshness(kb, files)
+    r.update(status="answered", answer_file=aid + ".md", checked=chk, files=files, answered_by=by, task=tid, freshness=fresh,
+             confidence=confidence(r["question"], text, fresh))
     if not chk["lines"] or r["confidence"]["band"] != "High":
         r["guidance"] = guidance(kb, r["question"])
     save(kb, r)

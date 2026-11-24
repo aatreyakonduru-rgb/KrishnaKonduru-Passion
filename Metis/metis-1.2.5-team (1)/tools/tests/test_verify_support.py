@@ -79,6 +79,34 @@ class Support(unittest.TestCase):
         short = '- Owners. [E: repo/schema.sql:2-2 "owner_id INT PRIMARY KEY"]'
         self.assertEqual(self.problems(short), [])
 
+    def test_conclusion_without_inferred_prefix_fails(self):
+        bad = '- The owner id is a key, therefore every owner is unique. [E: repo/schema.sql:2-2 "owner_id INT PRIMARY KEY"]'
+        self.assertTrue(any("must start with `Inferred:`" in p for p in self.problems(bad, answer=True)))
+        ok = bad.replace("- The", "- Inferred: The")
+        self.assertEqual([p for p in self.problems(ok, answer=True) if "Inferred" in p], [])
+
+    def test_line_joining_two_sources_needs_inferred(self):
+        write(os.path.join(self.d, "repo", "other.sql"), "CREATE TABLE pets (\n  pet_id INT PRIMARY KEY\n);\n")
+        two = ('- Owners and pets both have integer keys. '
+               '[E: repo/schema.sql:2-2 "owner_id INT PRIMARY KEY"; repo/other.sql:2-2 "pet_id INT PRIMARY KEY"]')
+        self.assertTrue(any("joins 2 different sources" in p for p in self.problems(two, answer=True)))
+        self.assertEqual([p for p in self.problems("- Inferred: " + two[2:], answer=True) if "joins" in p], [])
+
+    def test_two_ranges_of_one_file_are_one_source(self):
+        same = ('- Each owner has an owner id and a first name. '
+                '[E: repo/schema.sql:2-2 "owner_id INT PRIMARY KEY"; repo/schema.sql:3-3 "first_name VARCHAR(30)"]')
+        self.assertEqual([p for p in self.problems(same, answer=True) if "joins" in p], [])
+
+    def test_rule_is_off_for_kb_pages_unless_asked(self):
+        bad = '- The owner id is a key, therefore every owner is unique. [E: repo/schema.sql:2-2 "owner_id INT PRIMARY KEY"]'
+        self.assertEqual([p for p in self.problems(bad) if "Inferred" in p], [])
+        self.set(strict=True)
+        prof = os.path.join(self.kb, ".metis", "kb-profile.yaml")
+        d = yaml.safe_load(open(prof, encoding="utf-8"))
+        d["verify"]["inferred_rule"] = True
+        write(prof, yaml.safe_dump(d))
+        self.assertTrue(any("Inferred" in p for p in self.problems(bad)))
+
     def test_tag_with_no_quote_is_not_screened_for_support(self):
         self.set(strict=False, support=0.5)
         self.assertEqual(self.problems("- The invoices ledger stores encrypted payment tokens nightly. [E: repo/schema.sql:2-2]"), [])

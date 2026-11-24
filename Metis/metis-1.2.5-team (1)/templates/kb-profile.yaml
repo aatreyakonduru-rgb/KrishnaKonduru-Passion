@@ -99,6 +99,8 @@ gate:
 verify:
   strict_tags: true                      # a bare file: or kb: tag, or a repo line range, with no quote fails the check
   support_min: 0                         # 0 = off. 0.2 = a fact line must share 20% of its words with the quotes it cites (lexical screen, not a judge). Answers always use at least 0.2
+  inferred_rule: false                   # true = on a KB page a line that draws a conclusion ("therefore", "which means") or cites 2+ different sources must start with `Inferred:`. Answers always use it
+
 
 audience:                                # who is asking: orders answers and packs by the KB layer that reader needs first
   default: null                          # business | developer | tech_lead | architect | support, or null for the KB's own order
@@ -119,6 +121,15 @@ questions:
 
 review:
   default_days: 90                       # page_owners.py: days between reviews of a page (per-page value: page_owners.py set)
+  trust:                                 # reviewer_stats.py / review_queue.py: leave out = advisory only
+    min_decisions: 20                    # decisions per reviewer and area before a weight is shown
+    max_problem_rate: 0.10               # later-problem rate above which a reviewer is not "within limits"
+    max_reversal_rate: 0.10
+    lookback_days: 365
+    # sample_share: 0.10                 # optional: shorter bulk-approval sample for a reviewer with history; never below the floor
+    floor_files: 3
+    floor_share: 0.10
+    fast_lane_max_lines: 10
 
 search:                                  # kb_search.py, kb_embed.py (python3 <metis>/tools/kb_embed.py eval <KB> before enabling hybrid)
   hybrid: false                          # true = BM25 plus vectors
@@ -137,6 +148,7 @@ parse:
 labels:                                  # claim_labels.py
   default_sensitivity: internal
   restricted_folders: []                 # globs relative to the KB, e.g. ["context/hr/*"]
+  share_max_sensitivity: public          # public | internal | confidential | restricted for shared_index and exports
   clearance: {}                          # {<name or role>: public|internal|confidential|restricted}
 
 notify:                                  # notify.py: dry run unless --send

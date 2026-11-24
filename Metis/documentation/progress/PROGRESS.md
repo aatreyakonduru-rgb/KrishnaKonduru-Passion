@@ -5,9 +5,9 @@ Brief for all workers: `BRIEF.md`. Baseline: 391 tests (1 skipped). After W1-W8 
 
 <!-- metrics:begin -->
 Counted from the code by `tools/doc_metrics.py`; run `python3 doc_metrics.py write` to refresh.
-- Tests discovered: 1203
+- Tests discovered: 1231
 - UI screens (paths in `server.SCREENS`): 29
-- Tools (`tools/*.py`): 76
+- Tools (`tools/*.py`): 77
 - Skills: 74
 <!-- metrics:end -->
 
@@ -55,12 +55,12 @@ Goal of this pass: build all items in manual section 9 "Coming Soon", mark each 
 ### Pending, in order
 1. **[DONE] W11 items 4-7**: items 4a/4b (MCP raw & SDK), 5 (kb_embed eval & unit tests), 6 (sqlglot on jaffle-shop), 7 (live UI 27 screen walk) all verified PASS in `W11-verification.md`.
 2. **[DONE] Fix 4 `export_rdf.py` bugs**: (1) OWL space relations, (2) JSON-LD direct edge triples & IRI graph, (3) SPARQL subset ValueError on unsupported constructs, (4) rdflib ASK query TypeError fix. `test_export_rdf` and `test_export_rdf_rdflib` all 15 tests PASS.
-3. **Tidy `tests/test_mcp_server.py`** around line 73 (missing blank line before a `def`, extra blank lines after).
-4. **Profile template**: add the `review.trust` example block (exact text in `W9-reviewer-trust.md`) and any W10/W12 keys (e.g. `labels.share_max_sensitivity`) to `templates/kb-profile.yaml`. Use PowerShell `ReadAllText`/`WriteAllText` (the file has CRLF; `apply_diff` and `search_and_replace` failed on it). Re-check that it parses.
-5. **Manual section 9** (`documentation/Metis-2.0.0-manual.md`, about lines 734-765): set each item State to Done with a short limits note. Reviewer Scoring: Done (advisory, never auto-approves). Items that need the user's environment: "Done, needs your environment to verify: ..." (Bitbucket, Slack, Teams, SMTP, OIDC provider, embedding and judge endpoints, official OKF validator, MCP in Devin). Tree-sitter and rdflib are verified locally. Also fix lines saying chat is lost on restart and line numbers drift (W12 fixed both).
-6. **Docs**: update `CHANGELOG.md` (plugin root), `Metis-2.0.0-Release-Record.md`, `documentation/Metis-2.0.0-gap-analysis.md`, `documentation/Metis-vs-Commercial-KB-Builders.md` for W9-W12.
-7. **W12 hook**: `ui/views.py` `file_view` was edited by W12 (label filter). Review that edit, and apply the same filter to other page-reading views (`screens_pack`, `bb_pr`). Other "Not covered" items in `W10-label-enforcement.md`: Devin/model answer path, `kb_embed`, other readers of page text.
-8. **Final validation**: full suite from `metis-1.2.5-team (1)\tools`: `python -W ignore -m unittest discover -s tests -p "test_*.py"` (about 110 s: run with `background: true`; last known 1083 OK, 6 skipped), plus live server check of all screens. Update the count and Log.
+3. **[DONE] Tidy `tests/test_mcp_server.py`** around line 73 (missing blank line before a `def`, extra blank lines after).
+4. **[DONE] Profile template**: add the `review.trust` example block (exact text in `W9-reviewer-trust.md`) and any W10/W12 keys (e.g. `labels.share_max_sensitivity`) to `templates/kb-profile.yaml`. Use PowerShell `ReadAllText`/`WriteAllText` (the file has CRLF; `apply_diff` and `search_and_replace` failed on it). Re-check that it parses.
+5. **[DONE] Manual section 9** (`documentation/Metis-2.0.0-manual.md`, about lines 734-765): set each item State to Done with a short limits note. Reviewer Scoring: Done (advisory, never auto-approves). Items that need the user's environment: "Done, needs your environment to verify: ..." (Bitbucket, Slack, Teams, SMTP, OIDC provider, embedding and judge endpoints, official OKF validator, MCP in Devin). Tree-sitter and rdflib are verified locally. Also fix lines saying chat is lost on restart and line numbers drift (W12 fixed both).
+6. **[DONE] Docs**: update `CHANGELOG.md` (plugin root), `Metis-2.0.0-Release-Record.md`, `documentation/Metis-2.0.0-gap-analysis.md`, `documentation/Metis-vs-Commercial-KB-Builders.md` for W9-W12.
+7. **[DONE] W12 hook** (screens_pack passes role=user, file_view filters by label, bb_pr keeps the lowest clearance on purpose; remaining gaps stay listed in W10 'Not covered'): `ui/views.py` `file_view` was edited by W12 (label filter). Review that edit, and apply the same filter to other page-reading views (`screens_pack`, `bb_pr`). Other "Not covered" items in `W10-label-enforcement.md`: Devin/model answer path, `kb_embed`, other readers of page text.
+8. **[DONE] Final validation** (24 Nov: 1231 tests OK, 9 skipped): full suite from `metis-1.2.5-team (1)\tools`: `python -W ignore -m unittest discover -s tests -p "test_*.py"` (about 110 s: run with `background: true`; last known 1083 OK, 6 skipped), plus live server check of all screens. Update the count and Log.
 9. User's own tasks: try the MCP server from Devin; verify the environment list below.
 
 ### Conventions to remember
@@ -84,3 +84,4 @@ Devin MCP client, Bitbucket PR comments (route unconfirmed), Slack, Teams, SMTP,
 - 14 Nov: integration finished, full suite 954 OK, live server check passed (26 screens).
 - 15 Nov: second pass. W9, W10, W12 done; W11 items 1-3 done; MCP non-object fix.
 - 15 Nov: W11 items 4-7 completed (all PASS); 4 export_rdf.py bugs fixed and verified against rdflib test suite.
+- 24 Nov: items 3-8 checked in code and marked done. Full suite 1231 tests OK, 9 skipped. Remaining: user's own tasks (Devin MCP, environment verification) and the first-pass leftovers.

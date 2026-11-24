@@ -80,6 +80,7 @@ environment: {{DB_ENV}}
 generated_date: {{RUN_DATE}}
 query_count: <n>
 queries_run: <n>
+layer: code
 prompt_id: DB-10
 prompt_version: 2.0.0
 ---

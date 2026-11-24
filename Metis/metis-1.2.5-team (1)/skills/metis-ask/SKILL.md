@@ -53,7 +53,8 @@ python3 $METIS/tools/feedback.py hints <KB> "<the question>"
   The KB line's own source may be added next to it (for example the repo line it cites).
 - A point the KB doesn't cover goes under a heading `## Not in the KB`, written as a question. Never fill it in.
 - A line that combines KB lines or draws a conclusion the KB does not state starts with `Inferred:` and cites the lines it comes
-  from. The UI scores confidence from the answer (100 = one KB line states it; less for each inference or missing part). Never
+  from. The checker enforces it: a line with conclusion wording ("therefore", "which means") or one that cites two or more
+  different sources, without that prefix, fails `verify_kb.py --answer`. The UI scores confidence from the answer (100 = one KB line states it; less for each inference or missing part). Never
   write a confidence number yourself.
 - Where two KB files disagree, show both with their sources and don't pick one.
 - An open question in VALIDATE_KB that bears on the answer is named with `[?: Q-0001]`.
