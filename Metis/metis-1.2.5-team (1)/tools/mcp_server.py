@@ -118,10 +118,13 @@ def find_nodes(kb, a):
 def pack(kb, a):
     nodes, files, ticket = as_list(a.get("nodes")), as_list(a.get("files")), str(a.get("ticket") or "").strip() or None
     task = str(a.get("task") or "").strip() or None
-    p = context_pack.build(kb, seeds=nodes, ticket=ticket, files=files, task=task, budget=max(500, min(int(a.get("budget") or 6000), 100000)),
-                           depth=max(0, min(int(a.get("depth") if a.get("depth") is not None else 2), 6)),
-                           up=not a.get("no_upstream"), down=not a.get("no_downstream"), ask_questions=not a.get("no_questions"),
-                           signals=not a.get("no_signals"), role=identity())
+    try:
+        p = context_pack.build(kb, seeds=nodes, ticket=ticket, files=files, task=task, budget=max(500, min(int(a.get("budget") or 6000), 100000)),
+                               depth=max(0, min(int(a.get("depth") if a.get("depth") is not None else 2), 6)),
+                               up=not a.get("no_upstream"), down=not a.get("no_downstream"), ask_questions=not a.get("no_questions"),
+                               signals=not a.get("no_signals"), role=identity(), audience=str(a.get("audience") or "").strip() or None)
+    except context_pack.PackError as exc:
+        raise ToolError(str(exc))
     if not a.get("no_telemetry"):
         telemetry.record(kb, "pack", p["files"], p["pack_id"], p["tokens"], a.get("by"), len(p["skipped"]))
     return "%s\n\n[%s: %d of %d tokens, %d files, %d left out]" % (p["text"], p["pack_id"], p["tokens"], p["budget"],
@@ -216,6 +219,8 @@ TOOLS = [
      {"task": prop("string", "the task in plain words; graph objects it names start the walk and the KB search adds pages that do not name them"),
       "nodes": dict(STR_LIST, description="graph object ids, e.g. table:APP.ORDERS"), "ticket": prop("string", "Jira key saved under _EVIDENCE/jira"),
       "files": dict(STR_LIST, description="KB pages to start from"), "budget": prop("integer", "tokens (default 6000)"),
+      "audience": prop("string", "who the pack is for: business, developer, tech_lead, architect or support. Orders pages by the KB layer that "
+                       "reader needs first and sets the impact share; facts, tags and clearance do not change. Default: the profile's mapping for the caller"),
       "depth": prop("integer", "link hops (default 2)"), "no_upstream": prop("boolean", "leave out what the objects depend on"),
       "no_downstream": prop("boolean", "leave out what moves when they change"), "no_questions": prop("boolean", "leave out open questions"),
       "no_signals": prop("boolean", "leave out trust signals"), "by": prop("string", "who asked (for the usage record)"),

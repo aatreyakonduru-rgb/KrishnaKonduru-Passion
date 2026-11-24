@@ -33,6 +33,11 @@ python3 $METIS/tools/feedback.py hints <KB> "<the question>"
   ```
   With the agent tool connection use `metis_context_pack` with `task`. The pack finds the objects the question names, the
   pages the KB search ranks best for it (also pages that do not name the object), and the impact list.
+- Who asks matters. Add `--audience business|developer|tech_lead|architect|support` (or `audience` on `metis_context_pack`) so
+  the pages at the layer that reader needs come first: meaning and rules for business, code for a developer, design for an
+  architect or tech lead. It changes order and the impact share only, never a fact or what the asker may see. If you do not
+  say, the profile's `audience.people` mapping for the asker applies. Then phrase the answer for that reader, using only
+  lines the pack holds.
 - A pack page taken as `sections` or `headline` lists what it left out. If the answer needs a left-out part, build another
   pack with `--files <that page>` or a bigger `--budget`; do not open the file yourself.
 - For "what uses" and "what changes if" questions the pack's impact list is the answer's spine. For a deeper walk, use

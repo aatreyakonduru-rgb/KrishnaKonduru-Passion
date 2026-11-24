@@ -147,7 +147,9 @@ def candidate_lines(kb, viewer=None, withheld=None):
     return out
 
 
-def score_lines(lines, qstems, boost):
+def score_lines(lines, qstems, boost, lens=None):
+    """Scored lines, best first. A `lens` (audience.Lens) multiplies a line's score by what its page's layer is worth to the asker.
+    It reorders lines that already matched; it never adds a line and never hides one (a line that matched stays a candidate)."""
     scored = []
     for rel, n, line, exempt in lines:
         words = stems(plain(line)) | {stem(w) for w in re.findall(r"[a-z0-9]+", rel.lower())}
@@ -160,15 +162,17 @@ def score_lines(lines, qstems, boost):
         scored.append((-score, len(line), rel, n, line, exempt))
     need = 1 if len(qstems) < 3 else 2
     scored = [s for s in scored if -s[0] >= need]
+    if lens:
+        scored = [(s[0] * lens.weight(s[2]),) + s[1:] for s in scored]
     scored.sort()
     return scored
 
 
-def fact_lines(kb, qstems, boost, viewer=None, withheld=None):
+def fact_lines(kb, qstems, boost, viewer=None, withheld=None, lens=None):
     """Scored candidate lines, best first. `withheld`, when a list, receives the scored lines the viewer may not see (the caller
     uses only its length)."""
     hid = [] if withheld is not None else None
-    scored = score_lines(candidate_lines(kb, viewer, hid), qstems, boost)
+    scored = score_lines(candidate_lines(kb, viewer, hid), qstems, boost, lens)
     if hid:
         withheld.extend(score_lines(hid, qstems, boost))
     return scored
@@ -312,20 +316,28 @@ def glossary_words(kb, question):
 WITHHELD_NOTE = "- Some lines are withheld by label, so this answer may be incomplete for you. Ask a lead if you need them."
 
 
-def compose(kb, question, direction=None, who=None):
+def compose(kb, question, direction=None, who=None, audience=None, info=None):
     """(markdown, facts, not_in_kb). Each fact line carries a kb tag with a quote copied from the page. `who` is the asking person
     (a name or role): when the KB uses claim labels, lines above their clearance are not read, not quoted, and the answer says
-    that some lines are withheld by label, without saying which."""
+    that some lines are withheld by label, without saying which.
+
+    `audience` (business, developer, tech_lead, architect, support; default from the profile for `who`) orders the lines by how
+    much their layer matters to that reader and sets how many link lines are shown. The lines themselves, their tags and the
+    checks are the same for every audience. When `info` is a dict it receives what the lens did: the audience, the layer of each
+    line used, and how many matching lines at each layer were left out by the cap."""
     qs = stems(question)
     boost = (stems(direction) if direction else set()) | glossary_words(kb, question)
     direction_words = qs | boost
     facts, unknown, used = [], [], set()
     viewer = viewer_for(kb, who)
-    held = []
-    for _, _, rel, n, line, exempt in fact_lines(kb, direction_words, boost, viewer, held):
-        if len(facts) >= MAX_FACTS:
-            break
+    lens = audience_lens(kb, who, audience)
+    held, left_out = [], {}
+    for _, _, rel, n, line, exempt in fact_lines(kb, direction_words, boost, viewer, held, lens):
         text = plain(line)
+        if len(facts) >= MAX_FACTS:
+            if lens and not exempt and text not in used and quote_of(line):
+                left_out[lens.layer(rel)] = left_out.get(lens.layer(rel), 0) + 1
+            continue
         if text in used:
             continue
         used.add(text)
@@ -336,13 +348,29 @@ def compose(kb, question, direction=None, who=None):
         q = quote_of(line)
         if q:
             facts.append("- %s [E: kb:%s \"%s\"]" % (text, rel, q))
-    for text, quote in graph_lines(kb, question, direction_words, boost, viewer):
+            if lens and info is not None:
+                info.setdefault("layers", {})[rel] = lens.layer(rel)
+    edges = graph_lines(kb, question, direction_words, boost, viewer)
+    cut = max(0, len(edges) - lens.a["graph_lines"]) if lens else 0
+    for text, quote in edges[:len(edges) - cut]:
         facts.append("- %s [E: kb:CROSS-LAYER/LINK_GRAPH.yaml \"%s\"]" % (text, quote))
+    if info is not None and lens:
+        info.update(audience=lens.id, describe=lens.describe(), left_out=left_out, links_cut=cut,
+                    layers_used=sorted(set(info.get("layers", {}).values())))
     if held:
         unknown.append(WITHHELD_NOTE)
     elif not facts:
         unknown.insert(0, "- The KB has no line about: %s" % C.clean(question))
     return render_answer(question, facts, unknown), len(facts), len(unknown)
+
+
+def audience_lens(kb, who, asked=None):
+    """The audience.Lens for this asker, or None (the KB's own order). A bad audience name raises UiError."""
+    import audience as aud
+    try:
+        return aud.lens_for(kb, who, asked)
+    except aud.AudienceError as exc:
+        raise C.UiError(str(exc))
 
 
 def render_answer(question, facts, unknown):
@@ -444,7 +472,7 @@ def _cited_lines(kb, text):
 
 
 
-def ask(kb, question, by, mode="local", direction=None, follows=None, queue_task=True):
+def ask(kb, question, by, mode="local", direction=None, follows=None, queue_task=True, audience=None):
     question, by = C.clean(question), C.clean(by)
     if not question:
         raise C.UiError("write the question first")
@@ -454,13 +482,17 @@ def ask(kb, question, by, mode="local", direction=None, follows=None, queue_task
     r = {"id": aid, "question": question, "by": by, "on": C.now(), "mode": mode, "direction": C.clean(direction) or None,
          "follows": follows, "status": "answered", "answer_file": None, "checked": None, "files": [], "task": None,
          "rating": None, "feedback": None, "hints": []}
+    audience_lens(kb, by, audience)  # a misspelt audience is refused before anything is written
     try:
         r["hints"] = feedback.hints(kb, question)
     except Exception:
         r["hints"] = []
     dirs = " ".join([direction or ""] + [h["direction"] for h in r["hints"]])
     if mode == "local":
-        text, nfacts, nunk = compose(kb, question, dirs.strip() or None, who=by)
+        lens_info = {}
+        text, nfacts, nunk = compose(kb, question, dirs.strip() or None, who=by, audience=audience, info=lens_info)
+        if lens_info.get("audience"):
+            r["audience"] = {k: lens_info[k] for k in ("audience", "describe", "left_out", "links_cut", "layers_used")}
         C.write_text(answer_path(kb, aid), text)
         chk = check(kb, answer_path(kb, aid))
         if chk["problems"]:

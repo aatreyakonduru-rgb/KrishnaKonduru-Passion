@@ -57,3 +57,45 @@ the item was written down, not when it is due.
 - `llm_judge.py` has never been compared with human verdicts.
 - Plan: have a lead label a sample, then report agreement beside the judge's
   results.
+
+## TD-7 Audience weights are starting values
+
+- Recorded: 2026-11-23. Owner: lead reviewer.
+- `audience.py` weights the four layers per audience (business, developer,
+  tech lead, architect, support). They were chosen by reasoning, not measured.
+  A KB with pages at one layer only gives every audience the same lines (the
+  answer says so). Page layers come from front matter, folder or cited sources;
+  a page with none of those is read as `design`.
+- Plan: run `audience.py layers <kb>`, fix the pages it guesses wrong with a
+  `layer:` front-matter line, add golden questions per audience to
+  `pack_eval.py`, then tune the weights against recall and a reader's rating.
+
+## TD-8 Ask does not use the hybrid search
+
+- Recorded: 2026-11-23. Owner: plugin maintainer.
+- `ui/answers.py` scores lines with its own stem matcher; only the context
+  pack uses `kb_search` (BM25 plus optional vectors). So a question whose words
+  differ from the page's reach Ask less well than the pack.
+- Plan: route Ask's candidate lines through `kb_search`, keep the quote check
+  and clearance filter, and compare with `pack_eval.py` before switching.
+
+## TD-9 Area summaries are not in the answer path
+
+- Recorded: 2026-11-23. Owner: plugin maintainer.
+- `kb_summaries.py` builds a summary tree (needs a model session for the prose)
+  but neither Ask nor the pack starts from it, so the layered structure does not
+  yet save tokens or choose where to drill.
+- Plan: start a pack from the summary page for the area, then add the full
+  pages the question needs; measure tokens and recall with `pack_eval.py`.
+
+## TD-10 A statement can still be wrong while its quote is present
+
+- Recorded: 2026-11-23. Owner: lead reviewer.
+- `verify_kb.py` now needs a quote on repo line tags in strict mode and, with
+  `verify.support_min`, a word overlap between statement and quote. Neither
+  proves the sentence is right: a quote can be read wrongly, and `Inferred:`
+  lines are not screened.
+- Plan: sample 50 certified lines, have a lead mark each right or wrong, then
+  compare with the lexical screen and with `llm_judge.py` before relying on
+  either (see TD-6).
+

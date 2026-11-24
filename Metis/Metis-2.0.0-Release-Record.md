@@ -109,6 +109,9 @@ The second-pass feature build completed all remaining functional workstreams (W1
 | Source-check and confidence caveats | Reader of an answer | `verify_kb.py`, Ask, `/usage` | A pass means the quote is in the source, not that it is right; bands are labelled uncalibrated |
 | Packaging | Installer | `pyproject.toml`, `requirements.txt` | PyYAML is the only required package; optional extras per feature. The folder is still named 1.2.5-team |
 | Real-repo smoke test | Maintainer | `tests/test_smoke_sandbox.py` | Source check, search and `--task` pack over a copy of `sandbox/DEMO-KB` and the real jaffle-shop and spring-petclinic repos. Skipped if the sandbox is absent. Not CI and not a live MCP client |
+| Asker-aware answers | Business, developer, tech lead, architect, support: the layer they need first | `audience.py`, Ask and Pack selectors, `--audience`, MCP `audience` | Four KB layers, five audiences; orders lines and pages and sets link lines and impact share; never changes a fact, tag or clearance. Weights are starting values, untested with real readers; a one-layer KB gives every audience the same lines |
+| Stricter source check | Reader of an answer; lead | `verify_kb.py` (`verify.strict_tags`, `verify.support_min`) | A repo line range needs a quote in strict mode; a fact line must share words with its quotes. Lexical screen, not a judge; says nothing about a quote read wrongly |
+
 
 Open from that review, and not fixable in code alone: authentication (labels are a filter; see `documentation/TECH-DEBT.md` TD-3), a measured LLM-judge agreement rate (TD-6), calibrated confidence bands (TD-5, needs rating volume), and runs against real Bitbucket, Slack, SMTP, OIDC, OTLP, sentence-transformers and an MCP client (TD-4). `cvbc/` and `team/` are still inside the plugin (TD-1).
 
@@ -132,8 +135,8 @@ Open from that review, and not fixable in code alone: authentication (labels are
 
 <!-- metrics:begin -->
 Counted from the code by `tools/doc_metrics.py`; run `python3 doc_metrics.py write` to refresh.
-- Tests discovered: 1180
+- Tests discovered: 1203
 - UI screens (paths in `server.SCREENS`): 29
-- Tools (`tools/*.py`): 75
+- Tools (`tools/*.py`): 76
 - Skills: 74
 <!-- metrics:end -->

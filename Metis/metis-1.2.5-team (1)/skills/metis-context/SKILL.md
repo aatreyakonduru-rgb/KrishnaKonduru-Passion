@@ -38,6 +38,10 @@ python3 $METIS/tools/context_pack.py <KB> --files db/ORDERS.md --out /tmp/metis-
   others are listed), or as a `headline`. A page tagged `stale="true"` cites a source that changed since the build.
 - The budget is an estimate (characters / 4). For a real count add `--tokenizer tiktoken` (when installed) or
   `--tokenizer module:function`.
+- For a reader, add `--audience business|developer|tech_lead|architect|support`: pages at the KB layer that reader needs
+  first rank higher (meaning and rules, design, code) and the impact list gets a share to match. A page's layer is its
+  front matter `layer:`, else its folder; `python3 $METIS/tools/audience.py layers <KB>` shows the guesses. The same pages
+  stay eligible and nothing about clearance changes.
 
 ## 3. Show it
 - Read the pack and tell the person, in plain words: how many objects move, which KB pages are in, which were left out

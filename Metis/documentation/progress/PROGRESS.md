@@ -5,9 +5,9 @@ Brief for all workers: `BRIEF.md`. Baseline: 391 tests (1 skipped). After W1-W8 
 
 <!-- metrics:begin -->
 Counted from the code by `tools/doc_metrics.py`; run `python3 doc_metrics.py write` to refresh.
-- Tests discovered: 1180
+- Tests discovered: 1203
 - UI screens (paths in `server.SCREENS`): 29
-- Tools (`tools/*.py`): 75
+- Tools (`tools/*.py`): 76
 - Skills: 74
 <!-- metrics:end -->
 

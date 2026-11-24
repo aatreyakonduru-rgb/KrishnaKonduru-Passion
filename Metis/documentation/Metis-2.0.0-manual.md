@@ -141,6 +141,7 @@ sequenceDiagram
 | [`context_pack.py`](metis-1.2.5-team%20(1)/tools/context_pack.py:1) | `tools/` | Generates token-budgeted context packs for a task text (`--task`, hybrid search), Jira tickets or graph nodes with verbatim evidence, in full / section / headline tiers; `--tokenizer` for a real token count. |
 | [`pack_eval.py`](metis-1.2.5-team%20(1)/tools/pack_eval.py:1) | `tools/` | Scores the context pack against the golden questions (recall, precision, hit@k, full-tier share) with a regression baseline and a CI gate. |
 | [`features.py`](metis-1.2.5-team%20(1)/tools/features.py:1) | `tools/` | Registry of experimental features, each with the evidence needed to leave the list. The profile key `experimental.enable: [name, ...] | all` shows their screens in the menu. |
+| [`audience.py`](metis-1.2.5-team%20(1)/tools/audience.py:1) | `tools/` | The four KB layers (meaning, rules, design, code), the five audiences and what each favours; `layers <kb>` shows which layer each page is read as, `who <kb> <person>` the audience Metis would use. |
 | [`skill_lint.py`](metis-1.2.5-team%20(1)/tools/skill_lint.py:1) | `tools/` | Reports each skill's description size (always in context) and body size, flags writers that never cite the evidence rule, and finds near-duplicate skills and prompts. |
 | [`doc_metrics.py`](metis-1.2.5-team%20(1)/tools/doc_metrics.py:1) | `tools/` | Counts tests, screens, tools and skills from the code and keeps the `metrics` blocks in the docs equal to them. |
 | [`kb_coverage.py`](metis-1.2.5-team%20(1)/tools/kb_coverage.py:1) | `tools/` | Audits unreferenced graph objects, orphan catalog tables, rejected links, and blocking questions. |
@@ -270,6 +271,36 @@ sequenceDiagram
 6. **Lead Certification Gate**: Once locked, no tool or agent can write directly into the live KB. All updates are staged in `_PENDING/` and must be certified by a lead named in `owners` or `gate.certifiers`. Document submitters cannot certify their own submissions when another lead exists.
 7. **Concurrency model**: the UI is one process. Inside it `WRITE_LOCK` serialises every write action, so two clicks cannot interleave. Between processes (a UI, a CLI `kb_gate.py certify`, `kb_promote.py`, an MCP client) the gate state in `.metis/certified.yaml` is guarded by a file lock, `.metis/gate.lock` (created with `O_EXCL`, re-entrant per thread, a lock older than the stale limit is taken over), and the state file is replaced atomically so a crash cannot leave half a file. Two people certifying at once therefore queue instead of overwriting each other. Packs and chat threads live in server memory and are lost on restart. `shared.sqlite`, `search.sqlite`, `graph.sqlite` and the `.metis` files belong to one machine; git is the only thing that moves the KB between machines. This is not a multi-writer database: run one UI per KB checkout.
 8. **Labels are a filter, not access control**: see the "Per-Claim Environment & Security Labels" row in section 9 for the surfaces the filter does not cover and the lack of authentication without OIDC. A password protects the UI, not individual lines.
+
+### Audiences and layers
+
+The same true line is not the same answer for everyone. Metis reads the KB as four layers, outermost first, and lets the asker's audience decide which layer they meet first:
+
+| Layer | What it holds | Typical folders |
+|---|---|---|
+| meaning | what the words and the business are | `glossary`, `overview`, `domain`, `product` |
+| rules | what must hold | `requirements`, `processes`, `security`, `testing`, `decisions` |
+| design | how the parts fit | `architecture`, `modules`, `CROSS-LAYER`, `context`, `diagrams` |
+| code | what is implemented, with line references | `db`, `etl`, `dbt`, `app`, `src`, `jobs` |
+
+A page names its layer with front matter (`layer: meaning|rules|design|code`). Without it the layer comes from its folder, then from the kinds of source it cites, and a page with neither is read as `design`. `python3 tools/audience.py layers <kb>` lists every page's layer and where the guess came from, so a lead can correct it.
+
+| Audience | Meets first | Link lines in an answer | Share of a pack for impact |
+|---|---|---|---|
+| business | meaning, rules | 3 | 15% |
+| developer | code | 15 | 40% |
+| tech lead | design, code, rules | 15 | 50% |
+| architect | design, rules | 15 | 50% |
+| support | rules | 6 | 30% |
+
+How the audience is chosen, first match wins: the one the person picked on Ask or Pack (or `--audience`), the profile's `audience.people` entry for the person or role, `audience.default`, then none (the KB's own order, as before).
+
+What it does and does not do:
+- It multiplies a matching line's or page's rank by what its layer is worth to that reader and sets the link-line count and the impact share. The same lines stay eligible, every line keeps its `[E: ...]` tag, the source check runs on the result, and clearance (claim labels) is separate and unchanged.
+- It is not a source. A person's role proves nothing about the KB.
+- The answer says what it did: "Ordered for ...", how many matching lines at other layers did not fit, how many link lines were left out, and, when every line came from one layer, that the order is the same for every audience.
+- It cannot add what the KB lacks. A KB with no `meaning` or `rules` pages gives a business reader the same lines as a developer; Metis says so. The audiences need pages at each layer to be worth anything, and the weights above are starting values, not measured ones.
+- It does not rewrite sentences. A line is quoted word for word for every audience.
 
 ---
 
@@ -560,6 +591,7 @@ If a Devin worker finds multiple valid interpretations of a question:
 - **What you see**: a form, then the pack.
 - **Tiers**: each page comes as `full`, `sections` (only the headed sections that match the task, with every `[E: ...]` tag kept) or `headline` (headings and first paragraph); the rest is listed under "Not included" with the reason. The result reports how many pages came in each tier. Impact links are kept nearest first, then parsed before catalogue before AI-proposed, then quote-verified; links cut by the budget are counted by relation.
 - **Markup**: each page is a `<kb-file path=... stale="true">` block (the attribute appears only when the page is stale). A `<kb-file` or `</kb-file` inside a page is escaped so a page cannot close its own block. The text still says the content is data, not instructions.
+- **Who is asking (audience)**: `--audience business|developer|tech_lead|architect|support` (UI selector on Ask and Pack; `audience` on `metis_context_pack`; the profile's `audience.people` maps a person or role to one, `audience.default` covers the rest). See "Audiences and layers" below. It orders pages and sets the impact share; it never changes a fact, a tag or a clearance.
 - **Token counting**: characters / 4 by default. Pass `--tokenizer tiktoken[:encoding]` or `--tokenizer module:function` on the command line for a real count.
 - **Measuring it**: `python3 tools/pack_eval.py <kb>` runs the golden questions through the pack and reports recall of the cited pages, precision, hit@k and the share of pages taken whole. `--min-recall` makes it a gate (exit 1), `--baseline` / `--write-baseline` catch a regression, and `--compare-names-only` shows what the old graph-objects-only pack would have found.
 - **Limits**: there are no per-page summaries. The pack is not saved as a file. It stays in server memory (the last 20 packs) and each run logs the file names it used to the usage record. Recall figures are only as good as the golden questions.

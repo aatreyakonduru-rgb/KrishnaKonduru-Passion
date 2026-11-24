@@ -69,7 +69,8 @@ def act_pack_build(ctx, f):
         raise C.UiError("The token budget must be between %d and %d." % (MIN_BUDGET, MAX_BUDGET))
     try:
         seeds = pick_start(ctx.kb, task, names)
-        pack = context_pack.build(ctx.kb, seeds=seeds, budget=budget, task=task or None, role=by)
+        pack = context_pack.build(ctx.kb, seeds=seeds, budget=budget, task=task or None, role=by,
+                                  audience=C.clean(f.get("audience")) or None)
         if not seeds and not pack["files"]:
             raise C.UiError("No object in the link graph is named in the task text, and the search found no page for it. "
                             "Name the objects below, for example table:pets.")
@@ -216,6 +217,8 @@ def pack_view_screen(ctx, q, flash=None, error=None):
                   rows=8 if mode == "objects" else 2, hint="one per line: a name or an id such as table:pets")
     build_body = ((obj_f + task_f if mode == "objects" else task_f + obj_f) +
                   field("budget", "Token budget", str(DEFAULT_BUDGET), hint="estimated at 4 characters a token; leave room") +
+                  '<p><label>Pack for <select name="audience">%s</select></label> <span class="muted">orders pages and sets the impact share; '
+                  'facts, tags and what you may see do not change</span></p>' % C.audience_options(ctx) +
                   "<p><button>Build the pack</button></p>")
     body = [
         "<h1>Context pack</h1>",

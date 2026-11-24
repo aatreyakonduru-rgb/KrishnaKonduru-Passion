@@ -32,7 +32,6 @@ It does not mean the statement is correct. A quote can be present and still be r
 Use llm_judge.py (citation support) and a lead's review for that; the judge's agreement with
 people has not been measured.
 """
-CAVEAT = ("Note: a pass shows each tag resolves and each quote is in its source, not that the statement is right.")
 import argparse
 import json
 import os
@@ -48,6 +47,48 @@ EXEMPT = re.compile(r"open questions|don.t know|not in the kb|sources|evidence|c
                     re.I)
 LINE_REF = re.compile(r'^([^:\s]+):(\d+)(?:-(\d+))?(?:\s+"(.*)")?$')
 QID = re.compile(r"^Q-\d{4,}$")
+
+CAVEAT = ("Note: a pass shows each tag resolves and each quote is in its source, not that the statement is right.")
+ANSWER_SUPPORT_MIN = 0.2   # an answer line must share at least this part of its words with the quotes behind it
+STOPWORDS = frozenset("a an the of to in on for is are was were be been being and or but if then than that this these those it its as at by "
+                      "with from into out up down over under not no yes do does did has have had can could will would should may might "
+                      "each every any all some one two per via also only more most other such what which who whom how when where why "
+                      "their there them they we our you your he she his her i me my".split())
+WORD = re.compile(r"[A-Za-z][A-Za-z0-9_]{2,}")
+CAMEL = re.compile(r"[A-Z]+(?![a-z])|[A-Z]?[a-z]+|\d+")
+SYNONYMS = {  # code words and the plain words that mean them: a claim in prose about a quote in code
+    "ignorecase": {"case", "insensitive"}, "materialized": {"built", "table", "view", "materialize"},
+    "varchar": {"text", "string", "character"}, "int": {"integer", "number"}, "integer": {"number", "int"},
+    "pk": {"primary", "key"}, "fk": {"foreign", "key"}, "ref": {"reference", "references", "depends"},
+    "src": {"source"}, "stg": {"staging", "stage"}, "dim": {"dimension"}, "fct": {"fact"}, "tbl": {"table"},
+}
+
+
+def stem_word(w):
+    w = w.lower()
+    for suf in ("ations", "ation", "ings", "ing", "ies", "ied", "es", "ed", "s"):
+        if w.endswith(suf) and len(w) - len(suf) >= 3:
+            return w[:-len(suf)] + ("y" if suf in ("ies", "ied") else "")
+    return w
+
+
+def content_words(text):
+    """Stemmed content words of a text: the nouns, names and verbs a statement is about (no stop words, no short tokens).
+    Code names are split (VARCHAR_IGNORECASE, ownerId, last_name) and a few code words add the plain words that mean them."""
+    out = set()
+    for tok in WORD.findall(text):
+        parts = [p for p in re.split(r"_+", tok) if p]
+        pieces = list(parts)
+        for p in parts:
+            pieces += CAMEL.findall(p)
+        for w in pieces:
+            lw = w.lower()
+            if len(lw) < 3 or lw in STOPWORDS:
+                continue
+            out.add(stem_word(lw))
+            for extra in SYNONYMS.get(lw, ()):
+                out.add(stem_word(extra))
+    return out
 
 
 def load_yaml(path):
@@ -83,6 +124,8 @@ class Checker:
         self.documents = load_yaml(os.path.join(self.kb, "_EVIDENCE", "documents", "DOC_SOURCES.yaml")).get("documents") or {}
         self._files = {}
         self.strict = bool(get_key(self.settings, "verify.strict_tags"))
+        sm = get_key(self.settings, "verify.support_min")
+        self.support_min = float(sm) if isinstance(sm, (int, float)) and not isinstance(sm, bool) else 0.0
 
     def repo_path(self, ref):
         repo, _, rest = ref.partition("/")
@@ -194,7 +237,40 @@ class Checker:
             return "lines %d-%d outside %s (%d lines)" % (a, b, ref, len(text))
         if quote and quote not in "\n".join(text[a - 1:b]):
             return "quoted text not found in %s:%d-%d" % (ref, a, b)
+        if not quote and self.strict:
+            return "line tag needs a quote in strict mode: %s:%d-%d \"quoted text\"" % (ref, a, b)
         return None
+
+    def cited_text(self, kind, value):
+        """The source words a tag stands behind: its quote when it has one, else None. Used to ask whether the statement
+        is about them (check_support); a tag without a quote gives no words to compare, so it is left to strict mode."""
+        for part in value.split(";"):
+            m = re.search(r'"(.+)"\s*$', part.strip())
+            if m:
+                yield m.group(1)
+
+    def check_support(self, rel, n, line, tags, problems):
+        """Does the statement talk about what it cites? A fact line whose content words share none (or almost none) with the
+        quotes behind it is a real citation put under an unrelated claim. This is a lexical screen, not a judge: it cannot say a
+        sentence is right, only that it is not about its source. Off unless verify.support_min is set (0 to 1, e.g. 0.2);
+        answers are checked with a low default."""
+        if not self.support_min or not tags:
+            return
+        if re.match(r"^\s*(?:[-*]|\d+[.)])?\s*Inferred:", line):  # a stated inference combines lines; it is shown as one, not screened
+            return
+        quotes = [q for kind, value in tags if kind == "E" for q in self.cited_text(kind, value)]
+        if not quotes:
+            return
+        claim = content_words(TAG.sub(" ", line))
+        if len(claim) < 4:  # too short to judge
+            return
+        cited = content_words(" ".join(quotes))
+        if not cited:
+            return
+        share = len(claim & cited) / float(min(len(claim), len(cited)))
+        if share < self.support_min:
+            problems.append((rel, n, "statement shares %d%% of its words with the text it cites (needs %d%%): %s"
+                             % (round(share * 100), round(self.support_min * 100), " ".join(line.split())[:80])))
 
     def check_text(self, rel, text, problems, counts):
         heading_tagged, exempt, in_code, in_front = False, False, False, False
@@ -214,6 +290,7 @@ class Checker:
             for bare in BARE.finditer(line):
                 problems.append((rel, n, "bare [%s] tag; use a source or a question id" % bare.group(1)))
             tags = TAG.findall(line)
+            self.check_support(rel, n, line, tags, problems)
             for kind, value in tags:
                 counts["tags"] += 1
                 for part in value.split(";"):
@@ -253,6 +330,7 @@ class Checker:
 
     def check_answer(self, path):
         self.strict = True  # an answer is always checked to the words it relies on
+        self.support_min = self.support_min or ANSWER_SUPPORT_MIN
         problems, counts = [], {"tags": 0, "fact_lines": 0}
         with open(path, encoding="utf-8") as fh:
             self.check_text(os.path.basename(path), fh.read(), problems, counts)

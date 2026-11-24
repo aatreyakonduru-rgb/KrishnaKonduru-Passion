@@ -97,7 +97,13 @@ gate:
   #    approvers: ["<person>"]
 
 verify:
-  strict_tags: true                      # a bare file: or kb: tag with no quote fails the check
+  strict_tags: true                      # a bare file: or kb: tag, or a repo line range, with no quote fails the check
+  support_min: 0                         # 0 = off. 0.2 = a fact line must share 20% of its words with the quotes it cites (lexical screen, not a judge). Answers always use at least 0.2
+
+audience:                                # who is asking: orders answers and packs by the KB layer that reader needs first
+  default: null                          # business | developer | tech_lead | architect | support, or null for the KB's own order
+  people: {}                             # person or role -> audience, e.g. {"Dana Kim": business, "tech lead": tech_lead}
+                                         # a lens changes order and the impact share only; never a fact, a tag or a clearance
 
 questions:
   role_for_type:                         # question type -> role

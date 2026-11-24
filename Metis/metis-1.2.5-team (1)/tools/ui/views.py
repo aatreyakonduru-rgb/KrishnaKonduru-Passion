@@ -497,6 +497,8 @@ def ask(ctx, q, flash=None, error=None):
             "A point the KB does not cover is shown as not covered, never filled in.</p>"]
     body.append(form(ctx, "/ask/new", (
         field("question", "Your question", q.get("question", ""), hint="e.g. Which tables does pets have a foreign key to?", required=True)
+        + '<p><label style="display:inline;font-weight:400">Answer for <select name="audience">%s</select></label> '
+          '<span class="muted">same true lines, ordered for the reader; it never changes a fact or what you may see</span></p>' % C.audience_options(ctx)
         + '<p><label style="display:inline;font-weight:400"><input type="radio" name="mode" value="local" checked> Answer now from the KB lines</label> '
           '&nbsp; <label style="display:inline;font-weight:400"><input type="radio" name="mode" value="devin"> Ask a Devin session (reads and reasons, then is checked)</label></p>'
           '<button>Ask</button>')))
@@ -598,6 +600,7 @@ def answer_card(ctx, a):
     chk = a.get("checked") or {}
     out.append(rounds_card(tasks.get(ctx.kb, a["task"]) if a.get("task") else None))
     out.append(confidence_badge(a.get("confidence")))
+    out.append(audience_note(a.get("audience")))
     out.append('<div>%s</div>' % C.render_md(answers.answer_text(ctx.kb, a)))
     out.append('<p>%s <span class="muted">%d lines checked against the KB</span>%s</p>' % (
         pill(not chk.get("problems"), "0 source problems", "%d source problems" % len(chk.get("problems") or []), False),
@@ -640,8 +643,28 @@ def rate_forms(ctx, a):
             '<div class="reason">%s</div></div>') % (box, up, box, down)
 
 
+def audience_note(info):
+    """Say what the audience lens did, so a reader knows the answer is ordered for them and what else the KB holds."""
+    if not info:
+        return ""
+    bits = []
+    left = {k: v for k, v in (info.get("left_out") or {}).items() if v}
+    if left:
+        bits.append("%d more matching line%s at the %s layer%s did not fit" % (
+            sum(left.values()), "" if sum(left.values()) == 1 else "s", " and ".join(sorted(left)), "" if len(left) == 1 else "s"))
+    if info.get("links_cut"):
+        bits.append("%d link line%s left out for this reader" % (info["links_cut"], "" if info["links_cut"] == 1 else "s"))
+    used = info.get("layers_used") or []
+    if len(used) == 1:
+        bits.append("every line comes from the %s layer, so the order is the same for every audience; the KB has no page at another "
+                    "layer for this question" % used[0])
+    return '<p class="muted">Ordered for: %s.%s Ask again for another audience to see them.</p>' % (
+        esc(info.get("describe", "")), (" " + esc("; ".join(bits)) + ".") if bits else "")
+
+
 def act_ask_new(ctx, f):
-    r = answers.ask(ctx.kb, f.get("question", ""), need_user(ctx), mode="devin" if f.get("mode") == "devin" else "local")
+    r = answers.ask(ctx.kb, f.get("question", ""), need_user(ctx), mode="devin" if f.get("mode") == "devin" else "local",
+                    audience=f.get("audience") or None)
     return "/ask?id=" + r["id"], ("Queued for a Devin session as %s." % r["task"]) if r["status"] == "waiting" else "Answered."
 
 

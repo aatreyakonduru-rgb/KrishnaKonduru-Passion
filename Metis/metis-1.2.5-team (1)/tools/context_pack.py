@@ -61,6 +61,7 @@ import questions  # noqa: E402
 import sensitive  # noqa: E402
 import telemetry  # noqa: E402
 import trust as trust_signals  # noqa: E402
+import audience as audience_mod  # noqa: E402
 
 IMPACT_SHARE = 0.4
 WRAP = 40  # tokens a page wrapper and its table row cost
@@ -312,8 +313,15 @@ def render(head, table, impact, shown, qtext, skipped, notes, stale=()):
 
 
 def build(kb, seeds=(), ticket=None, files=(), budget=6000, depth=2, up=True, down=True, ask_questions=True,
-          stale_marks=True, cpt=4.0, signals=True, role=None, task=None, counter=None):
-    """`cpt`: characters per token. `counter`: a function text -> tokens (see load_counter); it wins over `cpt`."""
+          stale_marks=True, cpt=4.0, signals=True, role=None, task=None, counter=None, audience=None):
+    """`cpt`: characters per token. `counter`: a function text -> tokens (see load_counter); it wins over `cpt`.
+    `audience` (business, developer, tech_lead, architect, support; else the profile's mapping for `role`) reorders pages by the
+    layer of the KB that reader needs first and sets the impact list's share of the budget. It changes order and share only: the
+    same pages stay eligible, every line keeps its tag, and clearance (`role`) is unchanged."""
+    try:
+        lens = audience_mod.lens_for(kb, role, audience)
+    except audience_mod.AudienceError as exc:
+        raise PackError(str(exc))
     viewer = claim_labels.Viewer(kb, role)  # inactive (nothing withheld) when the KB has no labels
     viewer = viewer if viewer.active else None
     count = counter or cpt
@@ -343,6 +351,10 @@ def build(kb, seeds=(), ticket=None, files=(), budget=6000, depth=2, up=True, do
             stale = {x["page"] for x in build_plan.stale(kb)[0]}
         except Exception as exc:  # no profile or no clone: say so, do not fail the pack
             notes.append("stale marks not available: %s" % exc)
+    if lens:
+        for p, e in pages.items():
+            e["score"] *= lens.weight(p)
+        notes.append("ordered for %s: %s" % (lens.a["title"], lens.describe()))
     ranked = sorted(pages.items(), key=lambda kv: (-kv[1]["score"], kv[0]))
     skipped, usable = [], []
     for p, e in ranked:
@@ -358,7 +370,7 @@ def build(kb, seeds=(), ticket=None, files=(), budget=6000, depth=2, up=True, do
             notes += trust.notes
         except Exception as exc:  # signals are extra; never fail the pack for them
             notes.append("trust signals not available: %s" % exc)
-    impact = impact_text(steps, int(budget * IMPACT_SHARE), count, trust)
+    impact = impact_text(steps, int(budget * (lens.a["impact_share"] if lens else IMPACT_SHARE)), count, trust)
     qs = []
     if ask_questions:
         reg = questions.load(questions.reg_path(kb)).get("questions") or []
@@ -397,6 +409,7 @@ def build(kb, seeds=(), ticket=None, files=(), budget=6000, depth=2, up=True, do
                        for p, tier, _, cost, e in shown]
         table = "\n".join(table_rows) if shown else "- no KB page names these objects"
         ident = {"seeds": sorted(seeds), "files": sorted(files), "budget": budget, "depth": depth, "up": up, "down": down,
+                 "audience": lens.id if lens else None,
                  "shown": [(p, tier, hashlib.sha256(t.encode("utf-8")).hexdigest(), p in stale) for p, tier, t, _, _ in shown],
                  "impact": hashlib.sha256(impact.encode("utf-8")).hexdigest(),
                  "questions": hashlib.sha256(qtext.encode("utf-8")).hexdigest()}
@@ -415,7 +428,8 @@ def build(kb, seeds=(), ticket=None, files=(), budget=6000, depth=2, up=True, do
         shown_limit -= max(50, tokens(text, count) - budget)  # the wrappers and table cost more than estimated: tighten and retry
     return {"text": text, "pack_id": pack_id, "tokens": tokens(text, count), "budget": budget,
             "files": [p for p, _, _, _, _ in shown], "skipped": skipped + left, "withheld": viewer.withheld if viewer else 0,
-            "tiers": {p: tier for p, tier, _, _, _ in shown}}
+            "tiers": {p: tier for p, tier, _, _, _ in shown}, "audience": lens.id if lens else None,
+            "layers": {p: lens.layer(p) for p, _, _, _, _ in shown} if lens else {}}
 
 
 def main(argv=None):
@@ -438,11 +452,12 @@ def main(argv=None):
     ap.add_argument("--by")
     ap.add_argument("--no-telemetry", action="store_true")
     ap.add_argument("--role", help="name or role whose clearance applies when the KB uses claim labels (default: the lowest)")
+    ap.add_argument("--audience", help="business, developer, tech_lead, architect or support: orders pages by the layer that reader needs first")
     a = ap.parse_args(argv)
     try:
         pack = build(a.kb, a.node, a.ticket, a.files, a.budget, a.depth, not a.no_upstream, not a.no_downstream,
                      not a.no_questions, not a.no_stale_marks, a.chars_per_token, not a.no_signals, role=a.role, task=a.task,
-                     counter=load_counter(a.tokenizer))
+                     counter=load_counter(a.tokenizer), audience=a.audience)
     except PackError as exc:
         print("cannot build the pack: %s" % exc, file=sys.stderr)
         return 1

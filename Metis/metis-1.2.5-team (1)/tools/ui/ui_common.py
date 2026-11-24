@@ -375,6 +375,18 @@ def field(name, label, value="", kind="text", hint="", rows=None, required=False
         name, esc(label), h, kind, name, name, esc(value), " required" if required else "")
 
 
+def audience_options(ctx):
+    """<option> list for an audience picker: the person's usual audience first (from the profile), then each audience."""
+    import audience as aud
+    try:
+        cur = aud.resolve(ctx.kb, clean(ctx.user))
+    except aud.AudienceError:
+        cur = None
+    opts = ['<option value="" selected>my usual (%s)</option>' % esc(cur["title"] if cur else "the KB's own order")]
+    opts += ['<option value="%s">%s: %s</option>' % (k, esc(v["title"]), esc(v["blurb"])) for k, v in aud.AUDIENCES.items()]
+    return "".join(opts)
+
+
 def pill(ok, yes="ok", no="not yet", warn=False):
     if ok:
         return '<span class="pill ok">%s</span>' % esc(yes)
